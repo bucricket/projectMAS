@@ -125,8 +125,8 @@ def main():
     #=======================clean up files===================================
     print 'cleaning up...'
     
-    clean(os.path.join(resultsBase,scene),"ETd*")
-    clean(os.path.join(resultsBase,scene),"Ta*")
+    clean(os.path.join(resultsBase,scene),"ETd")
+    clean(os.path.join(resultsBase,scene),"Ta")
     
 if __name__ == "__main__":
     try:

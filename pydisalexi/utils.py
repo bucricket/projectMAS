@@ -151,13 +151,20 @@ def translate(cmd):
     args = shlex.split(cmd)
     p = subprocess.call(args)
 
-def clean(directory,fileString):
-    from path import path
-    d = path(directory)
-    files = d.walkfiles(fileString)
-    for file in files:
-        file.remove()
-        print "Removed {} file".format(file)
+#def clean(directory,fileString):
+#    from path import path
+#    d = path(directory)
+#    files = d.walkfiles(fileString)
+#    for file in files:
+#        file.remove()
+#        print "Removed {} file".format(file)
+        
+def clean(directory,ext):
+    test=os.listdir(directory)
+
+    for item in test:
+        if item.startswith(ext):
+            os.remove(os.path.join(directory, item))
  
 @jit(['float64[:,:](float64[:,:],float64,float64)'])  
 def interpOverpassHour(dataset,overpassTime,hours=24.):
