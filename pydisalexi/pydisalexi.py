@@ -47,13 +47,6 @@ def main():
     isUSA = args.isUSA
     base = args.base
     #base = os.getcwd()
-#    if platform.uname()[1].split('.')[0][:3]=='rhw':
-#        base = os.path.join(os.sep,'data','smcd4','mschull','pyDisALEXI') #SMCD4   
-#    elif platform.uname()[1].split('.')[0]=='alexi1':
-#        base = os.path.join(os.sep,'home','mschull','pyDisALEXI') #alexi1
-#    else:        
-#        base = os.path.join(os.sep,'Users','mschull','umdGD','pyDisALEXI')#mac
-       
     
     Folders = folders(base)    
     landsatSR = Folders['landsatSR']
@@ -96,33 +89,9 @@ def main():
     #find the scenes
     s = Search()
     scenes = s.search(lat=GCP[0],lon=GCP[1],limit = 100, start_date = startDate,end_date=endDate, cloud_max=5)
-    
-#    pathrow = []
-#    for i in xrange(len(scenes['results'])):        
-#        path = np.str(scenes['results'][i]['path'])
-#        row = np.str(scenes['results'][i]['row'])
-#        pathrow.append('%02s%02s' % (path,row))
-#    pathrow = np.unique(pathrow)
-#    
-#    sceneIDSRlist = []
-#    sceneIDLSTlist = [] 
-#    for i in xrange(len(pathrow)):      
-#        sceneIDLSTlist.extend(glob.glob(os.path.join(landsatDataBase,'LST','LC8%s%d*' % (pathrow[i],year))))
-#        sceneIDSRlist.extend(glob.glob(os.path.join(landsatSR,'LC8%s%d*' % (pathrow[i],year))))
-#        
-#    sceneIDLST = []
-#    for i in xrange(len(sceneIDLSTlist)):
-#        sceneIDLST.append(sceneIDLSTlist[i].split(os.sep)[-1][:-9])
-#        
-#    sceneIDSR = []
-#    for i in xrange(len(sceneIDSRlist)):
-#        sceneIDSR.append(sceneIDSRlist[i].split(os.sep)[-1]+'LGN00')
-#    sceneIDlist = list(set(sceneIDSR) & set(sceneIDLST))
     #USER INPUT END===============================================================
-    #%%
-#    isUSA = 0
+    #%% 
     sceneID = str(scenes['results'][0]['sceneID'])
-    #sceneID = 'LC81760392015221LGN00'
     scene = sceneID[3:9]
     
     

@@ -573,7 +573,7 @@ class disALEXI(object):
         clump = getParFromExcel(LCdata,self.landsatLC,landcover,'omega')
     
     
-    
+        LAI[np.isnan(LAI)]=0.01
         F = LAI*clump                                 #LAI for leafs spherical distribution 
         f_c = 1-(np.exp(-0.5*F))                          #fraction cover at nadir (view=0)
         f_c[f_c<=0.01]=0.01
