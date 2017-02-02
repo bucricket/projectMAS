@@ -419,21 +419,21 @@ class disALEXI(object):
         
         outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
         if not os.path.exists(outFN):
-            #print 'get->MET data...'
+            print 'get->MET data...'
         #else:
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
             a = MET(fn,self.session)
             a.getCFSR()
             
-        print 'get->p...'
+        #print 'get->p...'
         g = gdal.Open(outFN,GA_ReadOnly)
         p = g.ReadAsArray(xStart,yStart,xSize,ySize)
         p /=100. #convert to mb
         #p = ndimage.gaussian_filter(pii, sigma=5)
         g= None
             
-        print 'get-> ea...'
+        #print 'get-> ea...'
         outFN = os.path.join(sceneDir,'%s_q2Sub.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
         q2 = g.ReadAsArray(xStart,yStart,xSize,ySize)
@@ -453,7 +453,7 @@ class disALEXI(object):
             coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
             outFN = coarseFile[:-10]+'.tif'
             if not os.path.exists(outFN):
-                #print 'get->Ta'
+                print 'get->Ta'
             # else:
                 optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs', \
                 '%s' % inProj4,'-r', 'average','-tr', '%f' % ALEXILatRes, '%f' % ALEXILonRes,\
@@ -471,7 +471,7 @@ class disALEXI(object):
             T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
             g= None
         
-        print 'get->u...'
+        #print 'get->u...'
         outFN = os.path.join(sceneDir,'%s_uSub.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
         u = g.ReadAsArray(xStart,yStart,xSize,ySize)
