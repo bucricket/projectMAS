@@ -40,12 +40,14 @@ def main():
     parser.add_argument("isUSA", type=float, help="USA=1, non-USA=0")
     parser.add_argument("startDate", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("endDate", type=str, help="Start date yyyy-mm-dd")
+    parser.add_argument("njobs", type=int, help="number of cores to use.  To use all cores available use -1")
     args = parser.parse_args()
     GCP = [args.lat,args.lon] 
     startDate = args.startDate
     endDate = args.endDate
     isUSA = args.isUSA
     base = args.base
+    njobs = args.njobs
     #base = os.getcwd()
     
     Folders = folders(base)    
@@ -102,7 +104,7 @@ def main():
     dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,0)
     
     print 'Running disALEXI...'
-    r = Parallel(n_jobs=-1, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,0) for xStart in range(0,7600,200) for yStart in range(0,7600,200))            
+    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,0) for xStart in range(0,7600,200) for yStart in range(0,7600,200))            
     
     # =================merge Ta files============================================
     print 'merging Ta files...'
@@ -115,7 +117,7 @@ def main():
     #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
     dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,1)
     print "run TSEB one last time in parallel"
-    r = Parallel(n_jobs=-1, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,1) for xStart in range(0,7600,200) for yStart in range(0,7600,200)) 
+    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,1) for xStart in range(0,7600,200) for yStart in range(0,7600,200)) 
     #=====================merge all files =====================================
     print 'merging ETd files...'
     finalFile = os.path.join(resultsBase,scene,'%s_ETd.tif' % sceneID[:-5])
