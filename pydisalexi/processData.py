@@ -438,7 +438,7 @@ class MET:
             
                 #====get daily insolation=========================================
         outFN = os.path.join(dailyPath,'%s_Insol24Sub.tiff' % self.sceneID)
-        if os.path.exists(outFN):
+        if not os.path.exists(outFN):
             #print ''
         #else:
             print 'processing : %s...' % outFN
