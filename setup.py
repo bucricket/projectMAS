@@ -10,12 +10,12 @@ except ImportError:
 from pydisalexi import __version__
 
 setup(
-    name="pydisalexi",
+    name="projectmas",
     version=__version__,
     description="An open source implementation of DisALEXI",
     author="Mitchell Schull",
     author_email="mitch.schull@noaa.gov",
-    url="https://github.com/bucricket/pyDisALEXI",
+    url="https://github.com/bucricket/projectMAS.git",
     packages= ['pydisalexi'],
     platforms='Posix; MacOS X; Windows',
     license='BSD 3-Clause',
