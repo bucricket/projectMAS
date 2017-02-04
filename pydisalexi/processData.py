@@ -416,13 +416,10 @@ class MET:
             os.makedirs(dailyPath)
         #====get overpass hour insolation=========================================
         outFN = os.path.join(dailyPath,'%s_Insol1Sub.tiff' % self.sceneID) 
+        print 'processing : %s...' % outFN
+        d = open_url(fullUrl,session=self.session)
+        Insol = d.SWGDNCLR
         if not os.path.exists(outFN):
-            #print ''
-        #else:
-            print 'processing : %s...' % outFN
-            d = open_url(fullUrl,session=self.session)
-            Insol = d.SWGDNCLR
-    
         # wv_mmr = 1.e-6 * wv_ppmv_layer * (Rair / Rwater)
         # wv_mmr in kg/kg, Rair = 287.0, Rwater = 461.5
             dataset = np.squeeze(Insol[self.hr,:,:,:])*1.
@@ -439,9 +436,6 @@ class MET:
                 #====get daily insolation=========================================
         outFN = os.path.join(dailyPath,'%s_Insol24Sub.tiff' % self.sceneID)
         if not os.path.exists(outFN):
-            #print ''
-        #else:
-            print 'processing : %s...' % outFN
             dataset2 = np.flipud(np.sum(np.squeeze(Insol[:,:,:]),axis=0))
             outfile = os.path.join(dailyPath,'%s_%s.tiff' % (self.sceneID,'Insol24'))
             subsetFile = outfile[:-5]+'Sub.tiff'
