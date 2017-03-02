@@ -289,3 +289,14 @@ def _test_outside(testx, lower, upper):
 class RasterError(Exception):
     """Custom exception for errors during raster processing in Pygaarst"""
     pass
+
+def search(lat,lon,startDate, endDate):
+    # this is a landsat-util work around when it fails
+    metadataUrl = 'https://landsat.usgs.gov/landsat/metadata_service/bulk_metadata_files/LANDSAT_8.csv'
+    metadata= pd.read_csv(metadataUrl)
+    
+    output = metadata[(metadata.acquisitionDate >= startDate) & (metadata.acquisitionDate < endDate) & 
+         (metadata.upperLeftCornerLatitude > lat ) & (metadata.upperLeftCornerLongitude < lon )& 
+         (metadata.lowerRightCornerLatitude < lat ) & (metadata.lowerRightCornerLongitude > lon)  & 
+         (metadata.cloudCover <= 5)].sceneID
+    return output.values

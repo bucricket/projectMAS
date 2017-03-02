@@ -13,7 +13,7 @@ from .disalexi import disALEXI
 import keyring
 import getpass
 import argparse
-from .utils import buildvrt,clean,folders
+from .utils import buildvrt,clean,folders,search
 from pydap.cas.urs import setup_session
 from joblib import Parallel, delayed
 import types
@@ -89,11 +89,17 @@ def main():
                        'ALEXIshape': ALEXIshape}
     
     #find the scenes
-    s = Search()
-    scenes = s.search(lat=GCP[0],lon=GCP[1],limit = 100, start_date = startDate,end_date=endDate, cloud_max=5)
+    try:
+        s = Search()
+        scenes = s.search(lat=GCP[0],lon=GCP[1],limit = 100, start_date = startDate,end_date=endDate, cloud_max=5)
+        sceneID = str(scenes['results'][0]['sceneID'])
+    except:
+        sceneIDs = search(GCP[0],GCP[1],startDate, endDate)
+        sceneID = sceneIDs[0]
+            
     #USER INPUT END===============================================================
     #%% 
-    sceneID = str(scenes['results'][0]['sceneID'])
+    
     scene = sceneID[3:9]
     
     
