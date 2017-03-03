@@ -561,7 +561,7 @@ class disALEXI(object):
         
         #====================get LC based variables===============================
         #print '=============opening LC based inputs================'
-        s = pyhdf.__file__
+        s = ndimage.__file__
         envPath = os.sep.join(s.split(os.sep)[:-6])
         landsatLC = os.path.join(envPath,'share','disalexi')
         aleafv = getParFromExcel(LCdata,landsatLC,landcover,'aleafv')
