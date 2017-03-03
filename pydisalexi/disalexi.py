@@ -561,16 +561,19 @@ class disALEXI(object):
         
         #====================get LC based variables===============================
         #print '=============opening LC based inputs================'
-        aleafv = getParFromExcel(LCdata,self.landsatLC,landcover,'aleafv')
-        aleafn = getParFromExcel(LCdata,self.landsatLC,landcover,'aleafn')
-        aleafl = getParFromExcel(LCdata,self.landsatLC,landcover,'aleafl')
-        adeadv = getParFromExcel(LCdata,self.landsatLC,landcover,'adeadv')
-        adeadn = getParFromExcel(LCdata,self.landsatLC,landcover,'adeadn')
-        adeadl = getParFromExcel(LCdata,self.landsatLC,landcover,'adeadl')
-        hc_min = getParFromExcel(LCdata,self.landsatLC,landcover,'hmin')
-        hc_max = getParFromExcel(LCdata,self.landsatLC,landcover,'hmax')
-        xl     = getParFromExcel(LCdata,self.landsatLC,landcover,'xl')
-        clump = getParFromExcel(LCdata,self.landsatLC,landcover,'omega')
+        s = pyhdf.__file__
+        envPath = os.sep.join(s.split(os.sep)[:-6])
+        landsatLC = os.path.join(envPath,'share','disalexi')
+        aleafv = getParFromExcel(LCdata,landsatLC,landcover,'aleafv')
+        aleafn = getParFromExcel(LCdata,landsatLC,landcover,'aleafn')
+        aleafl = getParFromExcel(LCdata,landsatLC,landcover,'aleafl')
+        adeadv = getParFromExcel(LCdata,landsatLC,landcover,'adeadv')
+        adeadn = getParFromExcel(LCdata,landsatLC,landcover,'adeadn')
+        adeadl = getParFromExcel(LCdata,landsatLC,landcover,'adeadl')
+        hc_min = getParFromExcel(LCdata,landsatLC,landcover,'hmin')
+        hc_max = getParFromExcel(LCdata,landsatLC,landcover,'hmax')
+        xl     = getParFromExcel(LCdata,landsatLC,landcover,'xl')
+        clump = getParFromExcel(LCdata,landsatLC,landcover,'omega')
     
     
         LAI[np.isnan(LAI)]=0.01
