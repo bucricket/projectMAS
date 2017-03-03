@@ -7,7 +7,7 @@ Created on Fri Aug 12 11:39:37 2016
 """
 import os
 import numpy as np
-from landsat.search import Search
+from .search import Search
 import warnings
 from .disalexi import disALEXI
 import keyring
