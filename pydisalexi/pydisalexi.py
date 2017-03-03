@@ -34,21 +34,24 @@ copy_reg.pickle(types.MethodType, _pickle_method)
 def main():
     # Get time and location from user
     parser = argparse.ArgumentParser()
-    parser.add_argument("base", type=str, help="project base directory")
     parser.add_argument("lat", type=float, help="latitude")
     parser.add_argument("lon", type=float, help="longitude")
     parser.add_argument("isUSA", type=float, help="USA=1, non-USA=0")
     parser.add_argument("startDate", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("endDate", type=str, help="Start date yyyy-mm-dd")
+    parser.add_argument("ET_dir", type=str, help="ALEXI ET directory")
     parser.add_argument("njobs", type=int, help="number of cores to use.  To use all cores available use -1")
     args = parser.parse_args()
     GCP = [args.lat,args.lon] 
     startDate = args.startDate
     endDate = args.endDate
     isUSA = args.isUSA
-    base = args.base
+    if isUSA == 0:
+        parser.add_argument("LC_dir", type=str, help="Landcover directory")
+    #base = args.base
+    base = os.getcwd()
     njobs = args.njobs
-    #base = os.getcwd()
+
     
     Folders = folders(base)    
     landsatSR = Folders['landsatSR']

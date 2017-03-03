@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import shutil
+import os
 try:
     from setuptools import setup
     setup_kwargs = {'entry_points': {'console_scripts':['pydisalexi=pydisalexi.pydisalexi:main']}}
@@ -8,7 +10,15 @@ except ImportError:
     setup_kwargs = {'scripts': ['bin/pydisalexi']}
     
 from pydisalexi import __version__
+prefix  = os.environ.get('PREFIX')
+processDi = os.path.abspath(os.path.join(prefix,os.pardir))
+processDir = os.path.join(processDi,'work')
 
+
+disalexiPath = os.path.join(prefix,'share','disalexi')
+if not os.path.exists(disalexiPath):
+    os.makedirs(disalexiPath)
+shutil.copyfile(os.path.join(processDir,'share','data','landcover.xlsx'),os.path.join(disalexiPath,'landcover.xlsx'))
 setup(
     name="projectmas",
     version=__version__,
