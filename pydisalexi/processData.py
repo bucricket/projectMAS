@@ -17,7 +17,7 @@ from osgeo import gdal
 from pydap.client import open_url
    
 class Landsat(object):
-    def __init__(self, filepath):
+    def __init__(self, filepath,inputLC):
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
         Folders = folders(base)    
@@ -27,6 +27,7 @@ class Landsat(object):
         self.albedoBase = Folders['albedoBase']
         self.sceneID = filepath.split(os.sep)[-1][:21]
         self.scene = self.sceneID[3:9]
+        self.inputLC = inputLC
         
         meta = landsat_metadata(os.path.join(self.landsatSR, 
                                                           self.scene,'%s_MTL.txt' % self.sceneID))
@@ -56,6 +57,9 @@ class Landsat(object):
                 raise SystemExit(0)
             self.inProj4 = '+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
         else:
+            LCtemp = os.path.join(self.landsatLC,"temp")
+            os.mkdir(LCtemp)
+                                 
             #get UTM info
             utmZone= []
             corners = [[self.ulLat,self.ulLon],[self.ulLat,self.lrLon],
@@ -67,43 +71,28 @@ class Landsat(object):
             latNames = [np.floor(self.ulLat/5.)*5,np.floor(self.lrLat/5.)*5.]
             utmzone = np.unique(utmZone)
             latNames = np.unique(latNames)
-            tileNames =[]
             for i in xrange(len(utmzone)):
                 for j in xrange(len(latNames)):
-                    LCdata = os.path.join(self.inputDataBase,'N%d_%d_2010LC030' % (utmzone[i],latNames[j]),'n%d_%d_2010lc030.tif' % (utmZone[i],latNames[j]))
-                    tileNames.append(LCdata)
-            
-            tileNames = np.unique(tileNames)
-            
-            for i in xrange(len(tileNames)):
-                localFN = os.path.join(self.landsatLC,tileNames[i].split(os.sep)[-1])
-                LCdata =tileNames[i]
-                if os.path.exists(localFN):
-                    #print 'file exists already'
-                    continue   
-                out = subprocess.check_output('rsync -avrz mschull@alexi1.umd.edu:%s %s' % (LCdata,self.landsatLC), shell=True)
-                #print out
-            #find all LC tiles needed for Landsat image
-            
-            
+                    if latNames[j]>=0:
+                        hemisphere = 'N'
+                    else:
+                        hemisphere = 'S'
+                    LCdata = os.path.join(self.inputLC,'%s%d_%d_2010LC030' % (hemisphere,utmzone[i],latNames[j]),'%s%d_%d_2010lc030.tif' % (hemisphere.lower(),utmZone[i],latNames[j]))
+                    os.symlink(LCdata,os.path.join(LCtemp,LCdata.split(os.sep)[-1]))
+
             # mosaic dataset if needed
-            if len(tileNames)>1:
-                inNames = os.path.join(self.landsatLC,'%s' % tileNames[0].split(os.sep)[-1])
-                for i in range(1,len(tileNames)):
-                    inNames = inNames+' ' + os.path.join(self.landsatLC,'%s' % tileNames[i].split(os.sep)[-1])
-            outfile = os.path.join(self.landsatLC,'tempMos.tiff')
-            command = 'gdal_merge.py -n 0 -a_nodata 0 -of GTiff -o %s %s' % (outfile,inNames)
-            #print command
-            #out = subprocess.check_output('gdal_merge.py -n 0 -a_nodata 0 -pct -of GTiff -o %s %s' % (outfile,inNames),shell=True)   
-            out = subprocess.check_output('gdal_merge.py -pct -of GTiff -o %s %s' % (outfile,inNames),shell=True)
-            #print out
+            outfile = os.path.join(self.landsatLC,'tempMos.tif')
+
+            subprocess.check_output('gdalbuildvrt %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp,os.sep),shell=True)
+            subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile[:-4],"%s" % outfile])
+
     
         dailyPath = os.path.join(self.landsatLC, '%s' % scene)
         
         if not os.path.exists(dailyPath):
             os.makedirs(dailyPath)
         outfile2=os.path.join(dailyPath,'%s%s' % (sceneID,'_LC.tiff'))
-        
+        shutil.rmtree(LCtemp)
         optionList = ['-overwrite', '-s_srs', '%s' % self.inProj4,'-t_srs','%s' % self.proj4,\
         '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,\
         '-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
@@ -133,7 +122,7 @@ class Landsat(object):
         albedotemp=(0.356*data[0])+(0.130*data[1])+(0.373*data[2])+(0.085*data[3])+(0.072*data[4])-0.0018
         ls.clone(albedoPath,albedotemp)
 class ALEXI:
-    def __init__(self, filepath):
+    def __init__(self, filepath,inputET):
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
         Folders = folders(base)    
@@ -164,6 +153,7 @@ class ALEXI:
         d = datetime.strptime('%s%s' % (self.landsatDate,self.landsatTime),'%Y-%m-%d%H:%M:%S.%f')
         self.hr = d.hour #UTC
         self.year = d.year
+        self.inputET = inputET
         
     def getALEXIdata(self,ALEXIgeodict,isUSA):       
         #ALEXI input info
@@ -176,6 +166,8 @@ class ALEXI:
         inUL = [ALEXI_ulLon,ALEXI_ulLat]
         inRes = [ALEXILonRes,ALEXILatRes] 
         dailyPath = os.path.join(self.ALEXIbase,'%s' % self.scene)
+        ETtemp = os.path.join(self.ALEXIbase,"temp")
+        os.makedirs(ETtemp)
         if not os.path.exists(dailyPath):
             os.makedirs(dailyPath)
             
@@ -187,16 +179,45 @@ class ALEXI:
             subsetFile = outfile[:-5]+'Sub.tiff'
             outFormat = gdal.GDT_Float32
             #********THIS SECTION IS A TEMPERARY FIX
-            if isUSA == 0:
-                alexiTile = 'T13'
-                read_data = np.fromfile(os.path.join(self.ALEXIbase,'%d' % self.year,'%s' % alexiTile ,'FINAL_EDAY_CFSR_%s.dat' % (self.yeardoy)), dtype=np.float32)
-            else: # STILL NEED TO DOWNLOAD DATA FROM UMD SERVER
-                alexiTile = 'MEAD'
-                read_data = np.fromfile(os.path.join(self.ALEXIbase,'%d' % self.year,'%s' % alexiTile ,'FINAL_EDAY_CFSR_FMAX_%s.dat' % (self.yeardoy)), dtype=np.float32) 
-            #*******************
-            dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))*0.408 
-            writeArray2Tiff(dataset,inRes,inUL,inProj4,outfile,outFormat)
-            
+            corners = [[self.ulLat,self.ulLon],[self.ulLat,self.lrLon],
+                       [self.lrLat,self.lrLon],[self.lrLat,self.ulLon]]
+            tile_num =[]
+            for i in xrange(4):
+                lat =corners[i][0]
+                lon =corners[i][1]
+                row = int(((75-lat)/15)-1)
+                col = int((abs(-180-lon)/15)+1)
+                tile_num.append(row*24+col)
+
+
+            tile_num = np.unique(tile_num)
+            for i in xrange(len(tile_num)):
+                    
+                ETdata = os.path.join(self.inputET,'T%03d' % tile_num[i],
+                                      'FINAL_EDAY_%s%03d_%03d.dat' % (self.year,int(self.sceneID[13:16]),tile_num[i]))
+                localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
+                os.symlink(ETdata,os.path.join(ETtemp,localETpath))
+                read_data = np.fromfile(localETpath)
+                dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))*0.408 
+                outTif = localETpath[:-4]+".tif"
+                writeArray2Tiff(dataset,inRes,inUL,inProj4,outTif,outFormat)
+             # mosaic dataset if needed
+            outfile2 = os.path.join(self.ALEXIbase,'tempMos.tif')
+
+            subprocess.check_output('gdalbuildvrt %s.vrt %s%s*.tif' % (outfile2[:-4], ETtemp,os.sep),shell=True)
+            subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile2[:-4],"%s" % outfile2])
+
+#            
+#            if isUSA == 0:
+#                alexiTile = 'T13'
+#                read_data = np.fromfile(os.path.join(self.ALEXIbase,'%d' % self.year,'%s' % alexiTile ,'FINAL_EDAY_CFSR_%s.dat' % (self.yeardoy)), dtype=np.float32)
+#            else: # STILL NEED TO DOWNLOAD DATA FROM UMD SERVER
+#                alexiTile = 'MEAD'
+#                read_data = np.fromfile(os.path.join(self.ALEXIbase,'%d' % self.year,'%s' % alexiTile ,'FINAL_EDAY_CFSR_FMAX_%s.dat' % (self.yeardoy)), dtype=np.float32) 
+#            #*******************
+#            dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))*0.408 
+#            writeArray2Tiff(dataset,inRes,inUL,inProj4,outfile,outFormat)
+            shutil.rmtree(ETtemp)
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'near',\
             '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]

@@ -29,7 +29,7 @@ from .landsatTools import landsat_metadata,GeoTIFF
 
 
 class disALEXI(object):
-    def __init__(self, fn,session):
+    def __init__(self, fn,session, LCpath,ETpath):
         base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
 
@@ -42,6 +42,8 @@ class disALEXI(object):
         self.metBase = Folders['metBase']
         self.landsatDataBase = Folders['landsatDataBase']
         self.resultsBase = Folders['resultsBase']
+        self.LCpath
+        self.ETpath = ETpath
 
 
 
@@ -404,7 +406,7 @@ class disALEXI(object):
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
             a = ALEXI(fn)
-            a.getALEXIdata(ALEXIgeodict,isUSA)
+            a.getALEXIdata(ALEXIgeodict,isUSA,self.ETpath)
         
         g = gdal.Open(outFN,GA_ReadOnly)
         ET_ALEXI = g.ReadAsArray(xStart,yStart,xSize,ySize)
@@ -549,7 +551,7 @@ class disALEXI(object):
             #print 'processing : %s...' % outFN
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
-            a = Landsat(fn)
+            a = Landsat(fn,self.LCpath)
             a.getLC(landcover)
         
         g = gdal.Open(outFN,GA_ReadOnly)
