@@ -182,17 +182,22 @@ class ALEXI:
             corners = [[self.ulLat,self.ulLon],[self.ulLat,self.lrLon],
                        [self.lrLat,self.lrLon],[self.lrLat,self.ulLon]]
             tile_num =[]
+            ULlat =[]
+            ULlon =[]
             for i in xrange(4):
                 lat =corners[i][0]
                 lon =corners[i][1]
                 row = int(((75-lat)/15)-1)
                 col = int((abs(-180-lon)/15)+1)
+                ULlat.append(75-(row+1)*15)
+                ULlon.append(-180+(col-1)*15)      
                 tile_num.append(row*24+col)
 
-
-            tile_num = np.unique(tile_num)
+#            ULlat = np.unique(ULlat)
+#            ULlon = np.unique(ULlon)
+#            tile_num = np.unique(tile_num)
             for i in xrange(len(tile_num)):
-                    
+                inUL = [ULlon[i],ULlat[i]]
                 ETdata = os.path.join(self.inputET,'T%03d' % tile_num[i],
                                       'FINAL_EDAY_%s%03d_%03d.dat' % (self.year,int(self.sceneID[13:16]),tile_num[i]))
                 localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
