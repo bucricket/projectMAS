@@ -70,27 +70,18 @@ def main():
     session = setup_session(earthLoginUser, earthLoginPass)
     #======FIND AVAILABLE FILES FOR PROCESSING=============================
 
-    isUSA=0
-    if isUSA==1:
-            ####****Mead 1 km ******######
-        ALEXI_ulLon = -105.0
-        ALEXI_ulLat = 45.0
-        ALEXILatRes = 0.01
-        ALEXILonRes = 0.01
-        ALEXIshape = [1100,500]
-        ALEXIgeodict ={'ALEXI_ulLat':ALEXI_ulLat,'ALEXI_ulLon':ALEXI_ulLon,
-                       'ALEXI_LatRes':ALEXILatRes,'ALEXI_LonRes':ALEXILonRes,
-                       'ALEXIshape': ALEXIshape}
-    else:
-        ####****Egypt******######
-        ALEXI_ulLon = 30.0
-        ALEXI_ulLat = 40.0
-        ALEXILatRes = 0.004
-        ALEXILonRes = 0.004
-        ALEXIshape = [2500,2500]
-        ALEXIgeodict ={'ALEXI_ulLat':ALEXI_ulLat,'ALEXI_ulLon':ALEXI_ulLon,
-                       'ALEXI_LatRes':ALEXILatRes,'ALEXI_LonRes':ALEXILonRes,
-                       'ALEXIshape': ALEXIshape}
+
+    ####****Global******######
+    #---placeholders-----
+    ALEXI_ulLon = 0.0 
+    ALEXI_ulLat = 0.0
+    #--------------------
+    ALEXILatRes = 0.004
+    ALEXILonRes = 0.004
+    ALEXIshape = [3750,3750]
+    ALEXIgeodict ={'ALEXI_ulLat':ALEXI_ulLat,'ALEXI_ulLon':ALEXI_ulLon,
+                   'ALEXI_LatRes':ALEXILatRes,'ALEXI_LonRes':ALEXILonRes,
+                   'ALEXIshape': ALEXIshape}
     
     #find the scenes
     try:

@@ -187,10 +187,10 @@ class ALEXI:
             for i in xrange(4):
                 lat =corners[i][0]
                 lon =corners[i][1]
-                row = int(((75-lat)/15)-1)
+                row = int((75-lat)/15)
                 col = int((abs(-180-lon)/15)+1)
-                ULlat.append(75-(row+1)*15)
-                ULlon.append(-180+(col-1)*15)      
+                ULlat.append(75.-(row)*15.)
+                ULlon.append(-180.+(col-1.)*15.)      
                 tile_num.append(row*24+col)
 
 #            ULlat = np.unique(ULlat)
@@ -199,11 +199,11 @@ class ALEXI:
             for i in xrange(len(tile_num)):
                 inUL = [ULlon[i],ULlat[i]]
                 ETdata = os.path.join(self.inputET,'T%03d' % tile_num[i],
-                                      'FINAL_EDAY_%s%03d_%03d.dat' % (self.year,int(self.sceneID[13:16]),tile_num[i]))
+                                      'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
                 localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
                 os.symlink(ETdata,os.path.join(ETtemp,localETpath))
                 read_data = np.fromfile(localETpath)
-                dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))*0.408 
+                dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))
                 outTif = localETpath[:-4]+".tif"
                 writeArray2Tiff(dataset,inRes,inUL,inProj4,outTif,outFormat)
              # mosaic dataset if needed
