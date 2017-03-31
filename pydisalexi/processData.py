@@ -12,7 +12,7 @@ import subprocess
 import numpy as np
 import utm
 import shutil
-from .utils import writeArray2Tiff,warp,interpOverpassHour,folders
+from .utils import writeArray2Tiff,warp,interpOverpassHour,folders,convertBin2tif
 from osgeo import gdal
 from pydap.client import open_url
    
@@ -202,10 +202,11 @@ class ALEXI:
                                       'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
                 localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
                 os.symlink(ETdata,os.path.join(ETtemp,localETpath))
-                read_data = np.fromfile(localETpath)
-                dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))
-                outTif = localETpath[:-4]+".tif"
-                writeArray2Tiff(dataset,inRes,inUL,inProj4,outTif,outFormat)
+                convertBin2tif(localETpath,inUL,ALEXIshape,inRes)
+#                read_data = np.fromfile(localETpath, dtype=np.float32)
+#                dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))
+#                outTif = localETpath[:-4]+".tif"
+#                writeArray2Tiff(dataset,inRes,inUL,inProj4,outTif,outFormat)
              # mosaic dataset if needed
             outfile2 = os.path.join(self.ALEXIbase,'tempMos.tif')
 
