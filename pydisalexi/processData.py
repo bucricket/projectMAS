@@ -225,11 +225,12 @@ class ALEXI:
 #            #*******************
 #            dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))*0.408 
 #            writeArray2Tiff(dataset,inRes,inUL,inProj4,outfile,outFormat)
-            shutil.rmtree(ETtemp)
+            
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'near',\
             '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
             warp(optionList)
+            shutil.rmtree(ETtemp)
 class MET:
     def __init__(self, filepath,session):
         base = os.path.abspath(os.path.join(filepath,os.pardir,os.pardir,os.pardir,
