@@ -323,7 +323,8 @@ class MET:
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         #===Open CFSR file=================
         dailyPath = os.path.join(self.metBase,'%s' % self.scene)
-        ncdcURL = 'https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cfsv2_analysis_pgbh/'       
+        #ncdcURL = 'https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cfsv2_analysis_pgbh/'  
+        ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
         iHour = (int(self.hr/6.)*6.)
         fHour = self.hr-iHour
         hr1file = 'cdas1.t%02dz.pgrbh%02d.grib2' % (iHour,fHour)
