@@ -205,6 +205,7 @@ class ALEXI:
                 if not os.path.exists(os.path.join(ETtemp,localETpath)):
                     os.symlink(ETdata,os.path.join(ETtemp,localETpath))
                 convertBin2tif(localETpath,inUL,ALEXIshape,inRes)
+                os.remove(os.path.join(ETtemp,localETpath))
 #                read_data = np.fromfile(localETpath, dtype=np.float32)
 #                dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))
 #                outTif = localETpath[:-4]+".tif"
