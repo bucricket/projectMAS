@@ -40,7 +40,7 @@ def main():
     parser.add_argument("startDate", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("endDate", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("ET_dir", type=str, help="ALEXI ET directory")
-    parser.add_argument("njobs", type=int, help="number of cores to use.  To use all cores available use -1")
+    parser.add_argument("njobs", type=int, default=-1, help="number of cores to use.  To use all cores available use -1")
     args = parser.parse_args()
     GCP = [args.lat,args.lon] 
     startDate = args.startDate
