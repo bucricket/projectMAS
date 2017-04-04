@@ -405,8 +405,8 @@ class disALEXI(object):
             print 'get->ALEXI ET...'
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
-            a = ALEXI(fn)
-            a.getALEXIdata(ALEXIgeodict,isUSA,self.ETpath)
+            a = ALEXI(fn,self.ETpath)
+            a.getALEXIdata(ALEXIgeodict,isUSA)
         
         g = gdal.Open(outFN,GA_ReadOnly)
         ET_ALEXI = g.ReadAsArray(xStart,yStart,xSize,ySize)
