@@ -53,6 +53,7 @@ def main():
     base = os.getcwd()
     njobs = args.njobs
     LC_dir = args.LC_dir
+    ET_dir = args.ET_dir
 
     
     Folders = folders(base)    
@@ -102,7 +103,7 @@ def main():
     #============Run DisALEXI in parallel======================================
     #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
     fn = os.path.join(landsatSR,scene,"%s.xml" % sceneID)
-    dd = disALEXI(fn,session,LC_dir)
+    dd = disALEXI(fn,session,LC_dir,ET_dir)
     dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,0)
     
     print 'Running disALEXI...'
