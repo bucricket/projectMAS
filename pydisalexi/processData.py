@@ -201,7 +201,8 @@ class ALEXI:
                 ETdata = os.path.join(self.inputET,'T%03d' % tile_num[i],
                                       'FINAL_EDAY_%s_T%03d.dat' % (int(self.sceneID[9:16]),tile_num[i]))
                 localETpath = os.path.join(ETtemp,ETdata.split(os.sep)[-1])
-                os.symlink(ETdata,os.path.join(ETtemp,localETpath))
+                if not os.path.exists(os.path.join(ETtemp,localETpath)):
+                    os.symlink(ETdata,os.path.join(ETtemp,localETpath))
                 convertBin2tif(localETpath,inUL,ALEXIshape,inRes)
 #                read_data = np.fromfile(localETpath, dtype=np.float32)
 #                dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))
