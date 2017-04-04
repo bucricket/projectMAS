@@ -229,7 +229,7 @@ class ALEXI:
             
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'near',\
-            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % outfile, '%s' % subsetFile]
+            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % outfile2, '%s' % subsetFile]
             warp(optionList)
             shutil.rmtree(ETtemp)
 class MET:
