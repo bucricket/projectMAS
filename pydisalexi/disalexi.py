@@ -42,7 +42,7 @@ class disALEXI(object):
         self.metBase = Folders['metBase']
         self.landsatDataBase = Folders['landsatDataBase']
         self.resultsBase = Folders['resultsBase']
-        self.LCpath
+        self.LCpath = LCpath
         self.ETpath = ETpath
 
 
