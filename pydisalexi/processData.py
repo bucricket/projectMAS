@@ -167,7 +167,8 @@ class ALEXI:
         inRes = [ALEXILonRes,ALEXILatRes] 
         dailyPath = os.path.join(self.ALEXIbase,'%s' % self.scene)
         ETtemp = os.path.join(self.ALEXIbase,"temp")
-        os.makedirs(ETtemp)
+        if not os.path.exists(ETtemp):
+            os.makedirs(ETtemp)
         if not os.path.exists(dailyPath):
             os.makedirs(dailyPath)
             
