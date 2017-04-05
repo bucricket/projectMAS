@@ -13,8 +13,11 @@ import numpy as np
 import utm
 import shutil
 from .utils import writeArray2Tiff,warp,interpOverpassHour,folders,convertBin2tif
+from .utils import getHTTPdata
 from osgeo import gdal
 from pydap.client import open_url
+import pygrib
+
    
 class Landsat(object):
     def __init__(self, filepath,inputLC):
@@ -325,15 +328,27 @@ class MET:
         dailyPath = os.path.join(self.metBase,'%s' % self.scene)
         #ncdcURL = 'https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cfsv2_analysis_pgbh/'  
         ncdcURL = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_pgbh/'
+
         iHour = (int(self.hr/6.)*6.)
         fHour = self.hr-iHour
         hr1file = 'cdas1.t%02dz.pgrbh%02d.grib2' % (iHour,fHour)
         pydapURL = os.path.join(ncdcURL,"%s" % self.year,"%d%02d" % (self.year,self.month),"%d%02d%02d" % (self.year,self.month,self.day),hr1file)
+        outFN = os.path.join(os.getcwd(),hr1file)
+        getHTTPdata(pydapURL,outFN)
         print pydapURL
         #=====Surface Pressure=============
-        d = open_url(pydapURL)
-        data = d["Pressure_surface"][:,:,:]
-        opdata = data.data[0][0]
+        #d = open_url(pydapURL)
+#        data = d["Pressure_surface"][:,:,:]
+#        opdata = data.data[0][0]
+#        fn = os.path.join(self.metBase,hr1file)
+        
+        grbs = pygrib.open(outFN)
+
+        sfcP = []
+        for grb in grbs:
+            if grb.name == 'Surface pressure' and grb.typeOfLevel == 'surface': 
+                sfcP.append(grb.values)
+        opdata = sfcP[0]
         #---flip data so ul -180,90-----------      
         b = opdata[:,:360]
         c = opdata[:,360:]
@@ -351,11 +366,24 @@ class MET:
         warp(optionList)       
         #====Wind Speed================
         
-        Udata = d["U-component_of_wind_sigma"][:,:,:]
-        Uopdata = Udata.data[0][0]
+#        Udata = d["U-component_of_wind_sigma"][:,:,:]
+#        Uopdata = Udata.data[0][0]
+        grbs.rewind()
+        Ucomp = []
+        for grb in grbs:
+            if grb.name == 'U component of wind' and grb.typeOfLevel == 'sigma': 
+                Ucomp.append(grb.values)
+        Uopdata = Ucomp[0]
         
-        Vdata = d["V-component_of_wind_sigma"][:,:,:]
-        Vopdata = Vdata.data[0][0]
+#        Vdata = d["V-component_of_wind_sigma"][:,:,:]
+#        Vopdata = Vdata.data[0][0]
+        
+        grbs.rewind()
+        Vcomp = []
+        for grb in grbs:
+            if grb.name == 'V component of wind' and grb.typeOfLevel == 'sigma': 
+                Vcomp.append(grb.values)
+        Vopdata = Vcomp[0]
         
         wind = np.sqrt(Uopdata**2+Vopdata**2)
         #---flip data so ul -180,90-----------      

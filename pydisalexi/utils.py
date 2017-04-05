@@ -13,6 +13,7 @@ import glob
 from osgeo import gdal,osr
 import pandas as pd
 from numba import jit
+import urllib2, base64
 
 def folders(base):
     inputDataBase = os.path.join(os.sep,'data','data123','chain','GETD_FINAL')
@@ -307,3 +308,25 @@ def search(lat,lon,startDate, endDate):
          (metadata.lowerRightCornerLatitude < lat ) & (metadata.lowerRightCornerLongitude > lon)  & 
          (metadata.cloudCover <= 5)].sceneID
     return output.values
+
+class earthDataHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
+    def http_error_302(self, req, fp, code, msg, headers):
+        return urllib2.HTTPRedirectHandler.http_error_302(self, req, fp, code, msg, headers)
+    
+
+def getHTTPdata(url,outFN,auth=None):
+    request = urllib2.Request(url) 
+    if not (auth == None):
+        username = auth[0]
+        password = auth[1]
+        base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string) 
+    
+    cookieprocessor = urllib2.HTTPCookieProcessor()
+    opener = urllib2.build_opener(earthDataHTTPRedirectHandler, cookieprocessor)
+    urllib2.install_opener(opener) 
+    r = opener.open(request)
+    result = r.read()
+    
+    with open(outFN, 'wb') as f:
+        f.write(result)
