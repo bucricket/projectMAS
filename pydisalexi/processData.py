@@ -432,9 +432,9 @@ class MET:
         warp(optionList)     
         
         #===== Temperature 2m =============
-        d = open_url(pydapURL)
-        data = d["Temperature_sigma"][:,:,:]
-        opdata = data.data[0][0]
+#        d = open_url(pydapURL)
+#        data = d["Temperature_sigma"][:,:,:]
+#        opdata = data.data[0][0]
         grbs.rewind()
         Temp = []
         for grb in grbs:
