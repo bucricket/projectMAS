@@ -405,9 +405,15 @@ class MET:
         warp(optionList)
         
         #===== Specific humidity =============
-        d = open_url(pydapURL)
-        data = d["Specific_humidity_hybrid"][:,:,:]
-        opdata = data.data[0][0][0]
+#        d = open_url(pydapURL)
+#        data = d["Specific_humidity_hybrid"][:,:,:]
+#        opdata = data.data[0][0][0]
+        grbs.rewind()
+        specH = []
+        for grb in grbs:
+            if grb.name == 'Specific humidity' and grb.typeOfLevel == 'hybrid': 
+                specH .append(grb.values)
+        opdata = specH [0]
         #---flip data so ul -180,90-----------      
         b = opdata[:,:360]
         c = opdata[:,360:]
@@ -429,6 +435,12 @@ class MET:
         d = open_url(pydapURL)
         data = d["Temperature_sigma"][:,:,:]
         opdata = data.data[0][0]
+        grbs.rewind()
+        Temp = []
+        for grb in grbs:
+            if grb.name == 'Temperature' and grb.typeOfLevel == 'sigma': 
+                Temp.append(grb.values)
+        opdata = Temp[0]
         #---flip data so ul -180,90-----------      
         b = opdata[:,:360]
         c = opdata[:,360:]
