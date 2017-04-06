@@ -70,6 +70,7 @@ def main():
         earthLoginPass = str(keyring.get_password("nasa",earthLoginUser)) 
 
     session = setup_session(earthLoginUser, earthLoginPass)
+    auth = (earthLoginUser, earthLoginPass)
     #======FIND AVAILABLE FILES FOR PROCESSING=============================
 
 
@@ -103,7 +104,8 @@ def main():
     #============Run DisALEXI in parallel======================================
     #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
     fn = os.path.join(landsatSR,scene,"%s.xml" % sceneID)
-    dd = disALEXI(fn,session,LC_dir,ET_dir)
+    #dd = disALEXI(fn,session,LC_dir,ET_dir)
+    dd = disALEXI(fn,auth,LC_dir,ET_dir)
     dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,0)
     
     print 'Running disALEXI...'

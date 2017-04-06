@@ -16,6 +16,8 @@ from .utils import writeArray2Tiff,warp,interpOverpassHour,folders,convertBin2ti
 from .utils import getHTTPdata
 from osgeo import gdal
 from pydap.client import open_url
+from pydap.cas import urs
+from pydap import client
 import pygrib
 
    
@@ -241,7 +243,9 @@ class MET:
                                             os.pardir,os.pardir))
         print base
         Folders = folders(base)    
-        self.session = session
+        #self.session = session
+        self.earthLoginUser = session[0]
+        self.earthLoginPass = session[1]
         self.inputDataBase = Folders['inputDataBase']
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
@@ -489,7 +493,10 @@ class MET:
         #====get overpass hour insolation=========================================
         outFN = os.path.join(dailyPath,'%s_Insol1Sub.tiff' % self.sceneID) 
         print 'processing : %s...' % outFN
-        d = open_url(fullUrl,session=self.session)
+        session = urs.setup_session(username = self.earthLoginUser, 
+                    password = self.earthLoginPass,
+                    check_url=fullUrl)
+        d = open_url(fullUrl,session=session)
         Insol = d.SWGDNCLR
         if not os.path.exists(outFN):
         # wv_mmr = 1.e-6 * wv_ppmv_layer * (Rair / Rwater)
