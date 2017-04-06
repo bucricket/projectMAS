@@ -457,23 +457,17 @@ class disALEXI(object):
             if not os.path.exists(outFN):
                 print 'get->Ta'
             # else:
-#                optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs', \
-#                '%s' % inProj4,'-r', 'average','-tr', '%f' % ALEXILatRes, '%f' % ALEXILonRes,\
-#                '-srcnodata','270.','-dstnodata','0.0','-of','GTiff','%s' % outfile, '%s' % coarseFile]
+                optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs', \
+                '%s' % inProj4,'-r', 'average','-tr', '%f' % ALEXILatRes, '%f' % ALEXILonRes,\
+                '-srcnodata','270.','-dstnodata','0.0','-of','GTiff','%s' % outfile, '%s' % coarseFile]
                 
-                optionList = ['-overwrite','-r', 'average','-tr', '%f' % ALEXILatRes,
-                              '%f' % ALEXILonRes,'-srcnodata','270.','-dstnodata',
-                              '0.0','-of','GTiff','%s' % outfile, '%s' % coarseFile]
                 warp(optionList)
                 #os.remove(outfile)
                 #==========now convert the averaged coarse Ta to fine resolution=======
-#                optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
-#                '%s' % ls.proj4,'-r', 'bilinear','-ts', '%f' % ls.ncol, 
-#                '%f' % ls.nrow,'-of','GTiff','%s' % coarseFile, '%s' % outFN]
+                optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
+                '%s' % ls.proj4,'-r', 'bilinear','-ts', '%f' % ls.ncol, 
+                '%f' % ls.nrow,'-of','GTiff','%s' % coarseFile, '%s' % outFN]
                 
-                optionList = ['-overwrite','-r', 'bilinear','-ts', 
-                              '%f' % ls.ncol, '%f' % ls.nrow,'-of',
-                              'GTiff','%s' % coarseFile, '%s' % outFN]
                 warp(optionList)
                 #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
