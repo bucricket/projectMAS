@@ -87,7 +87,7 @@ class Landsat(object):
                     if not os.path.exists(LCdataFolder):
                         zipFN = os.path.join("%s.zip" % LCdataFolder)
                         zip_ref = zipfile.ZipFile(zipFN, 'r')
-                        zip_ref.extractall(LCdataFolder)
+                        zip_ref.extractall(self.inputLC)
                         zip_ref.close()
                     LCdata = os.path.join(LCdataFolder,'%s%d_%d_2010lc030.tif' % (hemisphere.lower(),utmZone[i],latNames[j]))
                     os.symlink(LCdata,os.path.join(LCtemp,LCdata.split(os.sep)[-1]))
