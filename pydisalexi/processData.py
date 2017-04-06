@@ -98,7 +98,10 @@ class Landsat(object):
             subprocess.check_output('gdalbuildvrt %s.vrt %s%s*.tif' % (outfile[:-4], LCtemp,os.sep),shell=True)
             subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile[:-4],"%s" % outfile])
 
-    
+            #====remove unzipped folders
+            LCfolders=os.listdir(self.inputLC)
+            for LCfolder in LCfolders:
+                shutil.rmtree(LCfolder)
         dailyPath = os.path.join(self.landsatLC, '%s' % scene)
         
         if not os.path.exists(dailyPath):
@@ -110,10 +113,7 @@ class Landsat(object):
         '-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
         warp(optionList)
         
-        #====remove unzipped folders
-        LCfolders=os.listdir(self.inputLC)
-        for LCfolder in LCfolders:
-            shutil.rmtree(LCfolder)
+
 
     def getAlbedo(self):
         #print '--------------- process landsat albedo/NDVI -----------------------'
