@@ -389,6 +389,10 @@ class disALEXI(object):
                 '%s_MTL.txt' % sceneID))
         ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % sceneID))
         solZen = meta.SUN_ELEVATION
+        if xStart==((meta.ncols/200)*200):
+            xSize = meta.ncols-xStart
+        if yStart==((meta.nrows/200)*200):
+            ySize = meta.nrows-yStart
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         sz = np.radians(solZen) # convert sza to radians
     

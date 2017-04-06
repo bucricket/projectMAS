@@ -20,6 +20,7 @@ import types
 import copy_reg
 import pycurl
 warnings.simplefilter('ignore', np.RankWarning)
+from .landsatTools import landsat_metadata
 
 
 def _pickle_method(m):
@@ -99,6 +100,8 @@ def main():
     #%% 
     
     scene = sceneID[3:9]
+    meta = landsat_metadata(os.path.join(landsatSR,scene,
+        '%s_MTL.txt' % sceneID))
     
     
     #============Run DisALEXI in parallel======================================
@@ -109,7 +112,7 @@ def main():
     dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,0)
     
     print 'Running disALEXI...'
-    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,0) for xStart in range(0,7600,200) for yStart in range(0,7600,200))            
+    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,0) for xStart in range(0,meta.ncols,200) for yStart in range(0,meta.ncols,200))            
     
     # =================merge Ta files============================================
     print 'merging Ta files...'
@@ -122,7 +125,7 @@ def main():
     #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
     dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,1)
     print "run TSEB one last time in parallel"
-    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,1) for xStart in range(0,7600,200) for yStart in range(0,7600,200)) 
+    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,1) for xStart in range(0,meta.ncols,200) for yStart in range(0,meta.ncols,200)) 
     #=====================merge all files =====================================
     print 'merging ETd files...'
     finalFile = os.path.join(resultsBase,scene,'%s_ETd.tif' % sceneID[:-5])
