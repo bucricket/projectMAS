@@ -99,7 +99,7 @@ class Landsat(object):
             subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile[:-4],"%s" % outfile])
 
             #====remove unzipped folders
-            LCfolders=os.listdir(self.inputLC)
+            LCfolders=next(os.walk(self.inputLC))[1]
             for LCfolder in LCfolders:
                 shutil.rmtree(LCfolder)
         dailyPath = os.path.join(self.landsatLC, '%s' % scene)
