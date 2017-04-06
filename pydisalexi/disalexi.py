@@ -536,7 +536,7 @@ class disALEXI(object):
     
         
         #print '->get LST...'    
-        outFN = os.path.join(self.landsatDataBase,'LST_sharpened',scene,'%s_lstSharp.tiff' % sceneID)
+        outFN = os.path.join(self.landsatDataBase,'LST',scene,'%s_lstSharp.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         Tr_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
