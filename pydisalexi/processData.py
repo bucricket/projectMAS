@@ -19,6 +19,7 @@ from pydap.client import open_url
 from pydap.cas import urs
 from pydap import client
 import pygrib
+import zipfile
 
    
 class Landsat(object):
@@ -82,7 +83,13 @@ class Landsat(object):
                         hemisphere = 'N'
                     else:
                         hemisphere = 'S'
-                    LCdata = os.path.join(self.inputLC,'%s%d_%d_2010LC030' % (hemisphere,utmzone[i],latNames[j]),'%s%d_%d_2010lc030.tif' % (hemisphere.lower(),utmZone[i],latNames[j]))
+                    LCdataFolder  = os.path.join(self.inputLC,'%s%d_%d_2010LC030' % (hemisphere,utmzone[i],latNames[j]))
+                    if not os.path.exists(LCdataFolder):
+                        zipFN = os.path.join("%s.zip" % LCdataFolder)
+                        zip_ref = zipfile.ZipFile(zipFN, 'r')
+                        zip_ref.extractall(LCdataFolder)
+                        zip_ref.close()
+                    LCdata = os.path.join(LCdataFolder,'%s%d_%d_2010lc030.tif' % (hemisphere.lower(),utmZone[i],latNames[j]))
                     os.symlink(LCdata,os.path.join(LCtemp,LCdata.split(os.sep)[-1]))
 
             # mosaic dataset if needed
@@ -102,6 +109,11 @@ class Landsat(object):
         '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,\
         '-multi','-of','GTiff','%s' % outfile, '%s' % outfile2]
         warp(optionList)
+        
+        #====remove unzipped folders
+        LCfolders=os.listdir(self.inputLC)
+        for LCfolder in LCfolders:
+            shutil.rmtree(LCfolder)
 
     def getAlbedo(self):
         #print '--------------- process landsat albedo/NDVI -----------------------'
