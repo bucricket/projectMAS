@@ -101,7 +101,7 @@ class Landsat(object):
             #====remove unzipped folders
             LCfolders=next(os.walk(self.inputLC))[1]
             for LCfolder in LCfolders:
-                shutil.rmtree(LCfolder)
+                shutil.rmtree(os.path.join(self.inputLC,LCfolder))
         dailyPath = os.path.join(self.landsatLC, '%s' % scene)
         
         if not os.path.exists(dailyPath):
