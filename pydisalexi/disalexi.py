@@ -513,7 +513,7 @@ class disALEXI(object):
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
             print 'processing : albedo...' 
-            a = Landsat(fn)
+            a = Landsat(fn,self.LCpath)
             a.getAlbedo()
         
         g = gdal.Open(outFN,GA_ReadOnly)
