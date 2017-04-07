@@ -476,7 +476,7 @@ class disALEXI(object):
                 nrow = int(meta.REFLECTIVE_SAMPLES)+100
                 ncol = int(meta.REFLECTIVE_LINES)+100
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
-                              '%s' % ls.proj4,'-r', 'near','-ts', 
+                              '%s' % ls.proj4,'-r', 'bilinear','-ts', 
                               '%d' % ncol, '%d' % nrow,'-of',
                               'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 
@@ -489,7 +489,7 @@ class disALEXI(object):
                 delx = meta.GRID_CELL_SIZE_REFLECTIVE
                 dely = meta.GRID_CELL_SIZE_REFLECTIVE
                 optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
-                              '%f' % lrx,'%f' % uly,'-r', 'bilinear','-tr',
+                              '%f' % lrx,'%f' % uly,'-tr',
                               '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
                               '%s' % coarse2fineFile, '%s' % outFN]
                 warp(optionList)
