@@ -392,9 +392,9 @@ class disALEXI(object):
         nsamples = int(meta.REFLECTIVE_SAMPLES)
         nlines = int(meta.REFLECTIVE_LINES)
         if xStart==((nsamples/200)*200):
-            xSize = nsamples-xStart
+            xSize = (nsamples-xStart)-1
         if yStart==((nlines/200)*200):
-            ySize = nlines-yStart
+            ySize = (nlines-yStart)-1
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         sz = np.radians(solZen) # convert sza to radians
     
