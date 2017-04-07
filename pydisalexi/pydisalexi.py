@@ -125,7 +125,7 @@ def main():
     #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
     dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,1)
     print "run TSEB one last time in parallel"
-    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,1) for xStart in range(0,meta.ncols,200) for yStart in range(0,meta.ncols,200)) 
+    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,1) for xStart in range(0,int(meta.REFLECTIVE_SAMPLES),200) for yStart in range(0,int(meta.REFLECTIVE_LINES),200)) 
     #=====================merge all files =====================================
     print 'merging ETd files...'
     finalFile = os.path.join(resultsBase,scene,'%s_ETd.tif' % sceneID[:-5])
