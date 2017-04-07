@@ -112,7 +112,7 @@ def main():
     dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,0)
     
     print 'Running disALEXI...'
-    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,0) for xStart in range(0,meta.ncols,200) for yStart in range(0,meta.ncols,200))            
+    r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,0) for xStart in range(0,int(meta.REFLECTIVE_SAMPLES),200) for yStart in range(0,int(meta.REFLECTIVE_LINES),200))            
     
     # =================merge Ta files============================================
     print 'merging Ta files...'
