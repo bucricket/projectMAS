@@ -473,9 +473,11 @@ class disALEXI(object):
                 warp(optionList)
                 #os.remove(outfile)
                 #==========now convert the averaged coarse Ta to fine resolution=======
+                nrow = int(meta.REFLECTIVE_SAMPLES)+100
+                ncol = int(meta.REFLECTIVE_LINES)+100
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                               '%s' % ls.proj4,'-r', 'near','-ts', 
-                              '%f' % ls.ncol+100, '%f' % ls.nrow+100,'-of',
+                              '%d' % ncol, '%d' % nrow,'-of',
                               'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 
                 warp(optionList)
