@@ -31,13 +31,16 @@ class Landsat(object):
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.albedoBase = Folders['albedoBase']
-        self.sceneID = filepath.split(os.sep)[-1][:21]
-        self.scene = self.sceneID[3:9]
+#        self.sceneID = filepath.split(os.sep)[-1][:21]
+#        self.scene = self.sceneID[3:9]
         self.inputLC = inputLC
-        
-        meta = landsat_metadata(os.path.join(self.landsatSR, 
-                                                          self.scene,'%s_MTL.txt' % self.sceneID))
-        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.sceneID))
+        meta = landsat_metadata(filepath)
+        self.sceneID = meta.LANDSAT_SCENE_ID
+        self.productID = meta.LANDSAT_PRODUCT_ID
+        self.scene = self.sceneID[3:9]
+#        meta = landsat_metadata(os.path.join(self.landsatSR, 
+#                                                          self.scene,'%s_MTL.txt' % self.sceneID))
+        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
         self.inProj4 = ls.proj4
         self.ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
@@ -130,7 +133,7 @@ class Landsat(object):
         # extract the desired surface refelctance bands from landsat
         data = []   
         for i in xrange(len(bands)):
-            landsatgeotif = os.path.join(self.landsatSR,scene,'%s_sr_band%d.tif' % (sceneID,bands[i]))
+            landsatgeotif = os.path.join(self.landsatSR,scene,'%s_sr_band%d.tif' % (self.productID,bands[i]))
             if os.path.exists(landsatgeotif):
                 ls = GeoTIFF(landsatgeotif)
                 data.append(ls.data*0.0001)
@@ -147,13 +150,17 @@ class ALEXI:
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.ALEXIbase = Folders['ALEXIbase']
-        self.sceneID = filepath.split(os.sep)[-1][:21]
+        meta = landsat_metadata(filepath)
+        self.sceneID = meta.LANDSAT_SCENE_ID
+        self.productID = meta.LANDSAT_PRODUCT_ID
         self.scene = self.sceneID[3:9]
+#        self.sceneID = filepath.split(os.sep)[-1][:21]
+#        self.scene = self.sceneID[3:9]
         self.yeardoy = self.sceneID[9:16]
-        
-        meta = landsat_metadata(os.path.join(self.landsatSR, 
-                                                          self.scene,'%s_MTL.txt' % self.sceneID))
-        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.sceneID))
+#        
+#        meta = landsat_metadata(os.path.join(self.landsatSR, 
+#                                                          self.scene,'%s_MTL.txt' % self.sceneID))
+        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
         self.ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
         self.uly = meta.CORNER_UL_PROJECTION_Y_PRODUCT
@@ -262,13 +269,17 @@ class MET:
         self.landsatLC = Folders['landsatLC']
         self.landsatSR = Folders['landsatSR']
         self.metBase = Folders['metBase']
-        self.sceneID = filepath.split(os.sep)[-1][:21]
+        meta = landsat_metadata(filepath)
+        self.sceneID = meta.LANDSAT_SCENE_ID
+        self.productID = meta.LANDSAT_PRODUCT_ID
         self.scene = self.sceneID[3:9]
+#        self.sceneID = filepath.split(os.sep)[-1][:21]
+#        self.scene = self.sceneID[3:9]
         self.yeardoy = self.sceneID[9:16]
         
-        meta = landsat_metadata(os.path.join(self.landsatSR, 
-                                                          self.scene,'%s_MTL.txt' % self.sceneID))
-        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.sceneID))
+#        meta = landsat_metadata(os.path.join(self.landsatSR, 
+#                                                          self.scene,'%s_MTL.txt' % self.sceneID))
+        ls = GeoTIFF(os.path.join(self.landsatSR, self.scene,'%s_sr_band1.tif' % self.productID))
         self.proj4 = ls.proj4
         self.ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
         self.uly = meta.CORNER_UL_PROJECTION_Y_PRODUCT
