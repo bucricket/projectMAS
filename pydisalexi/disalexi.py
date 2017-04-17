@@ -29,7 +29,7 @@ from .landsatTools import landsat_metadata,GeoTIFF
 
 
 class disALEXI(object):
-    def __init__(self, fn,session, LCpath,ETpath):
+    def __init__(self, fn,isUSA,session, LCpath,ETpath):
         base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
 
@@ -44,7 +44,12 @@ class disALEXI(object):
         self.resultsBase = Folders['resultsBase']
         self.LCpath = LCpath
         self.ETpath = ETpath
-
+        self.fn = fn
+        meta = landsat_metadata(fn)
+        self.sceneID = meta.LANDSAT_SCENE_ID
+        self.productID = meta.LANDSAT_PRODUCT_ID
+        self.scene = self.sceneID[3:9]
+        self.isUSA = isUSA
 
 
 
@@ -336,9 +341,9 @@ class disALEXI(object):
         
 #        xx = np.empty([40000,100])
 #        xx[:,:]=np.nan
-        from scipy.interpolate import interp2d,interp1d
+        from scipy.interpolate import interp1d
         x = range(270,340,10)
-        y = xrange(np.size(hc))
+        #y = xrange(np.size(hc))
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
         # check if all values inrow are nan
@@ -367,23 +372,26 @@ class disALEXI(object):
         output ={'T_A_K':T_A_K}
         return output
     
-    def runDisALEXI(self,xStart,yStart,fn,isUSA,ALEXIgeodict,TSEB_only):
+    def runDisALEXI(self,xStart,yStart,ALEXIgeodict,TSEB_only):
         # USER INPUT============================================================
         ALEXILatRes = ALEXIgeodict['ALEXI_LatRes']
         ALEXILonRes = ALEXIgeodict['ALEXI_LonRes']
-        sceneID = fn.split(os.sep)[-1][:21]
+        #sceneID = fn.split(os.sep)[-1][:21]
+        sceneID =self.sceneID
+        scene = self.scene
+        productID = self.productID
         xSize = 200
         ySize = 200
             
         #-------------pick Landcover map----------------
-        if isUSA ==1:
+        if self.isUSA ==1:
             landcover = 'NLCD'
         else:
             landcover = 'GlobeLand30'
         #print 'processing: %s' % sceneID
         
         yeardoy = sceneID[9:16]
-        scene = sceneID[3:9]
+
         #-------------get Landsat information-----------
         meta = landsat_metadata(os.path.join(self.landsatSR,scene,
                 '%s_MTL.txt' % sceneID))
@@ -411,8 +419,8 @@ class disALEXI(object):
             print 'get->ALEXI ET...'
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
-            a = ALEXI(fn,self.ETpath)
-            a.getALEXIdata(ALEXIgeodict,isUSA)
+            a = ALEXI(self.fn,self.ETpath)
+            a.getALEXIdata(ALEXIgeodict,self.isUSA)
         
         g = gdal.Open(outFN,GA_ReadOnly)
         ET_ALEXI = g.ReadAsArray(xStart,yStart,xSize,ySize)
@@ -431,7 +439,7 @@ class disALEXI(object):
         #else:
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
-            a = MET(fn,self.session)
+            a = MET(self.fn,self.session)
             a.getCFSR()
             
         #print 'get->p...'
@@ -453,7 +461,7 @@ class disALEXI(object):
         
         if TSEB_only==1:
 
-            ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % sceneID))
+            ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
 
             #=======================convert fine TA to coarse resolution=========
             outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
@@ -495,7 +503,7 @@ class disALEXI(object):
         #else:
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
-            a = MET(fn,self.session)
+            a = MET(self.fn,self.session)
             a.getInsolation()
             
         g = gdal.Open(outFN,GA_ReadOnly)
@@ -521,7 +529,7 @@ class disALEXI(object):
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
             print 'processing : albedo...' 
-            a = Landsat(fn,self.LCpath)
+            a = Landsat(self.fn,self.LCpath)
             a.getAlbedo()
         
         g = gdal.Open(outFN,GA_ReadOnly)
@@ -560,7 +568,7 @@ class disALEXI(object):
             #print 'processing : %s...' % outFN
             if not os.path.exists(sceneDir):
                 os.makedirs(sceneDir)
-            a = Landsat(fn,self.LCpath)
+            a = Landsat(self.fn,self.LCpath)
             a.getLC(landcover)
         
         g = gdal.Open(outFN,GA_ReadOnly)
