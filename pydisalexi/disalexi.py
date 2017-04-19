@@ -670,6 +670,8 @@ class disALEXI(object):
         
         if TSEB_only==1:
             print 'Running TSEB...'
+            #convert TA from scaled celcius to kelvin
+            T_A_K = (T_A_K/1000.)+273.15
             e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))                             #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
             L_dn = e_atm*0.0000000567*((T_A_K)**4)
             output = TSEB_PT(
@@ -709,6 +711,7 @@ class disALEXI(object):
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
             ET_24[ET_24<0.]=0.
+            ET_24 = np.array(ET_24*1000,dtype='uint16')
         else:
             #print 'Running DisALEXI...'
             output = self.DisALEXI_PT(
@@ -745,7 +748,7 @@ class disALEXI(object):
                 
     
             #dTa = output['dTa']
-            T_A_K= np.array(output['T_A_K']*1000,dtype='uint16')
+            T_A_K= np.array((output['T_A_K']-273.15)*1000,dtype='uint16')
     #        et = ET_24
     #        et[np.where(np.isnan(et))]=0.0
     
