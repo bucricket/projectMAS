@@ -92,7 +92,7 @@ def main():
     #find the scenes
     
     #process scenes that have been preprocessed
-    fileList = glob.glob(landsatTemp,"*_MTL.txt")
+    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
 #     
 #    try:
 #        s = Search()
