@@ -234,8 +234,7 @@ def TSEB_PT(
 
     # Convert input float scalars to arrays and parameters size
     Tr_K = np.asarray(Tr_K)
-    (nullMask,
-     vza,
+    (vza,
      T_A_K,
      u,
      ea,
@@ -252,6 +251,7 @@ def TSEB_PT(
      z_u,
      z_T,
      leaf_width,
+     nullMask,
      z0_soil,
      alpha_PT,
      x_LAD,

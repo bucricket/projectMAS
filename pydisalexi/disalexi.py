@@ -126,6 +126,7 @@ class disALEXI(object):
         z_u,
         z_T,
         leaf_width,
+        nullMask,
         z0_soil=0.01,
         alpha_PT=1.26,
         x_LAD=1,
@@ -136,8 +137,7 @@ class disALEXI(object):
         calcG_params=[
             [1],
             0.35],
-            UseL=False,
-            nullMask):
+            UseL=False):
         '''DisALEXI based on Priestley-Taylor TSEB
     
         Calculates the Priestley Taylor TSEB fluxes using a single observation of
@@ -320,6 +320,7 @@ class disALEXI(object):
             z_uresize,
             z_Tresize,
             leaf_width=leaf_widthresize,
+            nullMask_resize,
             z0_soil=z0_soilresize,
             alpha_PT=alpha_PTresize,
             x_LAD=1,
@@ -330,8 +331,7 @@ class disALEXI(object):
             calcG_params=[
                 [1],
                 0.35],
-                UseL=False,
-                nullMask_resize)
+                UseL=False)
             
         scaling = 1.0
         Fsun =  (output[6]+output[8])/np.resize(Rs_1,[np.size(hc),1])
@@ -716,6 +716,7 @@ class disALEXI(object):
                 z_u,
                 z_T,
                 leaf_width=leaf_width,
+                nullMask,
                 z0_soil=z0_soil,
                 alpha_PT=alpha_PT,
                 x_LAD=1,
@@ -726,8 +727,7 @@ class disALEXI(object):
                 calcG_params=[
                     [1],
                     0.35],
-                    UseL=False,
-                    nullMask)
+                    UseL=False)
     
             scaling = 1.0
             Fsun =  (output[6]+output[8])/Rs_1
@@ -758,6 +758,7 @@ class disALEXI(object):
                 z_u,
                 z_T,
                 leaf_width=leaf_width,
+                nullMask,
                 z0_soil=z0_soil,
                 alpha_PT=alpha_PT,
                 x_LAD=1,
@@ -768,8 +769,7 @@ class disALEXI(object):
                 calcG_params=[
                     [1],
                     0.35],
-                    UseL=False,
-                    nullMask)
+                    UseL=False)
                 
     
             #dTa = output['dTa']
