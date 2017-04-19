@@ -45,9 +45,9 @@ class disALEXI(object):
         self.LCpath = LCpath
         self.ETpath = ETpath
         self.fn = fn
-        meta = landsat_metadata(fn)
-        self.sceneID = meta.LANDSAT_SCENE_ID
-        self.productID = meta.LANDSAT_PRODUCT_ID
+        self.meta = landsat_metadata(fn)
+        self.sceneID = self.meta.LANDSAT_SCENE_ID
+        self.productID = self.meta.LANDSAT_PRODUCT_ID
         self.scene = self.sceneID[3:9]
         self.isUSA = isUSA
 
@@ -393,12 +393,11 @@ class disALEXI(object):
         yeardoy = sceneID[9:16]
 
         #-------------get Landsat information-----------
-        meta = landsat_metadata(os.path.join(self.landsatSR,scene,
-                '%s_MTL.txt' % sceneID))
-        ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % sceneID))
-        solZen = meta.SUN_ELEVATION
-        nsamples = int(meta.REFLECTIVE_SAMPLES)
-        nlines = int(meta.REFLECTIVE_LINES)
+
+        ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
+        solZen = self.meta.SUN_ELEVATION
+        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
+        nlines = int(self.meta.REFLECTIVE_LINES)
         if xStart==((nsamples/200)*200):
             xSize = (nsamples-xStart)-1
         if yStart==((nlines/200)*200):
@@ -757,10 +756,10 @@ class disALEXI(object):
         if not os.path.exists(outET24Path):
             os.makedirs(outET24Path)
         #set ouput location and resolution
-        ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
-        uly = meta.CORNER_UL_PROJECTION_Y_PRODUCT
-        delx = meta.GRID_CELL_SIZE_REFLECTIVE
-        dely = meta.GRID_CELL_SIZE_REFLECTIVE
+        ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
+        uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
+        delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
+        dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
         inUL = [ulx+(xStart*delx),uly-(yStart*dely)]
         inRes = [delx,dely]
 #        
