@@ -107,6 +107,7 @@ class disALEXI(object):
     '''
        
     def DisALEXI_PT(self,
+        nullMask,
         ET_ALEXI,
         Rs_1,
         Rs24in,
@@ -274,6 +275,7 @@ class disALEXI(object):
 
         # Set up input parameters
         MatXsize = 7
+        nullMask_resize = np.tile(np.array(np.resize(nullMask,[np.size(nullMask),1])),(1,MatXsize))
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
         T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
@@ -300,6 +302,7 @@ class disALEXI(object):
         w_Cresize = np.tile(np.resize(w_C,[np.size(hc),1]),(1,MatXsize))
         # run TSEB over TA options
         output = TSEB_PT(
+            nullMask_resize,
             Tr_Kresize,
             vzaresize,
             T_A_Kresize,
@@ -424,6 +427,7 @@ class disALEXI(object):
         g = gdal.Open(outFN,GA_ReadOnly)
         ET_ALEXI = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
+        
     
         
         #=============get MET data================================================
@@ -592,7 +596,8 @@ class disALEXI(object):
         LCdata = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
     
-        ET_ALEXI[np.where(albedo<0)]=np.nan
+        ET_ALEXI[np.where(albedo<0)]=-9999
+        nullMask = ET_ALEXI.copy()
         albedo[np.where(albedo<0)]=np.nan
         
         #====================get LC based variables===============================
@@ -687,12 +692,13 @@ class disALEXI(object):
     #================RUN DisALEXI=================================
         
         if TSEB_only==1:
-            print 'Running TSEB...'
+            #print 'Running TSEB...'
             #convert TA from scaled celcius to kelvin
             T_A_K = (T_A_K/1000.)+273.15
             e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))                             #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
             L_dn = e_atm*0.0000000567*((T_A_K)**4)
             output = TSEB_PT(
+                nullMask,
                 Tr_K,
                 vza,
                 T_A_K,
@@ -733,6 +739,7 @@ class disALEXI(object):
         else:
             #print 'Running DisALEXI...'
             output = self.DisALEXI_PT(
+                nullMask,
                 ET_ALEXI,
                 Rs_1,
                 Rs24,

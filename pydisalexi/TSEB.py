@@ -79,6 +79,7 @@ sb = 5.670373e-8
 
 
 def TSEB_PT(
+    nullMask,
     Tr_K,
     vza,
     T_A_K,
@@ -233,7 +234,8 @@ def TSEB_PT(
 
     # Convert input float scalars to arrays and parameters size
     Tr_K = np.asarray(Tr_K)
-    (vza,
+    (nullMask,
+     vza,
      T_A_K,
      u,
      ea,
@@ -257,7 +259,8 @@ def TSEB_PT(
      f_g,
      w_C,
      calcG_array) = map(_check_default_parameter_size,
-                        [vza,
+                        [nullMask,
+                         vza,
                          T_A_K,
                          u,
                          ea,
@@ -316,7 +319,7 @@ def TSEB_PT(
     # radiometric T
     T_C = np.asarray(np.minimum(Tr_K, T_A_K))
     flag, T_S = calc_T_S(Tr_K, T_C, f_theta)
-    
+    flag[nullMask==-9999]=255
     iterMask = np.zeros(LAI.shape)
     conv1 = 0.0
     # Outer loop for estimating stability.
