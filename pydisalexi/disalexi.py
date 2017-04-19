@@ -107,7 +107,6 @@ class disALEXI(object):
     '''
        
     def DisALEXI_PT(self,
-        nullMask,
         ET_ALEXI,
         Rs_1,
         Rs24in,
@@ -137,7 +136,8 @@ class disALEXI(object):
         calcG_params=[
             [1],
             0.35],
-            UseL=False):
+            UseL=False,
+            nullMask):
         '''DisALEXI based on Priestley-Taylor TSEB
     
         Calculates the Priestley Taylor TSEB fluxes using a single observation of
