@@ -96,6 +96,7 @@ def TSEB_PT(
     d_0,
     z_u,
     z_T,
+    nullMask,
     leaf_width=0.1,
     z0_soil=0.01,
     alpha_PT=1.26,
@@ -107,8 +108,7 @@ def TSEB_PT(
     calcG_params=[
         [1],
         0.35],
-        UseL=False,
-            nullMask):
+        UseL=False):
     '''Priestley-Taylor TSEB
 
     Calculates the Priestley Taylor TSEB fluxes using a single observation of
@@ -250,8 +250,8 @@ def TSEB_PT(
      d_0,
      z_u,
      z_T,
-     leaf_width,
      nullMask,
+     leaf_width,     
      z0_soil,
      alpha_PT,
      x_LAD,
@@ -259,8 +259,7 @@ def TSEB_PT(
      f_g,
      w_C,
      calcG_array) = map(_check_default_parameter_size,
-                        [nullMask,
-                         vza,
+                        [vza,
                          T_A_K,
                          u,
                          ea,
@@ -276,6 +275,7 @@ def TSEB_PT(
                          d_0,
                          z_u,
                          z_T,
+                         nullMask,
                          leaf_width,
                          z0_soil,
                          alpha_PT,
