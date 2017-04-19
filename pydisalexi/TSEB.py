@@ -79,7 +79,6 @@ sb = 5.670373e-8
 
 
 def TSEB_PT(
-    nullMask,
     Tr_K,
     vza,
     T_A_K,
@@ -108,7 +107,8 @@ def TSEB_PT(
     calcG_params=[
         [1],
         0.35],
-        UseL=False):
+        UseL=False,
+            nullMask):
     '''Priestley-Taylor TSEB
 
     Calculates the Priestley Taylor TSEB fluxes using a single observation of

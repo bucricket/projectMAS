@@ -302,7 +302,6 @@ class disALEXI(object):
         w_Cresize = np.tile(np.resize(w_C,[np.size(hc),1]),(1,MatXsize))
         # run TSEB over TA options
         output = TSEB_PT(
-            nullMask_resize,
             Tr_Kresize,
             vzaresize,
             T_A_Kresize,
@@ -331,7 +330,8 @@ class disALEXI(object):
             calcG_params=[
                 [1],
                 0.35],
-                UseL=False)
+                UseL=False,
+                nullMask_resize)
             
         scaling = 1.0
         Fsun =  (output[6]+output[8])/np.resize(Rs_1,[np.size(hc),1])
@@ -698,7 +698,6 @@ class disALEXI(object):
             e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))                             #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
             L_dn = e_atm*0.0000000567*((T_A_K)**4)
             output = TSEB_PT(
-                nullMask,
                 Tr_K,
                 vza,
                 T_A_K,
@@ -727,7 +726,8 @@ class disALEXI(object):
                 calcG_params=[
                     [1],
                     0.35],
-                    UseL=False)
+                    UseL=False,
+                    nullMask)
     
             scaling = 1.0
             Fsun =  (output[6]+output[8])/Rs_1
@@ -739,7 +739,6 @@ class disALEXI(object):
         else:
             #print 'Running DisALEXI...'
             output = self.DisALEXI_PT(
-                nullMask,
                 ET_ALEXI,
                 Rs_1,
                 Rs24,
@@ -769,7 +768,8 @@ class disALEXI(object):
                 calcG_params=[
                     [1],
                     0.35],
-                    UseL=False)
+                    UseL=False,
+                    nullMask)
                 
     
             #dTa = output['dTa']
