@@ -460,7 +460,7 @@ def TSEB_PT(
             H_S[i] = rho[i] * c_p[i] * (T_S[i] - T_AC[i]) / R_S[i]
 
             # Compute Soil Heat Flux Ratio
-            G[i] = calc_G([calcG_params[0], calcG_array], Rn_S, i)
+            G[i] = calc_G([calcG_array[0], calcG_array], Rn_S, i)
 
             # Estimate latent heat fluxes as residual of energy balance at the
             # soil and the canopy
