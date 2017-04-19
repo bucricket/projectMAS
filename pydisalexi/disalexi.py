@@ -134,7 +134,7 @@ class disALEXI(object):
         f_g=1.0,
         w_C=1.0,
         resistance_form=0,
-        calcG_params=[
+        calcG_array=[
             [1],
             0.35],
             UseL=False):
@@ -328,7 +328,7 @@ class disALEXI(object):
             f_g=f_gresize,
             w_C=w_Cresize,
             resistance_form=0,
-            calcG_params=[
+            calcG_array=[
                 [1],
                 0.35],
                 UseL=False)
@@ -724,7 +724,7 @@ class disALEXI(object):
                 f_g=f_g,
                 w_C=w_C,
                 resistance_form=0,
-                calcG_params=[
+                calcG_array=[
                     [1],
                     0.35],
                     UseL=False)
@@ -766,7 +766,7 @@ class disALEXI(object):
                 f_g=f_g,
                 w_C=w_C,
                 resistance_form=0,
-                calcG_params=[
+                calcG_array=[
                     [1],
                     0.35],
                     UseL=False)
