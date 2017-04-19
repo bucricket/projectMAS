@@ -488,7 +488,7 @@ class disALEXI(object):
                 ncol = int(self.meta.REFLECTIVE_LINES)+100
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                               '%s' % ls.proj4,'-r', 'bilinear','-ts', 
-                              '%f' % ncol, '%f' % nrow,'-of',
+                              '%f' % nrow, '%f' % ncol,'-of',
                               'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 
                 warp(optionList)
