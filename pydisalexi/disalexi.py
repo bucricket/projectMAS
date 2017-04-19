@@ -466,21 +466,39 @@ class disALEXI(object):
             outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
     
             coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
+            coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
             outFN = coarseFile[:-10]+'.tif'
             if not os.path.exists(outFN):
                 print 'get->Ta'
             # else:
-                optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs', \
-                '%s' % inProj4,'-r', 'average','-tr', '%f' % ALEXILatRes, '%f' % ALEXILonRes,\
-                '-srcnodata','270.','-dstnodata','0.0','-of','GTiff','%s' % outfile, '%s' % coarseFile]
+                optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
+                              '%s' % inProj4,'-r', 'average','-tr', 
+                              '%f' % ALEXILatRes, '%f' % ALEXILonRes,
+                              '-srcnodata','270.','-dstnodata','0.0',
+                              '-of','GTiff','%s' % outfile, '%s' % coarseFile]
                 
                 warp(optionList)
                 #os.remove(outfile)
                 #==========now convert the averaged coarse Ta to fine resolution=======
+                nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
+                ncol = int(self.meta.REFLECTIVE_LINES)+100
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
-                '%s' % ls.proj4,'-r', 'bilinear','-ts', '%f' % ls.ncol, 
-                '%f' % ls.nrow,'-of','GTiff','%s' % coarseFile, '%s' % outFN]
+                              '%s' % ls.proj4,'-r', 'bilinear','-ts', 
+                              '%f' % ncol, '%f' % nrow,'-of',
+                              'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 
+                warp(optionList)
+                #======now subset to match original image
+                ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
+                uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
+                lrx = self.meta.CORNER_LR_PROJECTION_X_PRODUCT
+                lry = self.meta.CORNER_LR_PROJECTION_Y_PRODUCT
+                delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
+                dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
+                optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
+                              '%f' % lrx,'%f' % uly,'-tr',
+                              '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
+                              '%s' % coarse2fineFile, '%s' % outFN]
                 warp(optionList)
                 #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
