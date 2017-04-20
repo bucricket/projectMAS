@@ -476,15 +476,30 @@ class disALEXI(object):
             if not os.path.exists(outFN):
                 print 'get->Ta'
             # else:
+                                # get mask from Landsat LAI
+                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+                hdf = SD(laiFN,SDC.READ)
+                data2D = hdf.select('cfmask')
+                cfmask = data2D[:,:].astype(np.double)
+                g = gdal.Open(outfile,GA_ReadOnly)
+                ta= g.ReadAsArray()
+                ta[cfmask > 0]=0
+                mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
+                masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
+                ls.clone(mask,ta)
+                subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
+                
+                
                 optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
                               '%s' % inProj4,'-r', 'average','-tr', 
                               '%f' % ALEXILatRes, '%f' % ALEXILonRes,
                               '-srcnodata','270.','-dstnodata','0.0',
-                              '-of','GTiff','%s' % outfile, '%s' % coarseFile]
+                              '-of','GTiff','%s' % masked, '%s' % coarseFile]
                 
                 warp(optionList)
                 
-                #========fill in missing data
+                #========fill in missing data from VIIRS and Landsat data========
+                sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
                 etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
                 g = gdal.Open(etFN,GA_ReadOnly)
                 et= g.ReadAsArray()
@@ -582,6 +597,12 @@ class disALEXI(object):
         data2D = hdf.select('NDVI')
         ndvi = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
         ndvi[np.where(ndvi==-9.999)]=np.nan
+        
+        #===get cfmask=======
+        laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+        hdf = SD(laiFN,SDC.READ)
+        data2D = hdf.select('cfmask')
+        cfmask = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)
     
         
         #print '->get LST...'    
@@ -610,6 +631,7 @@ class disALEXI(object):
     
         ET_ALEXI[np.where(albedo<0)]=-9999
         nullMask = ET_ALEXI.copy()
+        nullMask[cfmask>0]=-9999
         albedo[np.where(albedo<0)]=np.nan
         
         #====================get LC based variables===============================
