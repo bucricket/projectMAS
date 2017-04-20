@@ -249,7 +249,7 @@ class ALEXI:
             mask = os.path.join(ETtemp,"Mask.tif")
             masked = os.path.join(ETtemp,"Masked.tif")
             ls.clone(mask,et)
-            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile2,mask,masked),shell=True)
+            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile2,masked,mask),shell=True)
 #            
 #            if isUSA == 0:
 #                alexiTile = 'T13'
