@@ -126,8 +126,8 @@ def main():
             # =================merge Ta files============================================
             print 'merging Ta files...'
             
-            finalFile = os.path.join(resultsBase,scene,'Taxxxxx.tif')
-            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'Ta*'))
+            intFile = os.path.join(resultsBase,scene,'Taxxxxx.tif')
+            cmd = 'gdal_merge.py -o %s %s' % (intFile,os.path.join(resultsBase,scene,'Ta*'))
             buildvrt(cmd)
             
             # =================run TSEB one last time in parallel=======================

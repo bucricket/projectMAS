@@ -15,6 +15,7 @@ import shutil
 from .utils import writeArray2Tiff,warp,interpOverpassHour,folders,convertBin2tif
 from .utils import getHTTPdata
 from osgeo import gdal
+from osgeo.gdalconst import GA_ReadOnly
 from pydap.client import open_url
 from pydap.cas import urs
 from pydap import client
@@ -239,7 +240,16 @@ class ALEXI:
 
             subprocess.check_output('gdalbuildvrt %s.vrt %s%s*.tif' % (outfile2[:-4], ETtemp,os.sep),shell=True)
             subprocess.call(["gdal_translate", "-of", "GTiff", "%s.vrt" % outfile2[:-4],"%s" % outfile2])
-
+            
+            #========fill in missing data
+            g = gdal.Open(outfile2,GA_ReadOnly)
+            et= g.ReadAsArray()
+            et[et==-9999]=0
+            ls = GeoTIFF(outfile2)
+            mask = os.path.join(ETtemp,"Mask.tif")
+            masked = os.path.join(ETtemp,"Masked.tif")
+            ls.clone(mask,et)
+            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile2,mask,masked),shell=True)
 #            
 #            if isUSA == 0:
 #                alexiTile = 'T13'
@@ -253,7 +263,7 @@ class ALEXI:
             
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'near',\
-            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % outfile2, '%s' % subsetFile]
+            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % masked , '%s' % subsetFile]
             warp(optionList)
             shutil.rmtree(ETtemp)
 class MET:
