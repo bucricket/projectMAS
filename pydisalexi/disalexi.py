@@ -476,13 +476,14 @@ class disALEXI(object):
             if not os.path.exists(outFN):
                 print 'get->Ta'
             # else:
-                                # get mask from Landsat LAI
+                # get mask from Landsat LAI
+                ls = GeoTIFF(outfile)
                 laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
                 hdf = SD(laiFN,SDC.READ)
                 data2D = hdf.select('cfmask')
                 cfmask = data2D[:,:].astype(np.double)
                 g = gdal.Open(outfile,GA_ReadOnly)
-                ta= g.ReadAsArray()
+                ta = g.ReadAsArray()
                 ta[cfmask > 0]=0
                 mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
                 masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
@@ -498,7 +499,7 @@ class disALEXI(object):
                 
                 warp(optionList)
                 
-                #========fill in missing data from VIIRS and Landsat data========
+                #========fill in missing data from VIIRS and Landsat data======
                 sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
                 etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
                 g = gdal.Open(etFN,GA_ReadOnly)
@@ -510,7 +511,7 @@ class disALEXI(object):
                 ls.clone(mask,et)
                 subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (coarseFile,masked,mask),shell=True)
                 #os.remove(outfile)
-                #==========now convert the averaged coarse Ta to fine resolution=======
+                #=======now convert the averaged coarse Ta to fine resolution==
                 nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
                 ncol = int(self.meta.REFLECTIVE_LINES)+100
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
