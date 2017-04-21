@@ -539,6 +539,7 @@ class disALEXI(object):
             g= None
         
         #print 'get->u...'
+        sceneDir = os.path.join(self.metBase,'%s' % scene)
         outFN = os.path.join(sceneDir,'%s_uSub.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
         u = g.ReadAsArray(xStart,yStart,xSize,ySize)
