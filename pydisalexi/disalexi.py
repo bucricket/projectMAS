@@ -499,17 +499,17 @@ class disALEXI(object):
                 
                 warp(optionList)
                 
-                #========fill in missing data from VIIRS and Landsat data======
-                sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
-                etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
-                g = gdal.Open(etFN,GA_ReadOnly)
-                et= g.ReadAsArray()
-                et[et==-9999]=0
-                ls = GeoTIFF(etFN)
-                mask = os.path.join(self.resultsBase,scene,"TaMask.tif")
-                masked = os.path.join(self.resultsBase,scene,"TaMasked.tif")
-                ls.clone(mask,et)
-                subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (coarseFile,masked,mask),shell=True)
+#                #========fill in missing data from VIIRS and Landsat data======
+#                sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
+#                etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
+#                g = gdal.Open(etFN,GA_ReadOnly)
+#                et= g.ReadAsArray()
+#                et[et==-9999]=0
+#                ls = GeoTIFF(etFN)
+#                mask = os.path.join(self.resultsBase,scene,"TaMask.tif")
+#                masked = os.path.join(self.resultsBase,scene,"TaMasked.tif")
+#                ls.clone(mask,et)
+#                subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (coarseFile,masked,mask),shell=True)
                 #os.remove(outfile)
                 #=======now convert the averaged coarse Ta to fine resolution==
                 nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
@@ -517,7 +517,7 @@ class disALEXI(object):
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                               '%s' % ls.proj4,'-r', 'bilinear','-ts', 
                               '%f' % nrow, '%f' % ncol,'-of',
-                              'GTiff','%s' % masked, '%s' % coarse2fineFile]
+                              'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 
                 warp(optionList)
                 #======now subset to match original image

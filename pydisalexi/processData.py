@@ -252,10 +252,19 @@ class ALEXI:
 #            #*******************
 #            dataset = np.flipud(read_data.reshape([ALEXIshape[1],ALEXIshape[0]]))*0.408 
 #            writeArray2Tiff(dataset,inRes,inUL,inProj4,outfile,outFormat)
+            #========fill in missing data from VIIRS and Landsat data======
+            g = gdal.Open(outfile2,GA_ReadOnly)
+            et= g.ReadAsArray()
+            et[et==-9999]=0
+            ls = GeoTIFF(outfile2)
+            mask = os.path.join(ETtemp,"Mask.tif")
+            masked = os.path.join(ETtemp,"Masked.tif")
+            ls.clone(mask,et)
+            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile2,mask,masked),shell=True)
             
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4,'-t_srs','%s' % self.proj4,\
             '-te', '%f' % self.ulx, '%f' % self.lry,'%f' % self.lrx,'%f' % self.uly,'-r', 'near',\
-            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % outfile2 , '%s' % subsetFile]
+            '-tr', '%f' % self.delx, '%f' % self.dely,'-multi','-of','GTiff','%s' % masked , '%s' % subsetFile]
             warp(optionList)
             shutil.rmtree(ETtemp)
 class MET:
