@@ -552,7 +552,7 @@ class disALEXI(object):
         Tr_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
     
-        Tr_K[np.where(albedo<0)]=np.nan
+        Tr_K[np.where(albedo<0.0)]=np.nan
     
         sceneDir = os.path.join(self.landsatDataBase,'LC',scene)
         outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)
@@ -569,8 +569,8 @@ class disALEXI(object):
         LCdata = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
     
-        ET_ALEXI[np.where(albedo<0)]=np.nan
-        albedo[np.where(albedo<0)]=np.nan
+        ET_ALEXI[np.where(albedo<0.0)]=np.nan
+        albedo[np.where(albedo<0.0)]=np.nan
         
         #====================get LC based variables===============================
         #print '=============opening LC based inputs================'
