@@ -552,7 +552,7 @@ class disALEXI(object):
         Tr_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
     
-        Tr_K[np.where(albedo<0.0)]=np.nan
+        #Tr_K[np.where(albedo<0.0)]=np.nan
     
         sceneDir = os.path.join(self.landsatDataBase,'LC',scene)
         outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)
