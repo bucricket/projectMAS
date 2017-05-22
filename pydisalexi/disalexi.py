@@ -740,13 +740,13 @@ class disALEXI(object):
                 
     
             #dTa = output['dTa']
-            T_A_K= output['T_A_K']
+            T_A_K= np.array((output['T_A_K']-273.15)*1000,dtype='uint16')
     #        et = ET_24
     #        et[np.where(np.isnan(et))]=0.0
     
        
         #print 'creating geotiffs...'
-        outFormat = gdal.GDT_Float32
+        outFormat = gdal.GDT_UInt16
         outET24Path = os.path.join(self.resultsBase,scene)
         if not os.path.exists(outET24Path):
             os.makedirs(outET24Path)
