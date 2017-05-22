@@ -387,9 +387,10 @@ class disALEXI(object):
 
         meta = landsat_metadata(fn)
         sceneID = meta.LANDSAT_SCENE_ID
+        productID = meta.LANDSAT_PRODUCT_ID
         yeardoy = sceneID[9:16]
         scene = sceneID[3:9]
-        ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % sceneID))
+        ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
         solZen = meta.SUN_ELEVATION
         nsamples = int(meta.REFLECTIVE_SAMPLES)
         nlines = int(meta.REFLECTIVE_LINES)
