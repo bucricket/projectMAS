@@ -456,7 +456,7 @@ class disALEXI(object):
         
         if TSEB_only==1:
 
-            ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % sceneID))
+            ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
 
             #=======================convert fine TA to coarse resolution=========
             outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
