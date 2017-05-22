@@ -23,18 +23,19 @@ from .clumping_index import calc_omega_Kustas,calc_omega0_Kustas
 from .utils import writeArray2Tiff,getParFromExcel,findRSOILV,warp,folders
 from scipy import ndimage
 from pyhdf.SD import SD, SDC
-from .processData import ALEXI,MET,Landsat
+#from .processData import ALEXI,MET,Landsat
 from .landsatTools import landsat_metadata,GeoTIFF
 
 
 
 class disALEXI(object):
-    def __init__(self, fn,session, LCpath,ETpath):
+#    def __init__(self, fn,session, LCpath,ETpath):
+    def __init__(self, fn):
         base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
 
         Folders = folders(base)  
-        self.session = session
+#        self.session = session
         self.landsatSR = Folders['landsatSR']
         self.landsatLC = Folders['landsatLC']
         self.albedoBase = Folders['albedoBase']
@@ -42,8 +43,8 @@ class disALEXI(object):
         self.metBase = Folders['metBase']
         self.landsatDataBase = Folders['landsatDataBase']
         self.resultsBase = Folders['resultsBase']
-        self.LCpath = LCpath
-        self.ETpath = ETpath
+#        self.LCpath = LCpath
+#        self.ETpath = ETpath
 
 
 
@@ -405,14 +406,14 @@ class disALEXI(object):
         sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
         
         outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
-        if not os.path.exists(outFN):
-            #print 'get->ALEXI ET...'
-        #else:
-            print 'get->ALEXI ET...'
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            a = ALEXI(fn,self.ETpath)
-            a.getALEXIdata(ALEXIgeodict,isUSA)
+#        if not os.path.exists(outFN):
+#            #print 'get->ALEXI ET...'
+#        #else:
+#            print 'get->ALEXI ET...'
+#            if not os.path.exists(sceneDir):
+#                os.makedirs(sceneDir)
+#            a = ALEXI(fn,self.ETpath)
+#            a.getALEXIdata(ALEXIgeodict,isUSA)
         
         g = gdal.Open(outFN,GA_ReadOnly)
         ET_ALEXI = g.ReadAsArray(xStart,yStart,xSize,ySize)
@@ -426,13 +427,13 @@ class disALEXI(object):
         sceneDir = os.path.join(self.metBase,'%s' % scene)
         
         outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
-        if not os.path.exists(outFN):
-            print 'get->MET data...'
-        #else:
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            a = MET(fn,self.session)
-            a.getCFSR()
+#        if not os.path.exists(outFN):
+#            print 'get->MET data...'
+#        #else:
+#            if not os.path.exists(sceneDir):
+#                os.makedirs(sceneDir)
+#            a = MET(fn,self.session)
+#            a.getCFSR()
             
         #print 'get->p...'
         g = gdal.Open(outFN,GA_ReadOnly)
@@ -490,13 +491,13 @@ class disALEXI(object):
         
         #====get overpass hour insolation=========================================
         outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
-        if not os.path.exists(outFN):
-            #print 'get->Insolation...'
-        #else:
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            a = MET(fn,self.session)
-            a.getInsolation()
+#        if not os.path.exists(outFN):
+#            #print 'get->Insolation...'
+#        #else:
+#            if not os.path.exists(sceneDir):
+#                os.makedirs(sceneDir)
+#            a = MET(fn,self.session)
+#            a.getInsolation()
             
         g = gdal.Open(outFN,GA_ReadOnly)
         Rs_1 = g.ReadAsArray(xStart,yStart,xSize,ySize)
@@ -515,14 +516,14 @@ class disALEXI(object):
         #print '========opening biophysical inputs=========='
         sceneDir = os.path.join(self.landsatDataBase,'albedo',scene)
         outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID) 
-        if not os.path.exists(outFN):
-            #print '->get albedo...'
-        #else:
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            print 'processing : albedo...' 
-            a = Landsat(fn,self.LCpath)
-            a.getAlbedo()
+#        if not os.path.exists(outFN):
+#            #print '->get albedo...'
+#        #else:
+#            if not os.path.exists(sceneDir):
+#                os.makedirs(sceneDir)
+#            print 'processing : albedo...' 
+#            a = Landsat(fn,self.LCpath)
+#            a.getAlbedo()
         
         g = gdal.Open(outFN,GA_ReadOnly)
         albedo = g.ReadAsArray(xStart,yStart,xSize,ySize)
@@ -553,14 +554,14 @@ class disALEXI(object):
     
         sceneDir = os.path.join(self.landsatDataBase,'LC',scene)
         outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)
-        if not os.path.exists(outFN):
-            #print '->get LC...'
-        # else:
-            #print 'processing : %s...' % outFN
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            a = Landsat(fn,self.LCpath)
-            a.getLC(landcover)
+#        if not os.path.exists(outFN):
+#            #print '->get LC...'
+#        # else:
+#            #print 'processing : %s...' % outFN
+#            if not os.path.exists(sceneDir):
+#                os.makedirs(sceneDir)
+#            a = Landsat(fn,self.LCpath)
+#            a.getLC(landcover)
         
         g = gdal.Open(outFN,GA_ReadOnly)
         LCdata = g.ReadAsArray(xStart,yStart,xSize,ySize)

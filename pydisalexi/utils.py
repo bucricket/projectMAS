@@ -16,7 +16,6 @@ from numba import jit
 import urllib2, base64
 
 def folders(base):
-    inputDataBase = os.path.join(os.sep,'data','data123','chain','GETD_FINAL')
     dataBase = os.path.join(base,'data')
     landsatDataBase = os.path.join(dataBase,'Landsat-8')
     metBase = os.path.join(dataBase,'MET')
@@ -29,24 +28,17 @@ def folders(base):
     albedoBase = os.path.join(landsatDataBase,'albedo')
     if not os.path.exists(albedoBase):
         os.makedirs(albedoBase)   
-    ndviBase = os.path.join(landsatDataBase,'ndvi')
-    if not os.path.exists(ndviBase):
-        os.makedirs(ndviBase)
     landsatSR = os.path.join(landsatDataBase,'SR')
     if not os.path.exists(landsatSR):
         os.makedirs(landsatSR)
     if not os.path.exists(resultsBase):
         os.makedirs(resultsBase)
-    landsatDN = os.path.join(landsatDataBase,'DN')
-    if not os.path.exists(landsatDN):
-        os.makedirs(landsatDN)
     landsatLC = os.path.join(landsatDataBase,'LC')
     if not os.path.exists(landsatLC):
         os.makedirs(landsatLC)
-    out = {'dataBase':dataBase,'metBase':metBase,'inputDataBase':inputDataBase,
-    'landsatDN':landsatDN,'ALEXIbase':ALEXIbase,'landsatDataBase':landsatDataBase,
-    'resultsBase':resultsBase,'landsatLC':landsatLC,'albedoBase':albedoBase,
-    'ndviBase':ndviBase,'landsatSR':landsatSR}
+    out = {'dataBase':dataBase,'metBase':metBase,'ALEXIbase':ALEXIbase,
+           'landsatDataBase':landsatDataBase,'resultsBase':resultsBase,
+           'landsatLC':landsatLC,'albedoBase':albedoBase,'landsatSR':landsatSR}
     return out
     
 def warp(args):
