@@ -372,7 +372,6 @@ class disALEXI(object):
         # USER INPUT============================================================
         ALEXILatRes = ALEXIgeodict['ALEXI_LatRes']
         ALEXILonRes = ALEXIgeodict['ALEXI_LonRes']
-        sceneID = fn.split(os.sep)[-1][:21]
         xSize = 200
         ySize = 200
             
@@ -383,11 +382,13 @@ class disALEXI(object):
             landcover = 'GlobeLand30'
         #print 'processing: %s' % sceneID
         
+
+        #-------------get Landsat information-----------
+
+        meta = landsat_metadata(fn)
+        sceneID = meta.LANDSAT_SCENE_ID
         yeardoy = sceneID[9:16]
         scene = sceneID[3:9]
-        #-------------get Landsat information-----------
-        meta = landsat_metadata(os.path.join(self.landsatSR,scene,
-                '%s_MTL.txt' % sceneID))
         ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % sceneID))
         solZen = meta.SUN_ELEVATION
         nsamples = int(meta.REFLECTIVE_SAMPLES)
