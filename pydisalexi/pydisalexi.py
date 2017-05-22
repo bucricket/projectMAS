@@ -115,7 +115,7 @@ def main():
     # ------------------------------------------------------------------------
     # Set up the profile data
     # ------------------------------------------------------------------------
-    for fn in xrange(len(sceneIDlist)):   
+    for fn in sceneIDlist:   
         meta = landsat_metadata(fn)
         sceneID = meta.LANDSAT_SCENE_ID
         scene = sceneID[3:9]
