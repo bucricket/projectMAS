@@ -7,13 +7,13 @@ Created on Fri Aug 12 11:39:37 2016
 """
 import os
 import numpy as np
-import glob
 #from .search import Search
 import warnings
 from .disalexi import disALEXI
 #import keyring
 #import getpass
 import argparse
+import glob
 from .utils import buildvrt,clean,folders
 #from pydap.cas.urs import setup_session
 from joblib import Parallel, delayed
@@ -57,16 +57,11 @@ def main():
 #    LC_dir = args.LC_dir
 #    ET_dir = args.ET_dir
 
-#UL = [49.00,-125.00]  
-#LR = [24.5, -67.00]  
-#UR=[49.00, -67.00]
-    
     
     Folders = folders(base)    
     landsatSR = Folders['landsatSR']
     resultsBase = Folders['resultsBase']
-    landsat_temp = os.path.join(landsatSR,'temp')
-    
+    landsatTemp = os.path.join(landsatSR,'temp')
     #%%        
      # =====earthData credentials===============
 #    earthLoginUser = str(getpass.getpass(prompt="earth login username:"))
@@ -76,7 +71,8 @@ def main():
 #    else:
 #        earthLoginPass = str(keyring.get_password("nasa",earthLoginUser)) 
 #
-#    session = setup_session(earthLoginUser, earthLoginPass)
+#    
+#    #session = setup_session(earthLoginUser, earthLoginPass)
 #    auth = (earthLoginUser, earthLoginPass)
     #======FIND AVAILABLE FILES FOR PROCESSING=============================
 
@@ -94,6 +90,10 @@ def main():
                    'ALEXIshape': ALEXIshape}
     
     #find the scenes
+    
+    #process scenes that have been preprocessed
+    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
+#     
 #    try:
 #        s = Search()
 #        scenes = s.search(lat=GCP[0],lon=GCP[1],limit = 100, start_date = startDate,end_date=endDate, cloud_max=5)
@@ -104,56 +104,47 @@ def main():
             
     #USER INPUT END===============================================================
     #%% 
-    
-#    scene = sceneID[3:9]
-#    meta = landsat_metadata(os.path.join(landsatSR,scene,
-#        '%s_MTL.txt' % sceneID))
-    
-    sceneIDlist = glob.glob(os.path.join(landsat_temp,'*_MTL.txt'))
-
-
-    # ------------------------------------------------------------------------
-    # Set up the profile data
-    # ------------------------------------------------------------------------
-    for fn in sceneIDlist:   
-        meta = landsat_metadata(fn)
-        sceneID = meta.LANDSAT_SCENE_ID
+    for filepath in fileList:
+        meta = landsat_metadata(filepath)
+        sceneID = meta.LANDSAT_SCENE_ID        
         scene = sceneID[3:9]
-        #============Run DisALEXI in parallel======================================
-        #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
-        #fn = os.path.join(landsatSR,scene,"%s.xml" % sceneID)
-        #dd = disALEXI(fn,session,LC_dir,ET_dir)
-        #dd = disALEXI(fn,auth,LC_dir,ET_dir)
-        dd = disALEXI(fn)
-        dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,0)
-        nsamples = int(meta.REFLECTIVE_SAMPLES)
-        nlines = int(meta.REFLECTIVE_LINES)
-        print 'Running disALEXI...'
-        r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
-        
-        # =================merge Ta files============================================
-        print 'merging Ta files...'
-        
-        finalFile = os.path.join(resultsBase,scene,'Taxxxxx.tif')
-        cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'Ta*'))
-        buildvrt(cmd)
-        
-        # =================run TSEB one last time in parallel=======================
-        #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
-        dd.runDisALEXI(0,0,fn,isUSA,ALEXIgeodict,1)
-        print "run TSEB one last time in parallel"
-        r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,fn,isUSA,ALEXIgeodict,1) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200)) 
-        #=====================merge all files =====================================
-        print 'merging ETd files...'
         finalFile = os.path.join(resultsBase,scene,'%s_ETd.tif' % sceneID[:-5])
-        cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
-        buildvrt(cmd)
-        
-        #=======================clean up files===================================
-        print 'cleaning up...'
-        
-        clean(os.path.join(resultsBase,scene),"ETd")
-        clean(os.path.join(resultsBase,scene),"Ta")
+        if not os.path.exists(finalFile):
+                   
+            #============Run DisALEXI in parallel======================================
+            #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
+            #fn = os.path.join(landsatSR,scene,"%s.xml" % sceneID)
+            #dd = disALEXI(fn,session,LC_dir,ET_dir)
+            #dd = disALEXI(fn,auth,LC_dir,ET_dir)
+            dd = disALEXI(filepath,isUSA)
+            dd.runDisALEXI(0,0,ALEXIgeodict,0)
+            nsamples = int(meta.REFLECTIVE_SAMPLES)
+            nlines = int(meta.REFLECTIVE_LINES)
+            print 'Running disALEXI...'
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
+            
+            # =================merge Ta files============================================
+            print 'merging Ta files...'
+            
+            intFile = os.path.join(resultsBase,scene,'Taxxxxx.tif')
+            cmd = 'gdal_merge.py -o %s %s' % (intFile,os.path.join(resultsBase,scene,'Ta*'))
+            buildvrt(cmd)
+            
+            # =================run TSEB one last time in parallel=======================
+            #print 'run DisALEXI once to avoid huge overhead issues in parallel runs'
+            dd.runDisALEXI(0,0,ALEXIgeodict,1)
+            print "run TSEB one last time in parallel"
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,ALEXIgeodict,1) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200)) 
+            #=====================merge all files =====================================
+            print 'merging ETd files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
+            buildvrt(cmd)
+            
+            #=======================clean up files===================================
+            print 'cleaning up...'
+            
+            clean(os.path.join(resultsBase,scene),"ETd")
+            clean(os.path.join(resultsBase,scene),"Ta")
     
 if __name__ == "__main__":
     try:
