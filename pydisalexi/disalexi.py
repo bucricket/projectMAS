@@ -704,6 +704,7 @@ class disALEXI(object):
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
             ET_24[ET_24<0.]=0.
+            ET_24 = np.array(ET_24*1000,dtype='uint16')
         else:
             #print 'Running DisALEXI...'
             output = self.DisALEXI_PT(
