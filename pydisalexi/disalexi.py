@@ -50,7 +50,8 @@ class disALEXI(object):
         self.fn = fn
         self.meta = landsat_metadata(fn)
         self.sceneID = self.meta.LANDSAT_SCENE_ID
-        self.productID = self.meta.LANDSAT_PRODUCT_ID
+        self.productID = fn.split(os.sep)[-1][:-8]
+#        self.productID = self.meta.LANDSAT_PRODUCT_ID
         self.scene = self.sceneID[3:9]
         self.isUSA = isUSA
 
