@@ -286,8 +286,13 @@ def TSEB_PT(
         L = np.asarray(np.ones(T_S.shape) * UseL)
         max_iterations = 1  # No iteration
     # Calculate the general parameters
-    rho = calc_rho(p, ea, T_A_K)  # Air density
-    c_p = calc_c_p(p, ea)  # Heat capacity of air
+    if ea.sum() == 0.0:
+        z = 0.0
+        rho = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))^5.26)/1.01/(T_A_K)/0.287 
+        c_p = 1004.16
+    else:
+        rho = calc_rho(p, ea, T_A_K)  # Air density
+        c_p = calc_c_p(p, ea)  # Heat capacity of air
     z_0H = calc_z_0H(z_0M, kB=kB)  # Roughness length for heat transport
 
     # Calculate LAI dependent parameters for dataset where LAI > 0
