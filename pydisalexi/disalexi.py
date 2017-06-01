@@ -669,6 +669,7 @@ class disALEXI(object):
     
         rsoilv = findRSOILV(difvis,difnir,fvis,fnir,Rs_1,F,f_c,fg,zs,aleafv,
                                aleafn,aleafl,adeadv,adeadn,adeadl,albedo)
+        print(rsoilv)
         Sn_C = np.empty([F.shape[0],F.shape[1]])
         Sn_S = np.empty([F.shape[0],F.shape[1]])
         Sn_C, Sn_S = calc_Sn_Campbell (LAI, sZ, Sdn_dir, Sdn_dif, fvis,\
