@@ -43,7 +43,7 @@ class disALEXI(object):
 
         Folders = folders(base)  
         self.landsatSR = Folders['landsatSR']
-        self.landsatSR = Folders['landsatNDVI']
+        self.landsatNDVI = Folders['landsatNDVI']
         self.ALEXIbase = Folders['ALEXIbase']
         self.metBase = Folders['metBase']
         self.landsatDataBase = Folders['landsatDataBase']
