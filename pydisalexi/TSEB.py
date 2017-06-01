@@ -288,7 +288,7 @@ def TSEB_PT(
     # Calculate the general parameters
     if ea.sum() == 0.0:
         z = 0.0
-        rho = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))^5.26)/1.01/(T_A_K)/0.287 
+        rho = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287 
         c_p = 1004.16
     else:
         rho = calc_rho(p, ea, T_A_K)  # Air density
