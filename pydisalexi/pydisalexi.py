@@ -17,7 +17,7 @@ import types
 import copy_reg
 import pycurl
 warnings.simplefilter('ignore', np.RankWarning)
-from .landsatTools import landsat_metadata
+from .landsatTools import landsat_metadata,GeoTIFF
 
 
 def _pickle_method(m):
@@ -62,10 +62,16 @@ def main():
     
     #process scenes that have been preprocessed
     fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
+    tiffList = glob.glob(os.path.join(landsatTemp,"*lstSharp.tiff"))
+    
             
     #USER INPUT END===============================================================
 
-    for filepath in fileList:
+    for i in range(len(fileList)):
+        filepath = fileList[i]
+        tiff = tiffList[i]
+        ll = GeoTIFF(tiff)
+        
         meta = landsat_metadata(filepath)
         sceneID = meta.LANDSAT_SCENE_ID        
         scene = sceneID[3:9]
@@ -75,8 +81,10 @@ def main():
             #============Run DisALEXI in parallel======================================
             dd = disALEXI(filepath,isUSA)
             dd.runDisALEXI(0,0,ALEXIgeodict,0)
-            nsamples = int(meta.REFLECTIVE_SAMPLES)
-            nlines = int(meta.REFLECTIVE_LINES)
+#            nsamples = int(meta.REFLECTIVE_SAMPLES)
+#            nlines = int(meta.REFLECTIVE_LINES)
+            nsamples = ll.nrow
+            nlines = ll.ncol
             print 'Running disALEXI...'
             r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
             
