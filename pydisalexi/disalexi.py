@@ -495,12 +495,18 @@ class disALEXI(object):
                 
                 warp(optionList)
                 #======now subset to match original image
-                ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
-                uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
-                lrx = self.meta.CORNER_LR_PROJECTION_X_PRODUCT
-                lry = self.meta.CORNER_LR_PROJECTION_Y_PRODUCT
-                delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
-                dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
+#                ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
+#                uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
+#                lrx = self.meta.CORNER_LR_PROJECTION_X_PRODUCT
+#                lry = self.meta.CORNER_LR_PROJECTION_Y_PRODUCT
+#                delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
+#                dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
+                ulx = ls.ulx
+                uly = ls.uly
+                lrx = ls.lrx
+                lry = ls.lry
+                delx = ls.delx
+                dely = -ls.dely
                 optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
                               '%f' % lrx,'%f' % uly,'-tr',
                               '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
