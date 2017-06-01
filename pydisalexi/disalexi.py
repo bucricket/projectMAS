@@ -769,10 +769,14 @@ class disALEXI(object):
         if not os.path.exists(outET24Path):
             os.makedirs(outET24Path)
         #set ouput location and resolution
-        ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
-        uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
-        delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
-        dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
+#        ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
+#        uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
+#        delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
+#        dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
+        ulx = ls.ulx
+        uly = ls.uly
+        delx = ls.delx
+        dely = ls.dely
         inUL = [ulx+(xStart*delx),uly-(yStart*dely)]
         inRes = [delx,dely]
 
