@@ -388,10 +388,12 @@ class disALEXI(object):
 
         #-------------get Landsat information-----------
 
-        ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
+        ls = GeoTIFF(os.path.join(self.landsatSR,'temp','*lstSharp.tiff' % productID))
         solZen = self.meta.SUN_ELEVATION
-        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
-        nlines = int(self.meta.REFLECTIVE_LINES)
+#        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
+#        nlines = int(self.meta.REFLECTIVE_LINES)
+        nsamples = ls.nrow
+        nlines = ls.ncol
         if xStart==((nsamples/200)*200):
             xSize = (nsamples-xStart)-1
         if yStart==((nlines/200)*200):
@@ -431,7 +433,7 @@ class disALEXI(object):
         
         if TSEB_only==1:
 
-            ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
+            #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
 
             #=======================convert fine TA to coarse resolution=========
             outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
@@ -443,10 +445,15 @@ class disALEXI(object):
                 print 'get->Ta'
                 # get mask from Landsat LAI
                 ls = GeoTIFF(outfile)
-                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-                hdf = SD(laiFN,SDC.READ)
-                data2D = hdf.select('cfmask')
-                cfmask = data2D[:,:].astype(np.double)
+#                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+#                hdf = SD(laiFN,SDC.READ)
+#                data2D = hdf.select('cfmask')
+#                cfmask = data2D[:,:].astype(np.double)
+                
+                maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_Mask.tiff' % sceneID)
+                g = gdal.Open(maskFN,GA_ReadOnly)
+                cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
+                g= None
                 g = gdal.Open(outfile,GA_ReadOnly)
                 ta = g.ReadAsArray()
                 ta[cfmask > 0]=0
@@ -477,8 +484,10 @@ class disALEXI(object):
 #                subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (coarseFile,masked,mask),shell=True)
                 #os.remove(outfile)
                 #=======now convert the averaged coarse Ta to fine resolution==
-                nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
-                ncol = int(self.meta.REFLECTIVE_LINES)+100
+#                nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
+#                ncol = int(self.meta.REFLECTIVE_LINES)+100
+                nrow = ls.nrow+100
+                ncol = ls.ncol+100
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                               '%s' % ls.proj4,'-r', 'bilinear','-ts', 
                               '%f' % nrow, '%f' % ncol,'-of',
