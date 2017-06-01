@@ -776,7 +776,7 @@ class disALEXI(object):
         ulx = ls.ulx
         uly = ls.uly
         delx = ls.delx
-        dely = ls.dely
+        dely = -ls.dely
         inUL = [ulx+(xStart*delx),uly-(yStart*dely)]
         inRes = [delx,dely]
 
