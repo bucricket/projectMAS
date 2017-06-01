@@ -388,7 +388,7 @@ class disALEXI(object):
 
         #-------------get Landsat information-----------
 
-        ls = GeoTIFF(os.path.join(self.landsatSR,'temp','*lstSharp.tiff' % productID))
+        ls = GeoTIFF(os.path.join(self.landsatSR,'temp','%s_lstSharp.tiff' % productID))
         solZen = self.meta.SUN_ELEVATION
 #        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
 #        nlines = int(self.meta.REFLECTIVE_LINES)
