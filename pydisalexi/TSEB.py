@@ -288,8 +288,8 @@ def TSEB_PT(
     # Calculate the general parameters
     if ea.sum() == 0.0:
         z = 0.0
-        rho = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287 
-        c_p = 1004.16
+        rho = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287
+        c_p = np.tile(1004.16,np.shape(T_A_K))
     else:
         rho = calc_rho(p, ea, T_A_K)  # Air density
         c_p = calc_c_p(p, ea)  # Heat capacity of air
