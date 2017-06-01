@@ -43,6 +43,7 @@ class disALEXI(object):
 
         Folders = folders(base)  
         self.landsatSR = Folders['landsatSR']
+        self.landsatSR = Folders['landsatNDVI']
         self.ALEXIbase = Folders['ALEXIbase']
         self.metBase = Folders['metBase']
         self.landsatDataBase = Folders['landsatDataBase']
@@ -528,24 +529,42 @@ class disALEXI(object):
         g= None
     
         #------>get LAI...
-        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-        hdf = SD(outFN,SDC.READ)
-        data2D = hdf.select('LAI')
-        LAI = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
-    
+#        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'%s_ndvi.tiff' % sceneID)
+        g = gdal.Open(outFN,GA_ReadOnly)
+        LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)*0.001
+        g= None
         LAI[np.where(LAI==-9.999)]=np.nan
         LAI[np.where(LAI<=0.)]=0.001
         
+#        hdf = SD(outFN,SDC.READ)
+#        data2D = hdf.select('LAI')
+#        LAI = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
+#    
+#        LAI[np.where(LAI==-9.999)]=np.nan
+#        LAI[np.where(LAI<=0.)]=0.001
+        
         #------>get ndvi...'
-        data2D = hdf.select('NDVI')
-        ndvi = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
+        sceneDir = os.path.join(self.landsatNDVI,scene)
+        outFN = os.path.join(sceneDir,'%s_ndvi.tiff' % sceneID)
+        g = gdal.Open(outFN,GA_ReadOnly)
+        ndvi = g.ReadAsArray(xStart,yStart,xSize,ySize)*0.001
+        g= None
         ndvi[np.where(ndvi==-9.999)]=np.nan
         
+#        data2D = hdf.select('NDVI')
+#        ndvi = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
+#        ndvi[np.where(ndvi==-9.999)]=np.nan
+        
         #===get cfmask=======
-        laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-        hdf = SD(laiFN,SDC.READ)
-        data2D = hdf.select('cfmask')
-        cfmask = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)
+        outFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_Mask.tiff' % sceneID)
+        g = gdal.Open(outFN,GA_ReadOnly)
+        cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
+        g= None
+#        laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+#        hdf = SD(laiFN,SDC.READ)
+#        data2D = hdf.select('cfmask')
+#        cfmask = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)
     
         
         #---------->get LST...   
