@@ -623,7 +623,7 @@ class disALEXI(object):
         f_c = 1-(np.exp(-0.5*F))                          #fraction cover at nadir (view=0)
         f_c[f_c<=0.01]=0.01
         f_c[f_c>=0.9]=0.9
-            
+
         #************************************************************************
         #Compute Canopy height and Roughness Parameters
         hc = hc_min+((hc_max-hc_min)*f_c)
@@ -683,7 +683,7 @@ class disALEXI(object):
         z_T = np.tile(2.,np.shape(LAI))
         leaf_width = xl
         z0_soil = np.tile(0.01,np.shape(LAI))
-        alpha_PT = np.tile(1.26,np.shape(LAI))
+        alpha_PT = np.tile(1.32,np.shape(LAI))
         f_g = np.tile(1.,np.shape(LAI))
         w_C = np.tile(1.,np.shape(LAI))
     
