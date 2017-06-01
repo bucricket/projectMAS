@@ -287,7 +287,7 @@ def TSEB_PT(
         max_iterations = 1  # No iteration
     # Calculate the general parameters
     if ea.sum() == 0.0:
-        z = 0.0
+        z = 350.0
         rho = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287
         c_p = np.tile(1004.16,np.shape(T_A_K))
     else:
