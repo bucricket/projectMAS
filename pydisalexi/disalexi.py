@@ -530,7 +530,7 @@ class disALEXI(object):
     
         #------>get LAI...
 #        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'%s_ndvi.tiff' % sceneID)
+        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'%s_lai.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)*0.001
         g= None
