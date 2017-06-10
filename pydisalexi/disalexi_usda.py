@@ -132,8 +132,6 @@ class disALEXI(object):
                     clump,
                     hc,
                     mask,
-                    r_air,
-                    cp,
                     time,
                     t_rise,
                     t_end,
