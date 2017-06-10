@@ -508,8 +508,8 @@ class disALEXI(object):
         g= None
         #===create lat long files==============================================
         
-        inUL = [ulx,uly]
-        inRes = [delx,dely]
+        inUL = [ls.ulx,ls.uly]
+        inRes = [ls.delx,ls.dely]
         lat_fName = os.path.join(self.landsatSR,'temp','lat.tif')
         lon_fName = os.path.join(self.landsatSR,'temp','lon.tif')
         if not os.path.exists(lat_fName):
