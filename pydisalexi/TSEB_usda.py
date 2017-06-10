@@ -52,8 +52,9 @@ from .resistances import calc_z_0H,calc_R_A,calc_R_x_Norman,calc_R_S_Kustas,calc
 from .MO_similarity import calc_u_star,calc_u_C_star,calc_u_Goudriaan,calc_L,calc_A_Goudriaan
 from .net_radiation import calc_L_n_Kustas,calc_K_be_Campbell
 from .clumping_index import calc_omega0_Kustas
-from .TSEB_utils_usda import compute_G0,compute_resistence
+from .TSEB_utils_usda import compute_G0,compute_resistence,albedo_separation
 from .TSEB_utils_usda import compute_Rn,temp_separation,compute_stability
+
 #from cachetools import cached
 
 #==============================================================================
@@ -548,11 +549,14 @@ def TSEB_PT_usda(
     T_A_K,
     u,
     p,
-    Rs_c, 
-    Rs_s, 
-    albedo_c,
-    albedo_s, 
-    e_atm,
+    Rs_1,
+    zs,
+    aleafv, 
+    aleafn, 
+    aleafl, 
+    adeadv, 
+    adeadn, 
+    adeadl,
     albedo,
     ndvi,
     lai,
@@ -740,6 +744,13 @@ def TSEB_PT_usda(
     #************************************************************************
     # Inizialitaziono of TSEB
     a_PT = mask*a_PT_in
+    e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))
+    z = np.tile(350.,np.shape(hc))
+    Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr = albedo_separation(
+                albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, 
+                z, T_A_K, zs, 1)
+    r_air = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287  
+    cp = np.tile(1004.16,np.shape(T_A_K))
   
     # Assume neutral conditions on first iteration  
     r_ah, r_s, r_x, u_attr = compute_resistence(u, T_A_K, T_A_K, hc, F, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, 0, 0, 0)
@@ -824,7 +835,7 @@ def TSEB_PT_usda(
     lEs = Rn_s-G0-H_s
     lETc = Rn_c-H_c 
     
-    flag=mask*mask_d 
+    flag=mask
 
     (flag,
      Ts,

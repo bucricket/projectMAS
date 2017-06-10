@@ -27,10 +27,10 @@ import subprocess
 from osgeo import gdal
 from osgeo.gdalconst import GA_ReadOnly
 from .TSEB_usda import TSEB_PT_usda
-from .TSEB_utils_usda import sunset_sunrise, albedo_separation
 from .utils import writeArray2Tiff,getParFromExcel,warp,folders
 from scipy import ndimage
 from .landsatTools import landsat_metadata,GeoTIFF
+from .TSEB_utils_usda import sunset_sunrise
 
 
 
@@ -120,11 +120,13 @@ class disALEXI(object):
                     T_A_K,
                     u,
                     p,
-                    Rs_c, 
-                    Rs_s, 
-                    albedo_c,
-                    albedo_s, 
-                    e_atm,
+                    zs,
+                    aleafv, 
+                    aleafn, 
+                    aleafl, 
+                    adeadv, 
+                    adeadn, 
+                    adeadl,
                     albedo,
                     ndvi,
                     LAI,
@@ -280,19 +282,20 @@ class disALEXI(object):
         T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
         presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
-        Rs_cresize = np.tile(np.resize(Rs_c,[np.size(Rs_c),1]),(1,MatXsize))
-        Rs_sresize = np.tile(np.resize(Rs_s,[np.size(Rs_s),1]),(1,MatXsize))
-        albedo_cresize = np.tile(np.resize(albedo_c,[np.size(hc),1]),(1,MatXsize))
-        albedo_sresize = np.tile(np.resize(albedo_s,[np.size(hc),1]),(1,MatXsize))
-        e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_Kresize-273.16)**2))))
+        Rs_1resize = np.tile(np.resize(Rs_1,[np.size(Rs_1),1]),(1,MatXsize))
+        zsresize = np.tile(np.resize(zs,[np.size(zs),1]),(1,MatXsize))
+        aleafvresize = np.tile(np.resize(aleafv,[np.size(hc),1]),(1,MatXsize))
+        aleafnresize = np.tile(np.resize(aleafn,[np.size(hc),1]),(1,MatXsize))
+        aleaflresize = np.tile(np.resize(aleafl,[np.size(hc),1]),(1,MatXsize))
+        adeadvresize = np.tile(np.resize(adeadv,[np.size(hc),1]),(1,MatXsize))
+        adeadnresize = np.tile(np.resize(adeadn,[np.size(hc),1]),(1,MatXsize))
+        adeadlresize = np.tile(np.resize(adeadl,[np.size(hc),1]),(1,MatXsize))
         albedoresize = np.tile(np.resize(albedo,[np.size(hc),1]),(1,MatXsize))
         ndviresize = np.tile(np.resize(ndvi,[np.size(hc),1]),(1,MatXsize))
         LAIresize = np.tile(np.resize(LAI,[np.size(LAI),1]),(1,MatXsize))
         clumpresize = np.tile(np.resize(clump,[np.size(hc),1]),(1,MatXsize))
         hcresize = np.tile(np.resize(hc,[np.size(hc),1]),(1,MatXsize))
         maskresize = np.tile(np.array(np.resize(mask,[np.size(hc),1])),(1,MatXsize))
-        r_airresize = np.tile(np.array(np.resize(r_air,[np.size(hc),1])),(1,MatXsize))
-        cpresize = np.tile(np.resize(cp,[np.size(hc),1]),(1,MatXsize))
         alpha_PTresize = np.tile(np.resize(alpha_PT,[np.size(hc),1]),(1,MatXsize))
 
         # run TSEB over TA options
@@ -302,19 +305,20 @@ class disALEXI(object):
             T_A_Kresize,
             uresize,
             presize,
-            Rs_cresize, 
-            Rs_sresize, 
-            albedo_cresize,
-            albedo_sresize, 
-            e_atm,
+            Rs_1resize,
+            zsresize,
+            aleafvresize, 
+            aleafnresize, 
+            aleaflresize, 
+            adeadvresize, 
+            adeadnresize, 
+            adeadlresize,
             albedoresize,
             ndviresize,
             LAIresize,
             clumpresize,
             hcresize,
             maskresize,
-            r_airresize,
-            cpresize,
             time,
             t_rise,
             t_end,
@@ -600,8 +604,10 @@ class disALEXI(object):
         g= None
         #---------->get ALEXI mask...
         ET_ALEXI[np.where(albedo<0)]=-9999
-        nullMask = ET_ALEXI.copy()
-        nullMask[cfmask>0]=-9999
+        mask = ET_ALEXI.copy()
+        mask[cfmask>0]=-9999.
+        mask[mask==0]=1.
+        mask[mask==-9999.] = 0.
         albedo[np.where(albedo<0)]=np.nan
         
         #====================get LC based variables===============================
@@ -639,7 +645,6 @@ class disALEXI(object):
         Rs24 = (Rs24*0.0864)/24.0 
 
         leaf_width = xl
-        z = np.tile(350.,np.shape(LAI))
         alpha_PT = np.tile(1.32,np.shape(LAI))
         time = self.dt.hour
         t_rise, t_end, zs = sunset_sunrise(self.dt,lon,lat,time)
@@ -650,31 +655,26 @@ class disALEXI(object):
         if TSEB_only==1:
             #convert TA from scaled celcius to kelvin
             T_A_K = (T_A_K/1000.)+273.15  
-            e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))
-            Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr = albedo_separation(
-                albedo, Rs_1, F, f_c, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, 
-                z, T_A_K, zs, 1)
-            r_air = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287  
-            cp = np.tile(1004.16,np.shape(T_A_K))
             output = TSEB_PT_usda(
                 Tr_K,
                 vza,
                 T_A_K,
                 u,
                 p,
-                Rs_c, 
-                Rs_s, 
-                albedo_c,
-                albedo_s, 
-                e_atm,
+                Rs_1,
+                zs,
+                aleafv, 
+                aleafn, 
+                aleafl, 
+                adeadv, 
+                adeadn, 
+                adeadl,
                 albedo,
                 ndvi,
                 LAI,
                 clump,
                 hc,
                 mask,
-                r_air,
-                cp,
                 time,
                 t_rise,
                 t_end,
@@ -690,12 +690,7 @@ class disALEXI(object):
             ET_24[ET_24<0.]=0.
             ET_24 = np.array(ET_24*1000,dtype='uint16')
         else:
-            e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))
-            Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr = albedo_separation(
-                albedo, Rs_1, F, f_c, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, 
-                z, T_A_K, zs, 1)
-            r_air = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287  
-            cp = np.tile(1004.16,np.shape(T_A_K))
+
             output = self.DisALEXI_PT(
                     ET_ALEXI,
                     Rs_1,
@@ -705,19 +700,19 @@ class disALEXI(object):
                     T_A_K,
                     u,
                     p,
-                    Rs_c, 
-                    Rs_s, 
-                    albedo_c,
-                    albedo_s, 
-                    e_atm,
+                    zs,
+                    aleafv, 
+                    aleafn, 
+                    aleafl, 
+                    adeadv, 
+                    adeadn, 
+                    adeadl,
                     albedo,
                     ndvi,
                     LAI,
                     clump,
                     hc,
                     mask,
-                    r_air,
-                    cp,
                     time,
                     t_rise,
                     t_end,
