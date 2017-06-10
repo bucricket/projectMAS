@@ -14,7 +14,7 @@ __all__ = ["landsat_metadata"]
 import os.path
 import numpy as np
 import logging
-from utils import RasterError,_test_outside
+from .utils import RasterError,_test_outside
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger('pydisalexi.geotiff')
 

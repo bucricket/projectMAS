@@ -8,7 +8,7 @@ Created on Fri Aug 12 11:39:37 2016
 import os
 import numpy as np
 import warnings
-from .disalexi import disALEXI
+from .disalexi_usda import disALEXI
 import argparse
 import glob
 from .utils import buildvrt,clean,folders
