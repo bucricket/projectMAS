@@ -28,7 +28,7 @@ from osgeo import gdal
 from osgeo.gdalconst import GA_ReadOnly
 from .TSEB_usda import TSEB_PT_usda
 from .TSEB_utils_usda import sunset_sunrise, albedo_separation
-from utils import writeArray2Tiff,getParFromExcel,warp,folders
+from .utils import writeArray2Tiff,getParFromExcel,warp,folders
 from scipy import ndimage
 from .landsatTools import landsat_metadata,GeoTIFF
 

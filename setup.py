@@ -4,7 +4,7 @@ import shutil
 import os
 try:
     from setuptools import setup
-    setup_kwargs = {'entry_points': {'console_scripts':['pydisalexi=pydisalexi.pydisalexi:main']}}
+    setup_kwargs = {'entry_points': {'console_scripts':['pydisalexi=pydisalexi.pydisalexi_usda:main']}}
 except ImportError:
     from distutils.core import setup
     setup_kwargs = {'scripts': ['bin/pydisalexi']}
