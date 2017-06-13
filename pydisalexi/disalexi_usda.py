@@ -409,6 +409,7 @@ class disALEXI(object):
         p = g.ReadAsArray(xStart,yStart,xSize,ySize)
         p /=100. #convert to mb
         g= None
+
             
         #------------get-> ea...
         outFN = os.path.join(sceneDir,'%s_q2Sub.tiff' % sceneID) 
@@ -648,7 +649,7 @@ class disALEXI(object):
         leaf_width = xl
         alpha_PT = np.tile(1.32,np.shape(LAI))
         time = self.dt.hour
-        t_rise, t_end, zs = sunset_sunrise(self.dt,lon,lat,time)
+        t_rise, t_end, zs = sunset_sunrise(self.dt,np.deg2rad(lon),np.deg2rad(lat),time)
 
        
     #================RUN DisALEXI=================================

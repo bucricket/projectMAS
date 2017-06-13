@@ -60,28 +60,31 @@ def sunset_sunrise(dt,lon,lat,time_t):
     an_sun = 357.52911+j_cen*(35999.05029 - 0.0001537*j_cen)
     ecc = 0.016708634-j_cen*(0.000042037+0.0000001267*j_cen)
     ob_ecl = 23.+(26.+((21.448-j_cen*(46.815+j_cen*(0.00059-j_cen*0.001813))))/60.)/60.
-    ob_corr = ob_ecl+0.00256*np.cos((125.04-1934.136*j_cen)*np.pi/180.)
-    var_y = np.tan(ob_corr/2.*np.pi/180.)*np.tan(ob_corr/2.*np.pi/180.)
-    eq_t = 4.*(var_y*np.sin(2.*lon_sun*np.pi/180.)-2.*ecc*np.sin(an_sun*np.pi/180.)
-    +4.*ecc*var_y*np.sin(an_sun*np.pi/180.)*np.cos(2.*lon_sun*np.pi/180.)-0.5*var_y*
-    var_y*np.sin(4.*lon_sun*np.pi/180.)-1.25*ecc*ecc*np.sin(2.*an_sun*np.pi/180.))*180./np.pi
+    ob_corr = ob_ecl+0.00256*np.cos(np.deg2rad(125.04-1934.136*j_cen))
+    var_y = np.tan(np.deg2rad(ob_corr/2.))*np.tan(np.deg2rad(ob_corr/2.))
+    eq_t = np.rad2deg(4.*(var_y*np.sin(np.deg2rad(2.*lon_sun))-2.*ecc*np.sin(np.deg2rad(an_sun))
+    +4.*ecc*var_y*np.sin(np.deg2rad(an_sun))*np.cos(np.deg2rad(2.*lon_sun))-0.5*var_y*
+    var_y*np.sin(np.deg2rad(4.*lon_sun))-1.25*ecc*ecc*np.sin(np.deg2rad(2*an_sun))))
+#    
+#      eq_t = 4*(var_y*sin(2*lon_sun*!pi/180.)-2*ecc*sin(an_sun*!pi/180.)+4*ecc*var_y*sin(an_sun*!pi/180.)*cos(2*lon_sun*!pi/180.)-$
+#    0.5*var_y*var_y*sin(4*lon_sun*!pi/180.)-1.25*ecc*ecc*sin(2*an_sun*!pi/180.))*180./!pi
     
-    sun_eq = np.sin(an_sun*np.pi/180.)*(1.914602-j_cen*(0.004817+0.000014*j_cen))+\
-        np.sin(2.*an_sun*np.pi/180.)*(0.019993-0.000101*j_cen)+np.sin(3.*an_sun*np.pi/180.)*0.000289
+    sun_eq = np.sin(np.deg2rad(an_sun))*(1.914602-j_cen*(0.004817+0.000014*j_cen))+\
+        np.sin(np.deg2rad(2.*an_sun))*(0.019993-0.000101*j_cen)+np.sin(np.deg2rad(3.*an_sun))*0.000289
     sun_true = sun_eq+lon_sun
-    sun_app = sun_true-0.00569-0.00478*np.sin((125.04-1934.136*j_cen)*np.pi/180.)
-    d = (np.arcsin(np.sin(ob_corr*np.pi/180.)*np.sin(sun_app*np.pi/180.)))*180./np.pi
-  
-    ha_t = (np.arccos(np.cos(90.833*np.pi/180.)/(np.cos(lat)*np.cos(d*np.pi/180.))-np.tan(lat)*np.tan(d*np.pi/180.)))*180./np.pi
+    sun_app = sun_true-0.00569-0.00478*np.sin(np.deg2rad((125.04-1934.136*j_cen)))
+    d = np.rad2deg((np.arcsin(np.sin(np.deg2rad(ob_corr))*np.sin(np.deg2rad(sun_app)))))
+    ha_t = np.rad2deg(np.arccos(np.cos(np.deg2rad(90.833))/(np.cos(lat)*np.cos(np.deg2rad(d)))-np.tan(lat)*np.tan(np.deg2rad(d))))
   
 #  if time_t == 0:
 #    t_noon = (720.-4.*(lon*180./np.pi)-eq_t)/1440.*24.
-    t_noon = (720.-4.*(np.deg2rad(lon))-eq_t)/1440.*24.
+
+    t_noon = (720.-4.*np.rad2deg(lon)-eq_t)/1440.*24.
     t_rise = ((t_noon/24.)-(ha_t*4./1440.))*24.
     t_end = ((t_noon/24.)+(ha_t*4./1440.))*24.
  
 #    ts_time = ((time_t/24.*1440+eq_t+4*(lon*180./np.pi)) mod 1440)
-    ts_time = ((time_t/24.*1440+eq_t+4.*np.deg2rad(lon)) % 1440.)
+    ts_time = ((time_t/24.*1440+eq_t+4.*np.rad2deg(lon)) % 1440.)
     ts_time[ts_time > 1440.] = ts_time[ts_time > 1440.]-1440.
 #  ts_time = ((ts_time le 1440.)*ts_time)+((ts_time gt 1440.)*(ts_time-1440.))
 #  w = ((ts_time/4. lt 0)*(ts_time/4.+180.))+((ts_time/4. ge 0)*(ts_time/4.-180.))
@@ -89,7 +92,7 @@ def sunset_sunrise(dt,lon,lat,time_t):
     w[ts_time/4. >= 0] = ts_time[ts_time/4. >= 0.]/4.-180.
 
   
-    zs = np.arccos((np.sin(lat)*np.sin(d*np.pi/180.))+(np.cos(lat)*np.cos(d*np.pi/180.)*np.cos(w*np.pi/180.)))
+    zs = np.arccos((np.sin(lat)*np.sin(np.deg2rad(d)))+(np.cos(lat)*np.cos(np.deg2rad(d))*np.cos(np.deg2rad(w))))
 #  ;zs = ((fc eq bad)*0.01)+((fc ne bad)*zs)
 #    cosq = np.cos(zs)
   
