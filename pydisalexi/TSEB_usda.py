@@ -791,6 +791,7 @@ def TSEB_PT_usda(
         mask_iter  = np.logical_and((H_iter/H) <= 1.05,(H_iter/H) >= 0.95)
     #        mask_iter = (((H_iter/H) le 1.05) and ((H_iter/H) ge 0.95))
         chk_iter = np.sum(mask_iter)/np.size(mask_iter)
+        print(chk_iter)
     #        chk_iter = total(mask_iter)/n_elements(mask_iter)
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)
     #        compute_stability, H, Tr_K, r_air, u_attr, z_u, z_T, hc, d0, z0m, z0h
