@@ -732,6 +732,10 @@ def TSEB_PT_usda(
     e_s = (0.6108*np.exp((17.27*T_A_K)/(T_A_K+237.3)))
     Ss = 4098.*e_s/((T_A_K+237.3)**2)
     lambda1 = (2.501-(0.002361*T_A_K))*1000000
+    z = np.tile(350.,np.shape(hc))
+    ####+++TESING IDL SCRIPT##########
+    p = 101.3*(((293.-0.0065*z)/293.)**5.26)
+    ###################################
     g = 1615.*p/lambda1
 
 #      sunset_sunrise, julian, lon, lat, 0
@@ -743,7 +747,7 @@ def TSEB_PT_usda(
     # Inizialitaziono of TSEB
     a_PT = mask*a_PT_in
     e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))
-    z = np.tile(350.,np.shape(hc))
+
     Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr = albedo_separation(
                 albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, 
                 z, T_A_K, zs, 1)
