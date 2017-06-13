@@ -293,6 +293,7 @@ class disALEXI(object):
         clumpresize = np.tile(np.resize(clump,[np.size(hc),1]),(1,MatXsize))
         hcresize = np.tile(np.resize(hc,[np.size(hc),1]),(1,MatXsize))
         maskresize = np.tile(np.array(np.resize(mask,[np.size(hc),1])),(1,MatXsize))
+        leaf_widthresize = np.tile(np.resize(leaf_width,[np.size(hc),1]),(1,MatXsize))
         alpha_PTresize = np.tile(np.resize(alpha_PT,[np.size(hc),1]),(1,MatXsize))
 
         # run TSEB over TA options
@@ -319,7 +320,7 @@ class disALEXI(object):
             time,
             t_rise,
             t_end,
-            leaf_width=leaf_width,
+            leaf_width=leaf_widthresize,
             a_PT_in=alpha_PTresize)
             
         scaling = 1.0
