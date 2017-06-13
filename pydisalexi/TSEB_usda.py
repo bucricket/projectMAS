@@ -563,8 +563,6 @@ def TSEB_PT_usda(
     clump,
     hc,
     mask,
-    r_air,
-    cp,
     time,
     t_rise,
     t_end,
