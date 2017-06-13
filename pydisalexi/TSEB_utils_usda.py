@@ -148,8 +148,10 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     ind = dirnir >= fb2
     dirnir[ind]=fb1[ind]
     
-    dirvis[((dirvis < 0.01) and (dirnir > 0.01))] = 0.11
-    dirnir[((dirnir < 0.01) and (dirvis > 0.01))] = 0.11
+    ind = np.logical_and((dirvis < 0.01),(dirnir > 0.01))
+    dirvis[ind] = 0.11
+    ind  = np.logical_and((dirnir < 0.01),(dirvis > 0.01))
+    dirnir[ind] = 0.11
 
     
     difvis = 1.-dirvis
@@ -257,13 +259,13 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         
 #        ind = np.logical_and((fc< 0.75), (abs(diff) <= 0.01))
 #        rsoilv[ind] = rsoilv[ind]
-        ind = np.logical_an((fc< 0.75), (abs(diff) <= -0.01))
+        ind = np.logical_and((fc< 0.75), (abs(diff) <= -0.01))
         rsoilv[ind] = rsoilv[ind]+0.01
         ind = np.logical_and((fc< 0.75),(abs(diff) > 0.01))
         rsoilv[ind] = rsoilv[ind]-0.01
         
 
-        ind = np.logical_an((fc>= 0.75), (abs(diff) <= -0.01))
+        ind = np.logical_and((fc>= 0.75), (abs(diff) <= -0.01))
         fg[ind] = fg[ind]+0.05
         ind = np.logical_and((fc>= 0.75),(abs(diff) > 0.01))
         fg[ind] = fg[ind]-0.05
