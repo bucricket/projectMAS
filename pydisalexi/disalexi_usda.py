@@ -293,6 +293,9 @@ class disALEXI(object):
         clumpresize = np.tile(np.resize(clump,[np.size(hc),1]),(1,MatXsize))
         hcresize = np.tile(np.resize(hc,[np.size(hc),1]),(1,MatXsize))
         maskresize = np.tile(np.array(np.resize(mask,[np.size(hc),1])),(1,MatXsize))
+        timeresize = np.tile(np.array(np.resize(time,[np.size(hc),1])),(1,MatXsize))
+        t_riseresize = np.tile(np.array(np.resize(t_rise,[np.size(hc),1])),(1,MatXsize))
+        t_endresize = np.tile(np.array(np.resize(t_end,[np.size(hc),1])),(1,MatXsize))
         leaf_widthresize = np.tile(np.resize(leaf_width,[np.size(hc),1]),(1,MatXsize))
         alpha_PTresize = np.tile(np.resize(alpha_PT,[np.size(hc),1]),(1,MatXsize))
 
@@ -317,9 +320,9 @@ class disALEXI(object):
             clumpresize,
             hcresize,
             maskresize,
-            time,
-            t_rise,
-            t_end,
+            timeresize,
+            t_riseresize,
+            t_endresize,
             leaf_width=leaf_widthresize,
             a_PT_in=alpha_PTresize)
             
