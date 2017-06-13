@@ -140,11 +140,13 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     ratiox = fclear.copy()
     ratiox[fclear > 0.9] = 0.9
     dirvis = fb1*(1.-((.9-ratiox)/.7)**.6667)
-    dirvis[dirvis >= fb1]=fb1
+    ind = dirvis >= fb1
+    dirvis[ind]=fb1[ind]
     ratiox = fclear.copy()
     ratiox[fclear > 0.88] = 0.88
     dirnir = fb1*(1.-((.88-ratiox)/.68)**.6667)
-    dirnir[dirnir >= fb2]=fb1
+    ind = dirnir >= fb2
+    dirnir[ind]=fb1[ind]
     
     dirvis[((dirvis < 0.01) and (dirnir > 0.01))] = 0.11
     dirnir[((dirnir < 0.01) and (dirvis > 0.01))] = 0.11
@@ -246,7 +248,8 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         
         #weighted albedo (canopy)
         albedo_c = fvis*(dirvis*albbv+difvis*albdv)+fnir*(dirnir*albbn+difnir*albdn)
-        albedo_c[np.cos(zs) <= 0.01] = (fvis*(difvis*albdv)+fnir*(difnir*albdn))
+        ind = np.cos(zs) <= 0.01
+        albedo_c[ind] = (fvis[ind]*(difvis[ind]*albdv[ind])+fnir[ind]*(difnir[ind]*albdn[ind]))
         albedo_s = fvis*rsoilv+fnir*rsoiln
         
         albedo_avg = (fc*albedo_c)+((1-fc)*albedo_s)
