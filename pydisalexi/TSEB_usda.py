@@ -709,7 +709,7 @@ def TSEB_PT_usda(
     z0h[F<=0.1]=0.0001
     
     # Correction of roughness parameters for water bodies (NDVI < 0 and albedo < 0.05)
-    ind  = np.logical_and((ndvi<=0),(albedo <=0.05))
+    ind  = np.logical_and((ndvi<=0.),(albedo <=0.05))
     d_0[ind]=0.00001
     z0m[ind]=0.00035
     z0h[ind]=0.00035
@@ -734,7 +734,6 @@ def TSEB_PT_usda(
     lambda1 = (2.501-(0.002361*(T_A_K-273.16)))*1000000
     z = np.tile(350.,np.shape(hc))
     ####+++TESING IDL SCRIPT##########
-    z=350.
     p = 101.3*(((293.-0.0065*z)/293.)**5.26)
     ###################################
     g = 1615.*p/lambda1
