@@ -729,11 +729,12 @@ def TSEB_PT_usda(
     
     #************************************************************************
     # Atmospheric Parameters
-    e_s = (0.6108*np.exp((17.27*(T_A_K-273.15))/((T_A_K-273.15)+237.3)))
-    Ss = 4098.*e_s/(((T_A_K-273.15)+237.3)**2)
-    lambda1 = (2.501-(0.002361*(T_A_K-273.15)))*1000000
+    e_s = (0.6108*np.exp((17.27*(T_A_K-273.16))/((T_A_K-273.16)+237.3)))
+    Ss = 4098.*e_s/(((T_A_K-273.16)+237.3)**2)
+    lambda1 = (2.501-(0.002361*(T_A_K-273.16)))*1000000
     z = np.tile(350.,np.shape(hc))
     ####+++TESING IDL SCRIPT##########
+    z=350.
     p = 101.3*(((293.-0.0065*z)/293.)**5.26)
     ###################################
     g = 1615.*p/lambda1
@@ -768,6 +769,9 @@ def TSEB_PT_usda(
     # Start Loop for Stability Correction and Water Stress
     for i in range(35):
         Rn_s, Rn_c, Rn = compute_Rn(albedo_c, albedo_s, T_A_K, Tc, Ts, e_atm, Rs_c, Rs_s, F)
+        print("Rn_s:%f" % Rn_c)
+        print("Rn_c:%f" % Rn_s)
+        print("Rn:%f" % Rn)
         G0 = compute_G0(Rn, Rn_s, albedo, ndvi, t_rise, t_end, time, EF_s)
       
         lETc = f_green*(a_PT*Ss/(Ss+g))*Rn_c
