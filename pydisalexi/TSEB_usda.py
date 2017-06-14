@@ -756,7 +756,7 @@ def TSEB_PT_usda(
     cp = np.tile(1004.16,np.shape(T_A_K))
   
     # Assume neutral conditions on first iteration  
-    r_ah, r_s, r_x, u_attr = compute_resistence(u, T_A_K, T_A_K, hc, F, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, 0, 0, 0)
+    r_ah, r_s, r_x, u_attr = compute_resistence(u, T_A_K, T_A_K, hc, lai, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, 0, 0, 0)
 #      compute_resistence, U, T_A_K, T_A_K, hc, lai, d0, z0m, z0h, z_U, z_T, leaf_width, leaf, leafs, leafc, 0, 0, 0     
 
     Tc=T_A_K
@@ -797,7 +797,7 @@ def TSEB_PT_usda(
     #        chk_iter = total(mask_iter)/n_elements(mask_iter)
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)
     #        compute_stability, H, Tr_K, r_air, u_attr, z_u, z_T, hc, d0, z0m, z0h
-        r_ah, r_s, r_x, u_attr = compute_resistence(u, Ts, Tc, hc, F, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, fm, fh, fm_h)
+        r_ah, r_s, r_x, u_attr = compute_resistence(u, Ts, Tc, hc, lai, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, fm, fh, fm_h)
     #        compute_resistence, u, Ts, Tc, hc, lai, d0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, fm, fh, fm_h
     
         a_PT[lEs<=0.] = a_PT[lEs<=0.]-0.05

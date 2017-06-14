@@ -560,8 +560,8 @@ class disALEXI(object):
         g = gdal.Open(outFN,GA_ReadOnly)
         LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)*0.001
         g= None
-        LAI[np.where(LAI==-9.999)]=np.nan
-        LAI[np.where(LAI<=0.)]=0.001
+#        LAI[np.where(LAI==-9.999)]=np.nan
+#        LAI[np.where(LAI<=0.)]=0.001
         
 #        hdf = SD(outFN,SDC.READ)
 #        data2D = hdf.select('LAI')
@@ -631,7 +631,7 @@ class disALEXI(object):
         clump = getParFromExcel(LCdata,landsatLC,landcover,'omega')
     
     
-        LAI[np.isnan(LAI)]=0.01
+#        LAI[np.isnan(LAI)]=0.01
         F = LAI*clump                                 #LAI for leafs spherical distribution 
         f_c = 1-(np.exp(-0.5*F))                          #fraction cover at nadir (view=0)
         f_c[f_c<=0.01]=0.01
@@ -641,7 +641,7 @@ class disALEXI(object):
         #Compute Canopy height and Roughness Parameters
         hc = hc_min+((hc_max-hc_min)*f_c)
     
-        LAI[np.where(LAI==0.0)]=0.001        
+#        LAI[np.where(LAI==0.0)]=0.001        
         vza = np.tile(0.0,np.shape(LAI))
 
         
