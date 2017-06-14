@@ -109,7 +109,7 @@ def main():
             print 'cleaning up...'
             
             clean(os.path.join(resultsBase,scene),"ETd")
-            clean(os.path.join(resultsBase,scene),"Ta")
+#            clean(os.path.join(resultsBase,scene),"Ta")
             lat_fName = os.path.join(landsatSR,'temp','lat.tif')
             lon_fName = os.path.join(landsatSR,'temp','lon.tif')
             os.remove(lat_fName)
