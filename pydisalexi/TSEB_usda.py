@@ -774,13 +774,12 @@ def TSEB_PT_usda(
         lETc[lETc <=0.] = 0.
     #        lETc = ((lETc le 0.)*0.)+((lETc gt 0)*lETc)
         H_c = Rn_c-lETc
-        Tc,Ts,Tac = temp_separation(H_c, fc, T_A_K, Tr_K, r_ah, r_x, r_s, r_air,cp)
+        Tc,Ts,Tac = temp_separation(H_c, fc_q, T_A_K, Tr_K, r_ah, r_x, r_s, r_air,cp)
     #        temp_separation, H_c, fc_q, T_A_K, Tr_K, r_ah, r_x, r_s, r_air
       
         H_s = r_air*cp*(Ts-Tac)/r_s
         H_c = r_air*cp*(Tc-Tac)/r_x
         H = H_s+H_c
-#        print("H: %f" % H[1000,0])
     
         lEs = Rn_s-G0-H_s
         lETc = Rn_c-H_c
@@ -802,7 +801,7 @@ def TSEB_PT_usda(
         a_PT[lEs<=0.] = a_PT[lEs<=0.]-0.05
     #        a_PT = ((lEs gt 0)*a_PT)+((lEs le 0)*(a_PT-0.05))       ; reduce alpha-PT if soil evaporaton is <0
     #       ;a_PT = ((lETc gt 0)*a_PT)+((lETc le 0)*0.)             ; canopy transpiration should be >=0
-        a_PT[a_PT <=0.] =  0.01
+        a_PT[a_PT <= 0.] =  0.01
     #        a_PT = ((a_PT gt 0)*a_PT)+((a_PT le 0)*0.01)            ; canopy transpiration should be >=0
       
         H_iter = H
