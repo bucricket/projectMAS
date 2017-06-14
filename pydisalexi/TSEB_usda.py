@@ -769,9 +769,6 @@ def TSEB_PT_usda(
     # Start Loop for Stability Correction and Water Stress
     for i in range(35):
         Rn_s, Rn_c, Rn = compute_Rn(albedo_c, albedo_s, T_A_K, Tc, Ts, e_atm, Rs_c, Rs_s, F)
-        print("Rn_s:%f" % Rn_c[1000,5])
-        print("Rn_c:%f" % Rn_s[1000,5])
-        print("Rn:%f" % Rn[1000,5])
         G0 = compute_G0(Rn, Rn_s, albedo, ndvi, t_rise, t_end, time, EF_s)
       
         lETc = f_green*(a_PT*Ss/(Ss+g))*Rn_c
@@ -784,6 +781,7 @@ def TSEB_PT_usda(
         H_s = r_air*cp*(Ts-Tac)/r_s
         H_c = r_air*cp*(Tc-Tac)/r_x
         H = H_s+H_c
+        print("H: %f" % H[1000,0])
     
         lEs = Rn_s-G0-H_s
         lETc = Rn_c-H_c
