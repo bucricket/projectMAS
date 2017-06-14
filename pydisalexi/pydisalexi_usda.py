@@ -88,8 +88,8 @@ def main():
 #            dd.runDisALEXI(0,0,ALEXIgeodict,0)
 ##            nsamples = int(meta.REFLECTIVE_SAMPLES)
 ##            nlines = int(meta.REFLECTIVE_LINES)
-#            nsamples = ll.nrow
-#            nlines = ll.ncol
+            nsamples = ll.nrow
+            nlines = ll.ncol
 #            print 'Running disALEXI...'
 #            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
 #            
