@@ -279,7 +279,7 @@ class disALEXI(object):
         T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
         Tr_ADD = np.tile(np.transpose(range(0,20,3)),[np.size(hc),1])
         Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])
-        T_A_Kresize = Tr_ADD+Tr_Kcol
+        T_A_Kresize = Tr_Kcol-Tr_ADD
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
         presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
         Rs_1resize = np.tile(np.resize(Rs_1,[np.size(Rs_1),1]),(1,MatXsize))
