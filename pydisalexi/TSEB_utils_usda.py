@@ -175,7 +175,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
 #    Rs0 = ((np.cos(zs) le 0.01)*0.)+((np.cos(zs) gt 0.01)*Rs0)
   
     #apparent emissivity (Sedlar and Hock, 2009: Cryosphere 3:75-84)
-    e_atm = 1-(0.2811*(np.exp(-0.0003523*(t_air**2))))              #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
+    e_atm = 1-(0.2811*(np.exp(-0.0003523*((t_air-273.16)**2))))              #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
     fclear[Rs0 <= 50] = 1.
   
     #**********************************************
@@ -396,7 +396,7 @@ def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
     Tc[fc < 0.10]=t0[fc < 0.10]
     Tc[fc >0.90]=t0[fc >0.90]
   
-    Delta = ((t0+273.16)**4)-(fc*((Tc+273.16)**4))
+    Delta = (t0**4)-(fc*(Tc**4))
     Delta[Delta<=0]=10
 
 #    Ts = (((t0**4)-(fc*(Tc)**4)) le 0)*(((t0-(fc*Tc))/(1-fc))-273.16))+(((t0**4)-(fc*(Tc**4)) gt 0)*(((Delta/(1-fc))**0.25)-273.16))
