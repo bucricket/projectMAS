@@ -390,7 +390,7 @@ class disALEXI(object):
         if yStart==((nlines/200)*200):
             ySize = (nlines-yStart)-1
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-        sz = np.radians(solZen) # convert sza to radians
+        sz = np.radians(90-solZen) # convert sza to radians
     
     
         #===========================get the ETd data==============================
@@ -645,16 +645,15 @@ class disALEXI(object):
         vza = np.tile(0.0,np.shape(LAI))
 
         
-        zs = np.tile(sz,np.shape(LAI))
+        
 
         Rs24 = (Rs24*0.0864)/24.0 
 
         leaf_width = xl
         alpha_PT = np.tile(1.32,np.shape(LAI))
-        utc = 6
-        time = self.dt.hour-utc
+        time = self.dt.hour
         t_rise, t_end, zs = sunset_sunrise(self.dt,np.deg2rad(lon),np.deg2rad(lat),time)
-
+        zs = np.tile(sz,np.shape(LAI))
        
     #================RUN DisALEXI=================================
         
