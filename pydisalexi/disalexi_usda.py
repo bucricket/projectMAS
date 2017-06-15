@@ -333,6 +333,7 @@ class disALEXI(object):
         Fsun =  (output[4]+output[6])/np.resize(Rs_1,[np.size(hc),1])
         EFeq=Fsun*(np.reshape(Rs24in,[np.size(hc),1]))
         et = EFeq/2.45*scaling
+        et[et<0.01] = 0.01
         
         # ======interpolate over mutiple Ta solutions===========================================
 
@@ -692,7 +693,7 @@ class disALEXI(object):
             Rs24 = ndimage.gaussian_filter(Rs24, sigma=5)
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
-            ET_24[ET_24<0.]=0.
+            ET_24[ET_24<0.01]=0.01
             ET_24 = np.array(ET_24*1000,dtype='uint16')
         else:
 

@@ -114,10 +114,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     zs_temp[np.rad2deg(zs)>=89.5] = np.deg2rad(89.5)
     ind = np.rad2deg(zs) <89.5 
     airmas[ind] = (airmas[ind]-2.8/(90.-(np.rad2deg(zs_temp[ind]))**2))  #Correct for refraction(good up to 89.5 deg.)
-    
-#    airmas = (sqrt(cos(zs)^2+.0025)-cos(zs))/.00125                                                      ;Correct for curvature of atmos in airmas
-#  zs_temp = ((zs/!DTOR lt 89.5)*(zs))+((zs/!DTOR ge 89.5)*(89.5*!DTOR))
-#  airmas = ((zs/!DTOR lt 89.5)*(airmas-2.8/(90.-(zs_temp/!DTOR))^2))+((zs/!DTOR ge 89.5)*airmas) 
+
     potbm1 = 600.*np.exp(-.160*airmas)
     potvis = (potbm1+(600.-potbm1)*.4)*np.cos(zs)
     potdif = (600.-potbm1)*.4*np.cos(zs)
@@ -133,23 +130,6 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     fclear[fclear > 1.]=1.
     fclear[np.cos(zs) <= 0.01]=1.
     fclear[fclear <= 0.01]= 0.01
-
-#  potbm1 = 600.*exp(-.160*airmas)
-#  potvis = (potbm1+(600.-potbm1)*.4)*cos(zs)
-#  potdif = (600.-potbm1)*.4*cos(zs)
-#  uu = 1.0/cos(zs)
-#  uu = ((uu le 0.01)*0.01)+((uu gt 0)*uu)
-#  axlog = alog10(uu)
-#  a = 10^(-1.195+.4459*axlog-.0345*axlog*axlog)
-#  watabs = 1320.*a
-#  potbm2 = 720.*exp(-.05*airmas)-watabs
-#  potbm2 = (potbm2 gt 0.)*potbm2
-#  eval = (720.-potbm2-watabs)*.54*cos(zs)
-#  potnir = eval+potbm2*cos(zs)
-#  fclear = Rs_1/(potvis+potnir)
-#  fclear = ((fclear le 1.)*fclear)+((fclear gt 1.)*1.)
-#  fclear = ((cos(zs) le 0.01)*1.)+((cos(zs) gt 0.01)*fclear)
-#  fclear = ((fclear le 0.01)*0.01)+((fclear gt 0.01)*fclear)
   
     #Partition SDN into VIS and NIR
     fvis = potvis/(potvis+potnir)
@@ -171,28 +151,9 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     dirnir[ind]=fb1[ind]
     
     ind = np.logical_and((dirvis < 0.01),(dirnir > 0.01))
-    dirvis[ind] = 0.11
+    dirvis[ind] = 0.011
     ind  = np.logical_and((dirnir < 0.01),(dirvis > 0.01))
-    dirnir[ind] = 0.11
-
-#  fb1 = potbm1*cos(zs)/potvis
-#  fb2 = potbm2*cos(zs)/potnir
-#  
-#  ratiox = ((fclear gt 0.9)*0.9)+((fclear le 0.9)*fclear)
-#  dirvis = fb1*(1.-((.9-ratiox)/.7)^.6667)
-#  dirvis = (dirvis gt 0)*dirvis
-#  dirvis = ((dirvis lt fb1)*dirvis)+((dirvis ge fb1)*fb1)
-#  
-#  ratiox = ((fclear gt 0.88)*0.88)+((fclear le 0.88)*fclear)
-#  dirnir = fb1*(1.-((.88-ratiox)/.68)^.6667)
-#  dirnir = (dirnir gt 0)*dirnir
-#  dirnir = ((dirnir lt fb2)*dirnir)+((dirnir ge fb2)*fb1)
-#  
-#  dirvis = (((dirvis lt 0.01) and (dirnir gt 0.01))*0.011)+ $
-#    (((dirvis ge 0.01) or (dirnir le 0.01))*dirvis)
-#    
-#  dirnir = (((dirnir lt 0.01) and (dirvis gt 0.01))*0.011)+ $
-#    (((dirnir ge 0.01) or (dirvis le 0.01))*dirnir)
+    dirnir[ind] = 0.011
 
     
     difvis = 1.-dirvis
@@ -204,23 +165,14 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     fnir[ind] = 0.5
     difvis[ind] = 0.
     difnir[ind] = 0.
-#  fvis = ((cos(zs) le 0.01)*0.5)+((cos(zs) gt 0.01)*fvis)
-#  fnir = ((cos(zs) le 0.01)*0.5)+((cos(zs) gt 0.01)*fnir)
-#  difvis = ((cos(zs) le 0.01)*1.)+((cos(zs) gt 0.01)*difvis)
-#  difnir = ((cos(zs) le 0.01)*1.)+((cos(zs) gt 0.01)*difnir)
-#  dirvis = ((cos(zs) le 0.01)*0.)+((cos(zs) gt 0.01)*dirvis)
-#  dirnir = ((cos(zs) le 0.01)*0.)+((cos(zs) gt 0.01)*dirnir)
   
     Rs0 = potvis+potnir
     Rs0[np.cos(zs) <= 0.01] = 0.
-#  Rs0 = ((cos(zs) le 0.01)*0.)+((cos(zs) gt 0.01)*Rs0)
 
   
     #apparent emissivity (Sedlar and Hock, 2009: Cryosphere 3:75-84)
     e_atm = 1.-(0.2811*(np.exp(-0.0003523*((t_air-273.16)**2.))))              #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
     fclear[Rs0 <= 50.] = 1.
-#  e_atm = 1-(0.2811*(exp(-0.0003523*(t_air^2))))              ;atmospheric emissivity (clear-sly) Idso and Jackson (1969)
-#  fclear = ((Rs0 le 50)*1)+((Rs0 gt 50)*fclear)
   
     #**********************************************
     # Compute Albedo
@@ -254,14 +206,6 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         rdcpyn = 2.0*akd*rcpyn/(akd+1.0)                  #Eq 15.8
         rdcpyv = 2.0*akd*rcpyv/(akd+1.0)
         rdcpyl = 2.0*akd*rcpyl/(akd+1.0)
-#        
-#    akd = -0.0683*alog(F)+0.804                       ;Fit to Fig 15.4 for x=1
-#    rcpyn = (1.0-sqrt(ameann))/(1.0+sqrt(ameann))     ;Eq 15.7
-#    rcpyv = (1.0-sqrt(ameanv))/(1.0+sqrt(ameanv))
-#    rcpyl = (1.0-sqrt(ameanl))/(1.0+sqrt(ameanl))
-#    rdcpyn = 2.0*akd*rcpyn/(akd+1.0)                  ;Eq 15.8
-#    rdcpyv = 2.0*akd*rcpyv/(akd+1.0)
-#    rdcpyl = 2.0*akd*rcpyl/(akd+1.0)
         
         #canopy transmission (VIS)
         expfac = np.sqrt(ameanv)*akd*F
@@ -270,12 +214,6 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         xnum = (rdcpyv*rdcpyv-1.0)*np.exp(-expfac)
         xden = (rdcpyv*rsoilv-1.0)+rdcpyv*(rdcpyv-rsoilv)*np.exp(-2.0*expfac)
         taudv = xnum/xden         #Eq 15.11
-        
-#    expfac = sqrt(ameanv)*akd*F
-#    expfac = ((expfac lt 0.001)*0.001)+((expfac ge 0.001)*expfac)
-#    xnum = (rdcpyv*rdcpyv-1.0)*exp(-expfac)
-#    xden = (rdcpyv*rsoilv-1.0)+rdcpyv*(rdcpyv-rsoilv)*exp(-2.0*expfac)
-#    taudv = xnum/xden         ;Eq 15.11
         
         #canopy transmission (NIR)
         expfac = np.sqrt(ameann)*akd*F
@@ -292,10 +230,6 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         albdn = (rdcpyn+fact)/(1.0+rdcpyn*fact)
         fact = ((rdcpyv-rsoilv)/(rdcpyv*rsoilv-1.0))*np.exp(-2.0*np.sqrt(ameanv)*akd*F)   #Eq 15.9
         albdv = (rdcpyv+fact)/(1.0+rdcpyv*fact)
-#    fact = ((rdcpyn-rsoiln)/(rdcpyn*rsoiln-1.0))*exp(-2.0*sqrt(ameann)*akd*F)   ;Eq 15.9        
-#    albdn = (rdcpyn+fact)/(1.0+rdcpyn*fact)
-#    fact = ((rdcpyv-rsoilv)/(rdcpyv*rsoilv-1.0))*exp(-2.0*sqrt(ameanv)*akd*F)   ;Eq 15.9
-#    albdv = (rdcpyv+fact)/(1.0+rdcpyv*fact)
 
         #BEAM COMPONENT
         #*******************************
@@ -322,9 +256,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         
         albedo_avg = (fc*albedo_c)+((1-fc)*albedo_s)
         diff = albedo_avg-albedo
-        
-#        ind = np.logical_and((fc< 0.75), (abs(diff) <= 0.01))
-#        rsoilv[ind] = rsoilv[ind]
+
         ind = np.logical_and((fc< 0.75), (abs(diff) <= -0.01))
         rsoilv[ind] = rsoilv[ind]+0.01
         ind = np.logical_and((fc< 0.75),(abs(diff) > 0.01))
@@ -338,23 +270,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         
         fg[fg >1.] = 1.
         fg[fg<0.01] = 0.01
-        
-#    albedo_c = fvis*(dirvis*albbv+difvis*albdv)+fnir*(dirnir*albbn+difnir*albdn)
-#    albedo_c = ((cos(zs) le 0.01)*(fvis*(difvis*albdv)+fnir*(difnir*albdn)))+((cos(zs) gt 0.01)*albedo_c)
-#    albedo_s = fvis*rsoilv+fnir*rsoiln
-#    
-#    albedo_avg = (fc*albedo_c)+((1-fc)*albedo_s)
-#    diff = albedo_avg-albedo
-#    
-#    rsoilv = ((fc lt 0.75)*(((abs(diff) le 0.01)*rsoilv)+((diff le -0.01)*(rsoilv+0.01))+((diff gt 0.01)*(rsoilv-0.01))))+$
-#      ((fc ge 0.75)*rsoilv)
-#    fg = ((fc ge 0.75)*(((abs(diff) le 0.01)*fg)+((diff le -0.01)*(fg-0.05))+((diff gt 0.01)*(fg+0.05))))+$
-#      ((fc lt 0.75)*fg)
-#    fg = ((fg gt 1)*1)+((fg le 1)*fg)
-#    fg = ((fg lt 0.01)*0.01)+((fg ge 0.01)*fg)
 
-    
-#  END
     if control == 1:
         fg_itr = fg
         rsoilv_itr = rsoilv
@@ -377,7 +293,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
   
     #shortwave radition components
     tausolar = fvis*(difvis*taudv+dirvis*taubtv)+fnir*(difnir*taudn+dirnir*taubtn)
-    Rs_c = Rs_1*(1-tausolar)
+    Rs_c = Rs_1*(1.-tausolar)
     Rs_s = Rs_1*tausolar
     
     return Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr
@@ -471,7 +387,7 @@ def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
     Tc[fc >0.90]=t0[fc >0.90]
   
     Delta = (t0**4)-(fc*(Tc**4))
-    Delta[Delta<=0]=10
+    Delta[Delta<=0]=10.
 
 #    Ts = (((t0**4)-(fc*(Tc)**4)) le 0)*(((t0-(fc*Tc))/(1-fc))-273.16))+(((t0**4)-(fc*(Tc**4)) gt 0)*(((Delta/(1-fc))**0.25)-273.16))
     Ts= (Delta/(1-fc))**0.25
