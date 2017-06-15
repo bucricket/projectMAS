@@ -696,8 +696,6 @@ def TSEB_PT_usda(
     fc_q=1-(np.exp(-0.5*F/np.cos(np.deg2rad(vza))))          # Houborg modification (according to Anderson et al. 2005)
     fc_q[fc_q <= 0.05] = 0.05
     fc_q[fc_q >= 0.90] = 0.90
-#      fc_q = ((fc_q le 0.05)*0.05)+((fc_q gt 0.05)*fc_q)
-#      fc_q = ((fc_q ge 0.90)*0.90)+((fc_q lt 0.90)*fc_q)
 
     z0m = 0.123*hc                              #;Brutsaert (1982)
     z0h = z0m.copy()

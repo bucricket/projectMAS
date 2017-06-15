@@ -309,8 +309,9 @@ def compute_G0(Rn,Rn_s,albedo,ndvi,t_rise,t_end,time,EF_s):
     t_g0=(time-tnoon)*3600.
       
     G0=c_g*np.cos(2*np.pi*(t_g0+10800.)/t_g)*Rn_s
-    ind = np.logical_and(ndvi<0, albedo <=0.05)
+    ind = np.logical_and(ndvi<=0, albedo <=0.05)
     G0[ind]=Rn[ind]*0.5  
+    
     return G0
 
 #PRO compute_resistence, U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs, leafc, fm, fh, fm_h
@@ -340,7 +341,7 @@ def compute_resistence(U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs
     r_s2 = 1./(c_a+(c_b*Us))
     r_s = (((r_ss-1.)/0.09*(F-0.01))+1.)
     r_s[F>0.1]=r_s1[F>0.1]                                                         #linear fuction between 0(bare soil) anf the value at F=0.1
-    r_s[abs(Ts-Tc) <=1]=r_s2[abs(Ts-Tc) <=1]  
+    r_s[abs(Ts-Tc) <1]=r_s2[abs(Ts-Tc) <1]  
     r_s[F >3]=r_s2[F >3]                                                          #use "new" formula only for high DT values
                                                                               #use "new" formula only for partial coverage (LAI<3)
       
@@ -349,7 +350,7 @@ def compute_resistence(U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs
     Ud[Ud <= 0.] = 100.
     r_x = C/F*((xl/Ud)**0.5)
     r_x[Ud==100.] = 0.1
-      
+     
     return r_ah, r_s, r_x, u_attr
   
 
@@ -367,6 +368,7 @@ def compute_Rn(albedo_c, albedo_s, t_air, Tc, Ts, e_atm, Rs_c, Rs_s, F):
     Rn_c = ((1-albedo_c)*Rs_c)+((1-np.exp(-kL*F))*(Rle+Ls-2*Lc))
     Rn_s = ((1-albedo_s)*Rs_s)+((np.exp(-kL*F))*Rle)+((1-np.exp(-kL*F))*Lc)-Ls
     Rn = Rn_s+Rn_c
+    
     return Rn_s, Rn_c, Rn  
 
 #PRO temp_separation, H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air
@@ -375,26 +377,29 @@ def compute_Rn(albedo_c, albedo_s, t_air, Tc, Ts, e_atm, Rs_c, Rs_s, F):
 
 def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
     
-    Tc_lin = (((t_air)/r_ah)+((t0)/r_s/(1-fc))+(H_c*r_x/r_air/cp*((1/r_ah)+\
+    Tc_lin = ((t_air/r_ah)+(t0/r_s/(1-fc))+(H_c*r_x/r_air/cp*((1/r_ah)+\
                 (1/r_s)+(1/r_x))))/((1/r_ah)+(1/r_s)+(fc/r_s/(1-fc)))
+
     Td = (Tc_lin*(1+(r_s/r_ah)))-(H_c*r_x/r_air/cp*(1+(r_s/r_x)+\
-                  (r_s/r_ah)))-((t_air)*r_s/r_ah)
-    delta_Tc = (((t0)**4)-(fc*(Tc_lin**4))-((1-fc)*(Td**4)))/\
-    ((4*(1-fc)*(Td**(4-1))*(1+(r_s/r_ah)))+(4*fc*(Tc_lin**(4-1))))
+                  (r_s/r_ah)))-(t_air*r_s/r_ah)
+
+    delta_Tc = ((t0**4)-(fc*(Tc_lin**4))-((1-fc)*(Td**4)))/\
+    ((4*(1-fc)*(Td**3)*(1+(r_s/r_ah)))+(4*fc*(Tc_lin**3)))
+
     Tc = (Tc_lin+delta_Tc)
   
     Tc[fc < 0.10]=t0[fc < 0.10]
     Tc[fc >0.90]=t0[fc >0.90]
-  
+#======get Ts==================================================================  
     Delta = (t0**4)-(fc*(Tc**4))
     Delta[Delta<=0]=10.
 
-#    Ts = (((t0**4)-(fc*(Tc)**4)) le 0)*(((t0-(fc*Tc))/(1-fc))-273.16))+(((t0**4)-(fc*(Tc**4)) gt 0)*(((Delta/(1-fc))**0.25)-273.16))
     Ts= (Delta/(1-fc))**0.25
-    ind = ((t0**4)-(fc*(Tc)**4))<=0.
+    ind = ((t0**4)-(fc*Tc**4))<=0.
     Ts[ind]=(t0[ind]-(fc[ind]*Tc[ind]))/(1-fc[ind])
     Ts[fc < 0.1] = t0[fc < 0.1]
     Ts[fc > 0.9] = t0[fc > 0.9]
+
 
     ind = (Tc <= (t_air-10.))
     Tc[ind] = (t_air[ind]-10.)
@@ -421,25 +426,20 @@ def compute_stability(H, t0, r_air,cp, u_attr, z_u, z_T, hc, d0, z0m, z0h):
     mm = ((1-(16.*(z_u-d0)/L_ob))**0.25)
     mm_h = ((1-(16.*(hc-d0)/L_ob))**0.25)
     mh = ((1-(16.*(z_T-d0)/L_ob))**0.25)
-    mm[L_ob==-99.] = 0.
-    mm_h[L_ob==-99.] = 0.
-    mh[L_ob==-99.] = 0.
+    ind = L_ob==-99.
+    mm[ind] = 0.
+    mm_h[ind] = 0.
+    mh[ind] = 0.
     
     fm = mh.copy()
     ind = np.logical_and((L_ob < 100),(L_ob > (-100)))
     fm[ind] = ((2.0*np.log((1.0+mm[ind])/2.0))+(np.log((1.0+(mm[ind]**2))/2.0))-(2.0*np.arctan(mm[ind]))+(np.pi/2))
-#  fm = ((L_ob lt 100) and (L_ob gt (-100)))*((2.0*alog((1.0+mm)/2.0))+(alog((1.0+(mm**2))/2.0))-(2.0*atan(mm))+(np.pi/2))
     fm_h = mh.copy()
     fm_h[ind] = ((2.0*np.log((1.0+mm_h[ind])/2.0))+(np.log((1.0+(mm_h[ind]**2))/2.0))-(2.0*np.arctan(mm_h[ind]))+(np.pi/2))
-#  fm_h = ((L_ob lt 100) and (L_ob gt (-100)))*((2.0*alog((1.0+mm_h)/2.0))+(alog((1.0+(mm_h**2))/2.0))-(2.0*atan(mm_h))+(np.pi/2))
     fh = mh.copy()
     fh[ind] = ((2.0*np.log((1.0+(mh[ind]**2))/2.0)))
-#  fh = ((L_ob lt 100) and (L_ob gt (-100)))*((2.0*alog((1.0+(mh**2))/2.0)))
-  
-#    fm = ((fm eq (alog((z_u-d0)/z0m)))*(fm+1))+((fm ne (alog((z_u-d0)/z0m)))*fm)
     ind = (fm == (np.log((z_u-d0)/z0m)))
     fm[ind]=fm[ind]+1.
-#    fm_h = ((fm_h eq (alog((hc-d0)/z0m)))*(fm_h+1))+((fm_h ne (alog((hc-d0)/z0m)))*fm_h)
     ind = (fm_h == (np.log((hc-d0)/z0m)))
     fm_h[ind]= fm_h[ind]+1.
     
