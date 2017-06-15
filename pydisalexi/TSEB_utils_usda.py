@@ -114,7 +114,10 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     zs_temp[np.rad2deg(zs)>=89.5] = np.deg2rad(89.5)
     ind = np.rad2deg(zs) <89.5 
     airmas[ind] = (airmas[ind]-2.8/(90.-(np.rad2deg(zs_temp[ind]))**2))  #Correct for refraction(good up to 89.5 deg.)
-  
+    
+#    airmas = (sqrt(cos(zs)^2+.0025)-cos(zs))/.00125                                                      ;Correct for curvature of atmos in airmas
+#  zs_temp = ((zs/!DTOR lt 89.5)*(zs))+((zs/!DTOR ge 89.5)*(89.5*!DTOR))
+#  airmas = ((zs/!DTOR lt 89.5)*(airmas-2.8/(90.-(zs_temp/!DTOR))^2))+((zs/!DTOR ge 89.5)*airmas) 
     potbm1 = 600.*np.exp(-.160*airmas)
     potvis = (potbm1+(600.-potbm1)*.4)*np.cos(zs)
     potdif = (600.-potbm1)*.4*np.cos(zs)
@@ -124,14 +127,29 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     a = 10**(-1.195+.4459*axlog-.0345*axlog*axlog)
     watabs = 1320.*a
     potbm2 = 720.*np.exp(-.05*airmas)-watabs
-#  potbm2 = (potbm2 gt 0.)*potbm2
-    eval = (720.-potbm2-watabs)*.54*np.cos(zs)
-    potnir = eval+potbm2*np.cos(zs)
+    evaL = (720.-potbm2-watabs)*.54*np.cos(zs)
+    potnir = evaL+potbm2*np.cos(zs)
     fclear = Rs_1/(potvis+potnir)
     fclear[fclear > 1.]=1.
     fclear[np.cos(zs) <= 0.01]=1.
     fclear[fclear <= 0.01]= 0.01
 
+#  potbm1 = 600.*exp(-.160*airmas)
+#  potvis = (potbm1+(600.-potbm1)*.4)*cos(zs)
+#  potdif = (600.-potbm1)*.4*cos(zs)
+#  uu = 1.0/cos(zs)
+#  uu = ((uu le 0.01)*0.01)+((uu gt 0)*uu)
+#  axlog = alog10(uu)
+#  a = 10^(-1.195+.4459*axlog-.0345*axlog*axlog)
+#  watabs = 1320.*a
+#  potbm2 = 720.*exp(-.05*airmas)-watabs
+#  potbm2 = (potbm2 gt 0.)*potbm2
+#  eval = (720.-potbm2-watabs)*.54*cos(zs)
+#  potnir = eval+potbm2*cos(zs)
+#  fclear = Rs_1/(potvis+potnir)
+#  fclear = ((fclear le 1.)*fclear)+((fclear gt 1.)*1.)
+#  fclear = ((cos(zs) le 0.01)*1.)+((cos(zs) gt 0.01)*fclear)
+#  fclear = ((fclear le 0.01)*0.01)+((fclear gt 0.01)*fclear)
   
     #Partition SDN into VIS and NIR
     fvis = potvis/(potvis+potnir)
@@ -145,6 +163,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     dirvis = fb1*(1.-((.9-ratiox)/.7)**.6667)
     ind = dirvis >= fb1
     dirvis[ind]=fb1[ind]
+    
     ratiox = fclear.copy()
     ratiox[fclear > 0.88] = 0.88
     dirnir = fb1*(1.-((.88-ratiox)/.68)**.6667)
@@ -156,27 +175,52 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     ind  = np.logical_and((dirnir < 0.01),(dirvis > 0.01))
     dirnir[ind] = 0.11
 
+#  fb1 = potbm1*cos(zs)/potvis
+#  fb2 = potbm2*cos(zs)/potnir
+#  
+#  ratiox = ((fclear gt 0.9)*0.9)+((fclear le 0.9)*fclear)
+#  dirvis = fb1*(1.-((.9-ratiox)/.7)^.6667)
+#  dirvis = (dirvis gt 0)*dirvis
+#  dirvis = ((dirvis lt fb1)*dirvis)+((dirvis ge fb1)*fb1)
+#  
+#  ratiox = ((fclear gt 0.88)*0.88)+((fclear le 0.88)*fclear)
+#  dirnir = fb1*(1.-((.88-ratiox)/.68)^.6667)
+#  dirnir = (dirnir gt 0)*dirnir
+#  dirnir = ((dirnir lt fb2)*dirnir)+((dirnir ge fb2)*fb1)
+#  
+#  dirvis = (((dirvis lt 0.01) and (dirnir gt 0.01))*0.011)+ $
+#    (((dirvis ge 0.01) or (dirnir le 0.01))*dirvis)
+#    
+#  dirnir = (((dirnir lt 0.01) and (dirvis gt 0.01))*0.011)+ $
+#    (((dirnir ge 0.01) or (dirvis le 0.01))*dirnir)
+
     
     difvis = 1.-dirvis
     difnir = 1.-dirnir
   
     #Correction for NIGHTIME
-    fvis[np.cos(zs) <= 0.01] = 0.5
-    fnir[np.cos(zs) <= 0.01] = 0.5
-    difvis[np.cos(zs) <= 0.01] = 0.
-    difnir[np.cos(zs) <= 0.01] = 0.
-#  difvis = ((np.cos(zs) le 0.01)*1.)+((np.cos(zs) gt 0.01)*difvis)
-#  difnir = ((np.cos(zs) le 0.01)*1.)+((np.cos(zs) gt 0.01)*difnir)
-#  dirvis = ((np.cos(zs) le 0.01)*0.)+((np.cos(zs) gt 0.01)*dirvis)
-#  dirnir = ((np.cos(zs) le 0.01)*0.)+((np.cos(zs) gt 0.01)*dirnir)
+    ind = np.cos(zs) <= 0.01
+    fvis[ind] = 0.5
+    fnir[ind] = 0.5
+    difvis[ind] = 0.
+    difnir[ind] = 0.
+#  fvis = ((cos(zs) le 0.01)*0.5)+((cos(zs) gt 0.01)*fvis)
+#  fnir = ((cos(zs) le 0.01)*0.5)+((cos(zs) gt 0.01)*fnir)
+#  difvis = ((cos(zs) le 0.01)*1.)+((cos(zs) gt 0.01)*difvis)
+#  difnir = ((cos(zs) le 0.01)*1.)+((cos(zs) gt 0.01)*difnir)
+#  dirvis = ((cos(zs) le 0.01)*0.)+((cos(zs) gt 0.01)*dirvis)
+#  dirnir = ((cos(zs) le 0.01)*0.)+((cos(zs) gt 0.01)*dirnir)
   
     Rs0 = potvis+potnir
     Rs0[np.cos(zs) <= 0.01] = 0.
-#    Rs0 = ((np.cos(zs) le 0.01)*0.)+((np.cos(zs) gt 0.01)*Rs0)
+#  Rs0 = ((cos(zs) le 0.01)*0.)+((cos(zs) gt 0.01)*Rs0)
+
   
     #apparent emissivity (Sedlar and Hock, 2009: Cryosphere 3:75-84)
-    e_atm = 1-(0.2811*(np.exp(-0.0003523*((t_air-273.16)**2))))              #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
-    fclear[Rs0 <= 50] = 1.
+    e_atm = 1.-(0.2811*(np.exp(-0.0003523*((t_air-273.16)**2.))))              #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
+    fclear[Rs0 <= 50.] = 1.
+#  e_atm = 1-(0.2811*(exp(-0.0003523*(t_air^2))))              ;atmospheric emissivity (clear-sly) Idso and Jackson (1969)
+#  fclear = ((Rs0 le 50)*1)+((Rs0 gt 50)*fclear)
   
     #**********************************************
     # Compute Albedo
@@ -184,7 +228,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     ratio_soil = 2.
     if control ==1:
         rsoilv = np.tile(0.12, np.shape(F))
-        fg = np.zeros(np.shape(albedo))
+        fg = np.tile(1.,np.shape(albedo))
         z_inter = 9
 #    else:
 #        rsoilv = rsoilv_itr
@@ -400,10 +444,10 @@ def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
     Delta[Delta<=0]=10
 
 #    Ts = (((t0**4)-(fc*(Tc)**4)) le 0)*(((t0-(fc*Tc))/(1-fc))-273.16))+(((t0**4)-(fc*(Tc**4)) gt 0)*(((Delta/(1-fc))**0.25)-273.16))
-    Ts= ((Delta/(1-fc))**0.25)
+    Ts= (Delta/(1-fc))**0.25
     ind = ((t0**4)-(fc*(Tc)**4))<=0.
     Ts[ind]=(t0[ind]-(fc[ind]*Tc[ind]))/(1-fc[ind])
-    Ts[fc <= 0.1] = t0[fc <= 0.1]
+    Ts[fc < 0.1] = t0[fc < 0.1]
     Ts[fc > 0.9] = t0[fc > 0.9]
 
     ind = (Tc <= (t_air-10.))
