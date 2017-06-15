@@ -240,9 +240,9 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         rsoiln = rsoilv*ratio_soil
         
         #Weighted live/dead leaf average properties
-        ameanv = aleafv*fg + adeadv*(1-fg)
-        ameann = aleafn*fg + adeadn*(1-fg)
-        ameanl = aleafl*fg + adeadl*(1-fg)
+        ameanv = aleafv*fg + adeadv*(1.-fg)
+        ameann = aleafn*fg + adeadn*(1.-fg)
+        ameanl = aleafl*fg + adeadl*(1.-fg)
         
         #DIFFUSE COMPONENT
         #*******************************
@@ -254,6 +254,14 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         rdcpyn = 2.0*akd*rcpyn/(akd+1.0)                  #Eq 15.8
         rdcpyv = 2.0*akd*rcpyv/(akd+1.0)
         rdcpyl = 2.0*akd*rcpyl/(akd+1.0)
+#        
+#    akd = -0.0683*alog(F)+0.804                       ;Fit to Fig 15.4 for x=1
+#    rcpyn = (1.0-sqrt(ameann))/(1.0+sqrt(ameann))     ;Eq 15.7
+#    rcpyv = (1.0-sqrt(ameanv))/(1.0+sqrt(ameanv))
+#    rcpyl = (1.0-sqrt(ameanl))/(1.0+sqrt(ameanl))
+#    rdcpyn = 2.0*akd*rcpyn/(akd+1.0)                  ;Eq 15.8
+#    rdcpyv = 2.0*akd*rcpyv/(akd+1.0)
+#    rdcpyl = 2.0*akd*rcpyl/(akd+1.0)
         
         #canopy transmission (VIS)
         expfac = np.sqrt(ameanv)*akd*F
@@ -262,6 +270,12 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         xnum = (rdcpyv*rdcpyv-1.0)*np.exp(-expfac)
         xden = (rdcpyv*rsoilv-1.0)+rdcpyv*(rdcpyv-rsoilv)*np.exp(-2.0*expfac)
         taudv = xnum/xden         #Eq 15.11
+        
+#    expfac = sqrt(ameanv)*akd*F
+#    expfac = ((expfac lt 0.001)*0.001)+((expfac ge 0.001)*expfac)
+#    xnum = (rdcpyv*rdcpyv-1.0)*exp(-expfac)
+#    xden = (rdcpyv*rsoilv-1.0)+rdcpyv*(rdcpyv-rsoilv)*exp(-2.0*expfac)
+#    taudv = xnum/xden         ;Eq 15.11
         
         #canopy transmission (NIR)
         expfac = np.sqrt(ameann)*akd*F
@@ -278,7 +292,11 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         albdn = (rdcpyn+fact)/(1.0+rdcpyn*fact)
         fact = ((rdcpyv-rsoilv)/(rdcpyv*rsoilv-1.0))*np.exp(-2.0*np.sqrt(ameanv)*akd*F)   #Eq 15.9
         albdv = (rdcpyv+fact)/(1.0+rdcpyv*fact)
-        
+#    fact = ((rdcpyn-rsoiln)/(rdcpyn*rsoiln-1.0))*exp(-2.0*sqrt(ameann)*akd*F)   ;Eq 15.9        
+#    albdn = (rdcpyn+fact)/(1.0+rdcpyn*fact)
+#    fact = ((rdcpyv-rsoilv)/(rdcpyv*rsoilv-1.0))*exp(-2.0*sqrt(ameanv)*akd*F)   ;Eq 15.9
+#    albdv = (rdcpyv+fact)/(1.0+rdcpyv*fact)
+
         #BEAM COMPONENT
         #*******************************
         #canopy reflection (deep canopy)
@@ -294,6 +312,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         albbn = (rbcpyn+fact)/(1.0+rbcpyn*fact)
         fact = ((rbcpyv-rsoilv)/(rbcpyv*rsoilv-1.0))*np.exp(-2.0*np.sqrt(ameanv)*akb*F)    #Eq 15.9
         albbv = (rbcpyv+fact)/(1.0+rbcpyv*fact)
+
         
         #weighted albedo (canopy)
         albedo_c = fvis*(dirvis*albbv+difvis*albdv)+fnir*(dirnir*albbn+difnir*albdn)
@@ -313,15 +332,26 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         
 
         ind = np.logical_and((fc>= 0.75), (abs(diff) <= -0.01))
-        fg[ind] = fg[ind]+0.05
-        ind = np.logical_and((fc>= 0.75),(abs(diff) > 0.01))
         fg[ind] = fg[ind]-0.05
+        ind = np.logical_and((fc>= 0.75),(abs(diff) > 0.01))
+        fg[ind] = fg[ind]+0.05
         
-#        fg[(fc >= 0.75) and (abs(diff) <= 0.01)] = fg
-#        fg[(fc >= 0.75) and (abs(diff) <= -0.01)] = fg-0.05
-#        fg[(fc >= 0.75) and (abs(diff) > 0.01)] = fg+0.05
         fg[fg >1.] = 1.
         fg[fg<0.01] = 0.01
+        
+#    albedo_c = fvis*(dirvis*albbv+difvis*albdv)+fnir*(dirnir*albbn+difnir*albdn)
+#    albedo_c = ((cos(zs) le 0.01)*(fvis*(difvis*albdv)+fnir*(difnir*albdn)))+((cos(zs) gt 0.01)*albedo_c)
+#    albedo_s = fvis*rsoilv+fnir*rsoiln
+#    
+#    albedo_avg = (fc*albedo_c)+((1-fc)*albedo_s)
+#    diff = albedo_avg-albedo
+#    
+#    rsoilv = ((fc lt 0.75)*(((abs(diff) le 0.01)*rsoilv)+((diff le -0.01)*(rsoilv+0.01))+((diff gt 0.01)*(rsoilv-0.01))))+$
+#      ((fc ge 0.75)*rsoilv)
+#    fg = ((fc ge 0.75)*(((abs(diff) le 0.01)*fg)+((diff le -0.01)*(fg-0.05))+((diff gt 0.01)*(fg+0.05))))+$
+#      ((fc lt 0.75)*fg)
+#    fg = ((fg gt 1)*1)+((fg le 1)*fg)
+#    fg = ((fg lt 0.01)*0.01)+((fg ge 0.01)*fg)
 
     
 #  END
