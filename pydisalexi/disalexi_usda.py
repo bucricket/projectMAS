@@ -651,7 +651,8 @@ class disALEXI(object):
 
         leaf_width = xl
         alpha_PT = np.tile(1.32,np.shape(LAI))
-        time = self.dt.hour
+        utc = 6
+        time = self.dt.hour-utc
         t_rise, t_end, zs = sunset_sunrise(self.dt,np.deg2rad(lon),np.deg2rad(lat),time)
 
        
