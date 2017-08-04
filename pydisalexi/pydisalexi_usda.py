@@ -44,6 +44,7 @@ def main():
     landsatSR = Folders['landsatSR']
     resultsBase = Folders['resultsBase']
     landsatTemp = os.path.join(landsatSR,'temp')
+    landsatDataBase = Folders['landsatDataBase']
 
     #======FIND AVAILABLE FILES FOR PROCESSING=============================
 
@@ -67,6 +68,7 @@ def main():
     #process scenes that have been preprocessed
     fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
     tiffList = glob.glob(os.path.join(landsatTemp,"*lstSharp.tiff"))
+#    tiffList = glob.glob(os.path.join(landsatDataBase,"LST",scene,'*lstSharp.tiff'))
     
             
     #USER INPUT END===============================================================
