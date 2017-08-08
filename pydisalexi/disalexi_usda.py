@@ -378,8 +378,8 @@ class disALEXI(object):
         
         yeardoy = sceneID[9:16]
         #-------------get Landsat information-----------
-        ls = GeoTIFF(os.path.join(self.landsatSR,'temp',"%s_band10.tif" % productID))
-#        ls = GeoTIFF(os.path.join(self.landsatDataBase,"LST",scene,'%s_lstSharp.tiff' % sceneID))
+#        ls = GeoTIFF(os.path.join(self.landsatSR,'temp',"%s_band10.tif" % productID))
+        ls = GeoTIFF(os.path.join(self.landsatDataBase,"LST",scene,'%s_lstSharp.tiff' % sceneID))
         solZen = self.meta.SUN_ELEVATION
 #        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
 #        nlines = int(self.meta.REFLECTIVE_LINES)
