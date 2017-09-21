@@ -608,11 +608,13 @@ class disALEXI(object):
         LCdata = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
         #---------->get ALEXI mask...
-        ET_ALEXI[np.where(albedo<0)]=-9999
-        mask = ET_ALEXI.copy()
-        mask[cfmask>0]=-9999.
-        mask[mask==0]=1.
-        mask[mask==-9999.] = 0.
+#        ET_ALEXI[np.where(albedo<0)]=-9999
+#        mask = ET_ALEXI.copy()
+        mask = np.tile(1,albedo.shape)
+        mask[cfmask>0]=0
+        mask[albedo<0]=0
+#        mask[mask==0]=1.
+#        mask[mask==-9999.] = 0.
         albedo[np.where(albedo<0)]=np.nan
         
         #====================get LC based variables===============================
