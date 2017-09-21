@@ -442,7 +442,7 @@ class disALEXI(object):
 #                data2D = hdf.select('cfmask')
 #                cfmask = data2D[:,:].astype(np.double)
                 
-                maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_Mask.tiff' % sceneID)
+                maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
                 g = gdal.Open(maskFN,GA_ReadOnly)
                 cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
                 g= None
