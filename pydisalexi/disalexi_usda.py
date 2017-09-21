@@ -583,7 +583,7 @@ class disALEXI(object):
 #        ndvi[np.where(ndvi==-9.999)]=np.nan
         
         #===get cfmask=======
-        outFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_Mask.tiff' % sceneID)
+        outFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
