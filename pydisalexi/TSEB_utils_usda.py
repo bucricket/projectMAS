@@ -26,13 +26,13 @@ def to_jd(datetime):
     jd: float
     """
     dt = datetime
-    a = math.floor((14-dt.month)/12)
-    y = dt.year + 4800 - a
-    m = dt.month + 12*a - 3
+    a = math.floor((14.-dt.month)/12.)
+    y = dt.year + 4800. - a
+    m = dt.month + 12.*a - 3.
 
-    jdn = dt.day + math.floor((153*m + 2)/5) + 365*y + math.floor(y/4) - math.floor(y/100) + math.floor(y/400) - 32045
+    jdn = dt.day + math.floor((153.*m + 2.)/5.) + 365.*y + math.floor(y/4.) - math.floor(y/100.) + math.floor(y/400.) - 32045.
 
-    jd = jdn + (dt.hour - 12) / 24 + dt.minute / 1440 + dt.second / 86400 + dt.microsecond / 86400000000
+    jd = jdn + (dt.hour - 12.) / 24. + dt.minute / 1440. + dt.second / 86400. + dt.microsecond / 86400000000.
 
     return jd
 
@@ -97,7 +97,6 @@ def sunset_sunrise(dt,lon,lat,time_t):
 #    cosq = np.cos(zs)
   
     return t_rise, t_end, zs
-  
 
 #PRO albedo_separation, albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, z, t_air, zs, control
 #
@@ -106,9 +105,121 @@ def sunset_sunrise(dt,lon,lat,time_t):
 #  ;*******************************************************************************************************************
 #  ; Compute Solar Components and atmospheric properties (Campbell & Norman 1998)
 def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, z, t_air, zs, control): 
+#    ; Compute Solar Components and atmospheric properties (Campbell & Norman 1998)
+#  
+#  ;DAYTIME
+#  ;Calculate potential (clear-sky) VIS and NIR solar components
+#  
+
+
+
+#  
+#  FOR zzz=0,z_inter DO BEGIN
+#  
+#    rsoiln = rsoilv*ratio_soil
+#    
+#    ;Weighted live/dead leaf average properties
+#    ameanv = aleafv*fg + adeadv*(1-fg)
+#    ameann = aleafn*fg + adeadn*(1-fg)
+#    ameanl = aleafl*fg + adeadl*(1-fg)
+#    
+#    ;DIFFUSE COMPONENT
+#    ;*******************************
+#    ;canopy reflection (deep canopy)
+#    akd = -0.0683*alog(F)+0.804                       ;Fit to Fig 15.4 for x=1
+#    rcpyn = (1.0-sqrt(ameann))/(1.0+sqrt(ameann))     ;Eq 15.7
+#    rcpyv = (1.0-sqrt(ameanv))/(1.0+sqrt(ameanv))
+#    rcpyl = (1.0-sqrt(ameanl))/(1.0+sqrt(ameanl))
+#    rdcpyn = 2.0*akd*rcpyn/(akd+1.0)                  ;Eq 15.8
+#    rdcpyv = 2.0*akd*rcpyv/(akd+1.0)
+#    rdcpyl = 2.0*akd*rcpyl/(akd+1.0)
+#    
+#    ;canopy transmission (VIS)
+#    expfac = sqrt(ameanv)*akd*F
+#    expfac = ((expfac lt 0.001)*0.001)+((expfac ge 0.001)*expfac)
+#    xnum = (rdcpyv*rdcpyv-1.0)*exp(-expfac)
+#    xden = (rdcpyv*rsoilv-1.0)+rdcpyv*(rdcpyv-rsoilv)*exp(-2.0*expfac)
+#    taudv = xnum/xden         ;Eq 15.11
+#    
+#    ;canopy transmission (NIR)
+#    expfac = sqrt(ameann)*akd*F
+#    expfac = ((expfac lt 0.001)*0.001)+((expfac ge 0.001)*expfac)
+#    xnum = (rdcpyn*rdcpyn-1.0)*exp(-expfac)
+#    xden = (rdcpyn*rsoiln-1.0)+rdcpyn*(rdcpyn-rsoiln)*exp(-2.0*expfac)
+#    taudn = xnum/xden         ;Eq 15.11
+#    
+#    ;canopy transmission (LW)
+#    taudl = exp(-sqrt(ameanl)*akd*F)
+#    
+#    ;diffuse albedo for generic canopy
+#    fact = ((rdcpyn-rsoiln)/(rdcpyn*rsoiln-1.0))*exp(-2.0*sqrt(ameann)*akd*F)   ;Eq 15.9
+#    albdn = (rdcpyn+fact)/(1.0+rdcpyn*fact)
+#    fact = ((rdcpyv-rsoilv)/(rdcpyv*rsoilv-1.0))*exp(-2.0*sqrt(ameanv)*akd*F)   ;Eq 15.9
+#    albdv = (rdcpyv+fact)/(1.0+rdcpyv*fact)
+#    
+#    ;BEAM COMPONENT
+#    ;*******************************
+#    ;canopy reflection (deep canopy)
+#    akb = 0.5/cos(zs)
+#    akb = ((cos(zs) le 0.01)*0.5)+((cos(zs) gt 0.01)*akb)
+#    rcpyn = (1.0-sqrt(ameann))/(1.0+sqrt(ameann))     ;Eq 15.7
+#    rcpyv = (1.0-sqrt(ameanv))/(1.0+sqrt(ameanv))
+#    rbcpyn = 2.0*akb*rcpyn/(akb+1.0)                  ;Eq 15.8
+#    rbcpyv = 2.0*akb*rcpyv/(akb+1.0)
+#    
+#    ;beam albedo for generic canopy
+#    fact = ((rbcpyn-rsoiln)/(rbcpyn*rsoiln-1.0))*exp(-2.0*sqrt(ameann)*akb*F)    ;Eq 15.9
+#    albbn = (rbcpyn+fact)/(1.0+rbcpyn*fact)
+#    fact = ((rbcpyv-rsoilv)/(rbcpyv*rsoilv-1.0))*exp(-2.0*sqrt(ameanv)*akb*F)    ;Eq 15.9
+#    albbv = (rbcpyv+fact)/(1.0+rbcpyv*fact)
+#    
+#    ;weighted albedo (canopy)
+#    albedo_c = fvis*(dirvis*albbv+difvis*albdv)+fnir*(dirnir*albbn+difnir*albdn)
+#    albedo_c = ((cos(zs) le 0.01)*(fvis*(difvis*albdv)+fnir*(difnir*albdn)))+((cos(zs) gt 0.01)*albedo_c)
+#    albedo_s = fvis*rsoilv+fnir*rsoiln
+#    
+#    albedo_avg = (fc*albedo_c)+((1-fc)*albedo_s)
+#    diff = albedo_avg-albedo
+#    
+#    rsoilv = ((fc lt 0.75)*(((abs(diff) le 0.01)*rsoilv)+((diff le -0.01)*(rsoilv+0.01))+((diff gt 0.01)*(rsoilv-0.01))))+$
+#      ((fc ge 0.75)*rsoilv)
+#    fg = ((fc ge 0.75)*(((abs(diff) le 0.01)*fg)+((diff le -0.01)*(fg-0.05))+((diff gt 0.01)*(fg+0.05))))+$
+#      ((fc lt 0.75)*fg)
+#    fg = ((fg gt 1)*1)+((fg le 1)*fg)
+#    fg = ((fg lt 0.01)*0.01)+((fg ge 0.01)*fg)
+#    
+#  END
+#  
+#  IF control eq 1 THEN BEGIN
+#    fg_itr = fg
+#    rsoilv_itr = rsoilv
+#  ENDIF
+#  
+#  albedo_c = ((abs(diff) le 0.05)*albedo_c)+((abs(diff) gt 0.05)*albedo)        ;if a solution is not reached, alb_c=alb_s=alb
+#  albedo_s = ((abs(diff) le 0.05)*albedo_s)+((abs(diff) gt 0.05)*albedo)
+#  
+#  ;Direct beam+scattered canopy transmission coeff (visible)
+#  expfac = sqrt(ameanv)*akb*F
+#  xnum = (rbcpyv*rbcpyv-1.0)*exp(-expfac)
+#  xden = (rbcpyv*rsoilv-1.0)+rbcpyv*(rbcpyv-rsoilv)*exp(-2.0*expfac)
+#  taubtv = xnum/xden        ;Eq 15.11
+#  
+#  ;Direct beam+scattered canopy transmission coeff (NIR)
+#  expfac = sqrt(ameann)*akb*F
+#  xnum = (rbcpyn*rbcpyn-1.0)*exp(-expfac)
+#  xden = (rbcpyn*rsoiln-1.0)+rbcpyn*(rbcpyn-rsoiln)*exp(-2.0*expfac)
+#  taubtn = xnum/xden        ;Eq 15.11
+#  
+#  ;shortwave radition components
+#  tausolar = fvis*(difvis*taudv+dirvis*taubtv)+fnir*(difnir*taudn+dirnir*taubtn)
+#  Rs_c = Rs_1*(1-tausolar)
+#  Rs_s = Rs_1*tausolar
+#  
+#END
     #DAYTIME
     #Calculate potential (clear-sky) VIS and NIR solar components
   
+    
     airmas = (np.sqrt(np.cos(zs)**2+.0025)-np.cos(zs))/.00125             #Correct for curvature of atmos in airmas
     zs_temp = zs.copy()
     zs_temp[np.rad2deg(zs)>=89.5] = np.deg2rad(89.5)
@@ -158,7 +269,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     
     difvis = 1.-dirvis
     difnir = 1.-dirnir
-  
+
     #Correction for NIGHTIME
     ind = np.cos(zs) <= 0.01
     fvis[ind] = 0.5
@@ -173,10 +284,20 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     #apparent emissivity (Sedlar and Hock, 2009: Cryosphere 3:75-84)
     e_atm = 1.-(0.2811*(np.exp(-0.0003523*((t_air-273.16)**2.))))              #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
     fclear[Rs0 <= 50.] = 1.
-  
+
     #**********************************************
     # Compute Albedo
-  
+  #  
+#  ratio_soil = 2.
+#  IF control eq 1 THEN BEGIN          ;Calibration of the albedo using observed pixel-average values
+#    rsoilv = 0.12
+#    fg = (albedo ne 1000.)
+#    z_inter = 9
+#  ENDIF ELSE BEGIN
+#    rsoilv = rsoilv_itr
+#    fg = fg_itr
+#    z_inter = 0
+#  END
     ratio_soil = 2.
     if control ==1:
         rsoilv = np.tile(0.12, np.shape(F))
