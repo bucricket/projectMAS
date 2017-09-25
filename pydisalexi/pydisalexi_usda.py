@@ -92,7 +92,7 @@ def main():
             nsamples = ll.nrow
             nlines = ll.ncol
 #            print 'Running disALEXI...'
-#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
+#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,200,200,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
 #            
 #            # =================merge Ta files============================================
 #            print 'merging Ta files...'            
@@ -102,9 +102,9 @@ def main():
             
             # =================run TSEB one last time in parallel=======================
             print "run one last time in serial"
-            dd.runDisALEXI(0,0,ALEXIgeodict,1)
+            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)
 #            print "run TSEB one last time in parallel"
-#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,ALEXIgeodict,1) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200)) 
+#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,200,200,ALEXIgeodict,1) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200)) 
 
             #=====================merge all files =====================================
             print 'merging ETd files...'

@@ -360,7 +360,7 @@ class disALEXI(object):
         output ={'T_A_K':T_A_K}
         return output
     
-    def runDisALEXI(self,xStart,yStart,ALEXIgeodict,TSEB_only):
+    def runDisALEXI(self,xStart,yStart,xSize,ySize,ALEXIgeodict,TSEB_only):
         # USER INPUT============================================================
         ALEXILatRes = ALEXIgeodict['ALEXI_LatRes']
         ALEXILonRes = ALEXIgeodict['ALEXI_LonRes']
@@ -385,9 +385,9 @@ class disALEXI(object):
 #        nlines = int(self.meta.REFLECTIVE_LINES)
         nsamples = ls.nrow
         nlines = ls.ncol
-        if xStart==((nsamples/200)*200):
+        if xStart==((nsamples/xSize)*xSize):
             xSize = (nsamples-xStart)-1
-        if yStart==((nlines/200)*200):
+        if yStart==((nlines/ySize)*ySize):
             ySize = (nlines-yStart)-1
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         sz = np.radians(90-solZen) # convert sza to radians
