@@ -367,8 +367,8 @@ class disALEXI(object):
         sceneID =self.sceneID
         scene = self.scene
         productID = self.productID
-        xSize = 200
-        ySize = 200
+#        xSize = 200
+#        ySize = 200
             
         #-------------pick Landcover map----------------
         if self.isUSA ==1:
