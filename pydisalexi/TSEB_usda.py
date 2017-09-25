@@ -293,9 +293,9 @@ def TSEB_PT_usda(
         r_ah[r_ah ==0.]=10.
         mask_iter  = np.logical_and((H_iter/H) <= 1.05,(H_iter/H) >= 0.95)
         chk_iter = np.sum(mask_iter)/np.size(mask_iter)
-        print("mask_iter size:" % np.size(mask_iter))
-        print("mask_iter sum:" % np.sum(mask_iter))
-        print("check_iter:" % chk_iter)
+        print("mask_iter size: %d" % np.size(mask_iter))
+        print("mask_iter sum: %d" % np.sum(mask_iter))
+        print("check_iter: %f" % chk_iter)
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)
         r_ah, r_s, r_x, u_attr = compute_resistence(u, Ts, Tc, hc, lai, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, fm, fh, fm_h)
     
