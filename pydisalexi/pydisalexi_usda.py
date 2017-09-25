@@ -101,10 +101,11 @@ def main():
 #            buildvrt(cmd)
             
             # =================run TSEB one last time in parallel=======================
+            print "run one last time in serial"
             dd.runDisALEXI(0,0,ALEXIgeodict,1)
-            print "run TSEB one last time in parallel"
-            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,ALEXIgeodict,1) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200)) 
-            
+#            print "run TSEB one last time in parallel"
+#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,ALEXIgeodict,1) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200)) 
+
             #=====================merge all files =====================================
             print 'merging ETd files...'
             cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
