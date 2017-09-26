@@ -378,15 +378,15 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         albedo_avg = (fc*albedo_c)+((1-fc)*albedo_s)
         diff = albedo_avg-albedo
 
-        ind = np.logical_and((fc< 0.75), (abs(diff) <= -0.01))
+        ind = np.logical_and((fc< 0.75), (diff <= -0.01))
         rsoilv[ind] = rsoilv[ind]+0.01
-        ind = np.logical_and((fc< 0.75),(abs(diff) > 0.01))
+        ind = np.logical_and((fc< 0.75),(diff > 0.01))
         rsoilv[ind] = rsoilv[ind]-0.01
         
 
-        ind = np.logical_and((fc>= 0.75), (abs(diff) <= -0.01))
+        ind = np.logical_and((fc>= 0.75), (diff <= -0.01))
         fg[ind] = fg[ind]-0.05
-        ind = np.logical_and((fc>= 0.75),(abs(diff) > 0.01))
+        ind = np.logical_and((fc>= 0.75),(diff > 0.01))
         fg[ind] = fg[ind]+0.05
         
         fg[fg >1.] = 1.
