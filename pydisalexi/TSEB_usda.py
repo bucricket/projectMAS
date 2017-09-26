@@ -193,8 +193,8 @@ def TSEB_PT_usda(
     '''
       #************************************************************************
       # Correct Clumping Factor
-    testx = 500
-    testy = 500
+    testx = 400
+    testy = 400
     f_green  = 1.
     F = lai*clump                                 # LAI for leaf spherical distribution 
     fc = 1-(np.exp(-0.5*F))  
