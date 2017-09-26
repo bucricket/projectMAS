@@ -267,13 +267,6 @@ def TSEB_PT_usda(
     Tc=T_A_K
     print("inside TSEB T_A_K:%f" % T_A_K[500,500])
     Ts = (Tr_K-(fc_q*Tc))/(1-fc_q)
-    print(Ts[500,500])
-    print(Tr_K[500,500])
-    print("lai: %f" % lai[500,500])
-    print("hc: %f" % hc[500,500])
-    print("leaf: %f" % leaf[500,500])
-    print("leafs: %f" % leafs[500,500])
-    print("leafc: %f" % leafc[500,500])
     H_iter = np.tile(200.,np.shape(Tc))
 #      H_iter = (Tc ne 1000)*200.
     EF_s = np.tile(0.,np.shape(Tc))
@@ -289,6 +282,8 @@ def TSEB_PT_usda(
         H_c = Rn_c-lETc
         
         Tc,Ts,Tac = temp_separation(H_c, fc_q, T_A_K, Tr_K, r_ah, r_x, r_s, r_air,cp)
+        print("Ts:%f" % Ts[500,500])
+        print("Tc:%f" % Tc[500,500])
       
         H_s = r_air*cp*(Ts-Tac)/r_s
         H_c = r_air*cp*(Tc-Tac)/r_x

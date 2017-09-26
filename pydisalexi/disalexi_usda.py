@@ -598,7 +598,7 @@ class disALEXI(object):
         g = gdal.Open(outFN,GA_ReadOnly)
         # *NOTE: version 0.2.0 forward------>
         # convert from scaled celcius to kelvin int16->float32
-        Tr_K = (g.ReadAsArray(xStart,yStart,xSize,ySize)/100)+273.15 
+        Tr_K = (g.ReadAsArray(xStart,yStart,xSize,ySize)/100.)+273.15 
         g= None    
         Tr_K[np.where(albedo<0)]=np.nan
         #---------->get LC...
