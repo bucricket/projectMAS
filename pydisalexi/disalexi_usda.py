@@ -506,7 +506,7 @@ class disALEXI(object):
                 warp(optionList)
                 #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
-            T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
+            T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)*10. #TESTING!!!!
             g= None
         
 
