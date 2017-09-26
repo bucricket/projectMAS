@@ -691,7 +691,7 @@ class disALEXI(object):
     
             scaling = 1.0
             Fsun =  (output[4]+output[6])/Rs_1
-            Rs24 = ndimage.gaussian_filter(Rs24, sigma=5)
+#            Rs24 = ndimage.gaussian_filter(Rs24, sigma=5)
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
             ET_24[ET_24<0.01]=0.01
