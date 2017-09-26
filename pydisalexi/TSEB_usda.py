@@ -265,7 +265,7 @@ def TSEB_PT_usda(
 #      compute_resistence, U, T_A_K, T_A_K, hc, lai, d0, z0m, z0h, z_U, z_T, leaf_width, leaf, leafs, leafc, 0, 0, 0     
 
     Tc=T_A_K
-    print(Tc[500,500])
+    print("inside TSEB T_A_K:%f" % T_A_K[500,500])
     Ts = (Tr_K-(fc_q*Tc))/(1-fc_q)
     print(Ts[500,500])
     print(Tr_K[500,500])
