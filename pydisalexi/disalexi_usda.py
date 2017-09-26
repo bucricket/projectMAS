@@ -506,7 +506,7 @@ class disALEXI(object):
                 warp(optionList)
                 #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
-            T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)*10. #TESTING!!!!
+            T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
             g= None
         
 
@@ -660,7 +660,7 @@ class disALEXI(object):
         
         if TSEB_only==1:
             #convert TA from scaled celcius to kelvin
-            T_A_K = (T_A_K/1000.)+273.15  
+            T_A_K = (T_A_K/100.)+273.15  # SWITCH TO 100 FOR TESTING!!!!
             output = TSEB_PT_usda(
                 Tr_K,
                 vza,
