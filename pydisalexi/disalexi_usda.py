@@ -647,7 +647,7 @@ class disALEXI(object):
         vza = np.tile(0.0,np.shape(LAI))
 
         
-        
+        Rs24+=500 # FOR TESTING ONLY!!!
 
         Rs24 = (Rs24*0.0864)/24.0 
 

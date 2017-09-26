@@ -439,42 +439,6 @@ def compute_G0(Rn,Rn_s,albedo,ndvi,t_rise,t_end,time,EF_s):
 #
 #  COMMON com_res, r_ah, r_s, r_x, u_attr
     
-#PRO compute_resistence, U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs, leafc, fm, fh, fm_h
-#
-#  COMMON com_res, r_ah, r_s, r_x, u_attr
-#  
-#  c_a = 0.004         ;Free convective velocity constant for r_s modelling
-#  c_b = 0.012         ;Empirical constant for r_s modelling
-#  c_c = 0.0025        ;Empirical constant for r_s modelling (new formulation Kustas and Norman, 1999)
-#  
-#  C = 175.            ;Parameter for canopy boundary-layer resistance (C=90 Grace '81, C=175 Cheubouni 2001, 144 Li '98)
-#  
-#  ; Computation of friction velocity and aerodynamic resistance
-#  u_attr = 0.41*U/((alog((z_u-d0)/z0m))-fm)
-#  u_attr = ((u_attr eq 0)*10)+((u_attr ne 0)*u_attr)
-#  u_attr = ((u_attr lt 0)*0.01)+((u_attr ge 0)*u_attr)
-#  r_ah = ((alog((z_T-d0)/z0h))-fh)/u_attr/0.41
-#  r_ah = ((r_ah eq 0)*500)+((r_ah ne 0)*r_ah)
-#  r_ah = ((r_ah le 1)*1)+((r_ah gt 1)*r_ah)
-#  
-#  ; Computation of the resistance of the air between soil and canopy space
-#  Uc = u_attr/0.41*((alog((hc-d0)/z0m))-fm_h)
-#  Uc = ((Uc le 0)*0.1)+((Uc gt 0)*Uc)
-#  Us = Uc*exp(-leaf*(1-(0.05/hc)))
-#  r_ss = 1./(c_a+(c_b*(Uc*exp(-leafs*(1.-(0.05/hc))))))
-#  r_s1 = 1./((((abs(Ts-Tc))^(1./3.))*c_c)+(c_b*Us))
-#  r_s2 = 1./(c_a+(c_b*Us))
-#  r_s = ((F le 0.1)*(((r_ss-1.)/0.09*(F-0.01))+1.))+((F gt 0.1)*r_s1)     ;linear fuction between 0(bare soil) anf the value at F=0.1
-#  r_s = ((abs(Ts-Tc) lt 1)*r_s2)+((abs(Ts-Tc) ge 1)*r_s)                  ;use "new" formula only for high DT values
-#  r_s = ((F gt 3)*r_s2)+((F le 3)*r_s)                                    ;use "new" formula only for partial coverage (LAI<3)
-#  
-#  ; Computation of the canopy boundary layer resistance
-#  Ud = Uc*exp(-leafc*(1-((d0+z0m)/hc)))
-#  Ud = ((Ud le 0)*100)+((Ud gt 0)*Ud)
-#  r_x = C/F*((xl/Ud)^0.5)
-#  r_x = ((Ud eq 100)*0.1)+((Ud ne 100)*r_x)
-#  
-#END
 def compute_resistence(U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs, leafc, fm, fh, fm_h):
     c_a = 0.004         #Free convective velocity constant for r_s modelling
     c_b = 0.012         #Empirical constant for r_s modelling
