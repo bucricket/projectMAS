@@ -506,7 +506,7 @@ class disALEXI(object):
                 warp(optionList)
                 #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
-            T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)*1000. # FOR TESTING
+            T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
             g= None
         
 
@@ -645,9 +645,6 @@ class disALEXI(object):
     
 #        LAI[np.where(LAI==0.0)]=0.001        
         vza = np.tile(0.0,np.shape(LAI))
-
-        
-        Rs24+=500 # FOR TESTING ONLY!!!
 
         Rs24 = (Rs24*0.0864)/24.0 
 
