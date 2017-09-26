@@ -655,6 +655,8 @@ class disALEXI(object):
         alpha_PT = np.tile(1.32,np.shape(LAI))
         time = self.dt.hour
         t_rise, t_end, zs = sunset_sunrise(self.dt,np.deg2rad(lon),np.deg2rad(lat),time)
+        print("t_rise:%f" % t_rise[500,500])
+        print("t_end:%f" % t_end[500,500])
         zs = np.tile(sz,np.shape(LAI))
        
     #================RUN DisALEXI=================================
