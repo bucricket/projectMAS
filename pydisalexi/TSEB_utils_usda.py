@@ -224,8 +224,8 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     zs_temp = zs.copy()
     zs_temp[np.rad2deg(zs)>=89.5] = np.deg2rad(89.5)
     ind = np.rad2deg(zs) <89.5 
-    airmas[ind] = (airmas[ind]-2.8/(90.-(np.rad2deg(zs_temp[ind]))**2))  #Correct for refraction(good up to 89.5 deg.)
-
+    airmas[ind] = (airmas[ind]-2.8/(90.-np.rad2deg(zs_temp[ind]))**2)  #Correct for refraction(good up to 89.5 deg.)
+#airmas = ((zs/!DTOR lt 89.5)*(airmas-2.8/(90.-(zs_temp/!DTOR))^2))+((zs/!DTOR ge 89.5)*airmas)
     potbm1 = 600.*np.exp(-.160*airmas)
     potvis = (potbm1+(600.-potbm1)*.4)*np.cos(zs)
     potdif = (600.-potbm1)*.4*np.cos(zs)
