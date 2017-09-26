@@ -193,7 +193,8 @@ def TSEB_PT_usda(
     '''
       #************************************************************************
       # Correct Clumping Factor
-    
+    testx = 500
+    testy = 500
     f_green  = 1.
     F = lai*clump                                 # LAI for leaf spherical distribution 
     fc = 1-(np.exp(-0.5*F))  
@@ -204,6 +205,8 @@ def TSEB_PT_usda(
     fc_q=1-(np.exp(-0.5*F/np.cos(np.deg2rad(vza))))          # Houborg modification (according to Anderson et al. 2005)
     fc_q[fc_q <= 0.05] = 0.05
     fc_q[fc_q >= 0.90] = 0.90
+    print("fc_q:%f" % fc_q[testx,testy])
+    print("F:%f" % F[testx,testy])
 
     z0m = 0.123*hc                              #;Brutsaert (1982)
     z0h = z0m.copy()
@@ -228,7 +231,6 @@ def TSEB_PT_usda(
     z_u = np.tile(50.,np.shape(lai))
     z_T = np.tile(50.,np.shape(lai))
 # Parameters for In-Canopy Wind Speed Extinction
-    print("leaf_width:%f" % leaf_width[500,500])
     leaf = (0.28*(F**(0.66667))*(hc**(0.33333))*(leaf_width**(-0.33333)))
     leafc = (0.28*(lai_c**(0.66667))*(hc**(0.33333))*(leaf_width**(-0.33333)))
     leafs = (0.28*(0.1**(0.66667))*(hc**(0.33333))*(leaf_width**(-0.33333)))
@@ -265,7 +267,6 @@ def TSEB_PT_usda(
 #      compute_resistence, U, T_A_K, T_A_K, hc, lai, d0, z0m, z0h, z_U, z_T, leaf_width, leaf, leafs, leafc, 0, 0, 0     
 
     Tc=T_A_K
-    print("inside TSEB T_A_K:%f" % T_A_K[500,500])
     Ts = (Tr_K-(fc_q*Tc))/(1-fc_q)
     H_iter = np.tile(200.,np.shape(Tc))
 #      H_iter = (Tc ne 1000)*200.
@@ -282,8 +283,8 @@ def TSEB_PT_usda(
         H_c = Rn_c-lETc
         
         Tc,Ts,Tac = temp_separation(H_c, fc_q, T_A_K, Tr_K, r_ah, r_x, r_s, r_air,cp)
-        print("Ts:%f" % Ts[500,500])
-        print("Tc:%f" % Tc[500,500])
+        print("Ts:%f" % Ts[testx,testy])
+        print("Tc:%f" % Tc[testx,testy])
       
         H_s = r_air*cp*(Ts-Tac)/r_s
         H_c = r_air*cp*(Tc-Tac)/r_x
