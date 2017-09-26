@@ -228,7 +228,7 @@ def TSEB_PT_usda(
     z_u = np.tile(50.,np.shape(lai))
     z_T = np.tile(50.,np.shape(lai))
 # Parameters for In-Canopy Wind Speed Extinction
-    
+    print("leaf_width:%f" % leaf_width)
     leaf = (0.28*(F**(0.66667))*(hc**(0.33333))*(leaf_width**(-0.33333)))
     leafc = (0.28*(lai_c**(0.66667))*(hc**(0.33333))*(leaf_width**(-0.33333)))
     leafs = (0.28*(0.1**(0.66667))*(hc**(0.33333))*(leaf_width**(-0.33333)))
