@@ -589,12 +589,15 @@ def compute_stability(H, t0, r_air,cp, u_attr, z_u, z_T, hc, d0, z0m, z0h):
     mm_h[ind] = 0.
     mh[ind] = 0.
     
-    fm = mh.copy()
+#    fm = mh.copy()
+    fm = np.empty(mh.shape)
     ind = np.logical_and((L_ob < 100),(L_ob > (-100)))
     fm[ind] = ((2.0*np.log((1.0+mm[ind])/2.0))+(np.log((1.0+(mm[ind]**2))/2.0))-(2.0*np.arctan(mm[ind]))+(np.pi/2))
-    fm_h = mh.copy()
+#    fm_h = mh.copy()
+    fm_h = np.empty(mh.shape)
     fm_h[ind] = ((2.0*np.log((1.0+mm_h[ind])/2.0))+(np.log((1.0+(mm_h[ind]**2))/2.0))-(2.0*np.arctan(mm_h[ind]))+(np.pi/2))
-    fh = mh.copy()
+#    fh = mh.copy()
+    fh = np.empty(mh.shape)
     fh[ind] = ((2.0*np.log((1.0+(mh[ind]**2))/2.0)))
     ind = (fm == (np.log((z_u-d0)/z0m)))
     fm[ind]=fm[ind]+1.
@@ -602,5 +605,3 @@ def compute_stability(H, t0, r_air,cp, u_attr, z_u, z_T, hc, d0, z0m, z0h):
     fm_h[ind]= fm_h[ind]+1.
     
     return fm, fh, fm_h
-  
-#END
