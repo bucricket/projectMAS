@@ -654,13 +654,14 @@ class disALEXI(object):
         t_rise, t_end, zs = sunset_sunrise(self.dt,np.deg2rad(lon),np.deg2rad(lat),time)
         print("t_rise:%f" % t_rise[500,500])
         print("t_end:%f" % t_end[500,500])
-        zs = np.tile(sz,np.shape(LAI))
+#        zs = np.tile(sz,np.shape(LAI))
        
     #================RUN DisALEXI=================================
         
         if TSEB_only==1:
             print("outside TSEB T_A_K in celcius:%f" % T_A_K[500,500])
             #convert TA from scaled celcius to kelvin
+#            T_A_K = (T_A_K/1000.)+273.15  # removed /1000 FOR TESTING!!!!
             T_A_K = (T_A_K)+273.15  # removed /1000 FOR TESTING!!!!
 
             output = TSEB_PT_usda(
