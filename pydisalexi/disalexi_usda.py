@@ -631,7 +631,18 @@ class disALEXI(object):
         hc_max = getParFromExcel(LCdata,landsatLC,landcover,'hmax')
         xl     = getParFromExcel(LCdata,landsatLC,landcover,'xl')
         clump = getParFromExcel(LCdata,landsatLC,landcover,'omega')
-    
+        clump[clump==0]=0.99
+        xl[xl == 0]=0.5
+#          aleafv = ((aleafv eq bad)*0.9)+((aleafv ne bad)*aleafv)
+#      aleafn = ((aleafn eq bad)*0.9)+((aleafn ne bad)*aleafn)
+#      aleafl = ((aleafl eq bad)*0.9)+((aleafl ne bad)*aleafl)
+#      adeadv = ((adeadv eq bad)*0.2)+((adeadv ne bad)*adeadv)
+#      adeadn = ((adeadn eq bad)*0.2)+((adeadn ne bad)*adeadn)
+#      adeadl = ((adeadl eq bad)*0.2)+((adeadl ne bad)*adeadl)
+#      hc_min = ((hc_min eq bad)*0.1)+((hc_min ne bad)*hc_min)
+#      hc_max = ((hc_max eq bad)*0.5)+((hc_max ne bad)*hc_max)
+#      xl = ((xl eq bad)*0.5)+((xl ne bad)*xl)
+
     
 #        LAI[np.isnan(LAI)]=0.01
         F = LAI*clump                                 #LAI for leafs spherical distribution 

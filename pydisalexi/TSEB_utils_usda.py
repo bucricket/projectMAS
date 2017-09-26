@@ -391,6 +391,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
         
         fg[fg >1.] = 1.
         fg[fg<0.01] = 0.01
+        
 
     if control == 1:
         fg_itr = fg
