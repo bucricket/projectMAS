@@ -659,9 +659,10 @@ class disALEXI(object):
     #================RUN DisALEXI=================================
         
         if TSEB_only==1:
+            print("outside TSEB T_A_K in celcius:%f" % T_A_K[500,500])
             #convert TA from scaled celcius to kelvin
             T_A_K = (T_A_K)+273.15  # removed /1000 FOR TESTING!!!!
-            print("outside TSEB T_A_K:%f" % T_A_K[500,500])
+
             output = TSEB_PT_usda(
                 Tr_K,
                 vza,
