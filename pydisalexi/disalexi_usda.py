@@ -773,23 +773,38 @@ class disALEXI(object):
             
             #======write out fluxes==================================
 #            flag, Ts, Tc, Tac, lETc, H_c, lEs, H_s, G0
+            #==Ts=====>
+            Ts_24outName = 'Ts_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
+            fName = '%s%s%s' % (outET24Path,os.sep,Ts_24outName)
+            writeArray2Tiff(output[1],inRes,inUL,ls.proj4,fName,outFormat)
+            #==Tc=====>
+            Tc_24outName = 'Tc_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
+            fName = '%s%s%s' % (outET24Path,os.sep,Tc_24outName)
+            writeArray2Tiff(output[2],inRes,inUL,ls.proj4,fName,outFormat)
+            #==Tac=====>
+            Tac_24outName = 'Tac_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
+            fName = '%s%s%s' % (outET24Path,os.sep,Tac_24outName)
+            writeArray2Tiff(output[3],inRes,inUL,ls.proj4,fName,outFormat)
             #==lETc=====>
             lETc_24outName = 'lETc_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
             fName = '%s%s%s' % (outET24Path,os.sep,lETc_24outName)
             writeArray2Tiff(output[4],inRes,inUL,ls.proj4,fName,outFormat)
-            #==lEs=====>
-            lEs_24outName = 'lEs_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
-            fName = '%s%s%s' % (outET24Path,os.sep,lEs_24outName)
-            writeArray2Tiff(output[6],inRes,inUL,ls.proj4,fName,outFormat)
-            
             #==H_c=====>
             H_c_24outName = 'H_c_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
             fName = '%s%s%s' % (outET24Path,os.sep,H_c_24outName)
             writeArray2Tiff(output[5],inRes,inUL,ls.proj4,fName,outFormat)
+            #==lEs=====>
+            lEs_24outName = 'lEs_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
+            fName = '%s%s%s' % (outET24Path,os.sep,lEs_24outName)
+            writeArray2Tiff(output[6],inRes,inUL,ls.proj4,fName,outFormat)
             #==H_s=====>
             H_s_24outName = 'H_s_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
             fName = '%s%s%s' % (outET24Path,os.sep,H_s_24outName)
             writeArray2Tiff(output[7],inRes,inUL,ls.proj4,fName,outFormat)
+            #==G0=====>
+            G0_24outName = 'G0_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
+            fName = '%s%s%s' % (outET24Path,os.sep,G0_24outName)
+            writeArray2Tiff(output[8],inRes,inUL,ls.proj4,fName,outFormat)
             
             
             
