@@ -264,6 +264,7 @@ def TSEB_PT_usda(
     print("Rs_s:%f" % Rs_s[testx,testy])
     print("albedo_c:%f" % albedo_c[testx,testy])
     print("albedo_s:%f" % albedo_s[testx,testy])
+    print("mask:%f" % mask)
     r_air = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287  
     cp = np.tile(1004.16,np.shape(T_A_K))
   
