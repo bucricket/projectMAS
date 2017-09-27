@@ -195,6 +195,7 @@ def TSEB_PT_usda(
       # Correct Clumping Factor
     testx = 400
     testy = 400
+    T_A_C = T_A_K-273.16
     f_green  = 1.
     F = lai*clump                                 # LAI for leaf spherical distribution 
     fc = 1-(np.exp(-0.5*F))  
@@ -237,9 +238,9 @@ def TSEB_PT_usda(
     
     #************************************************************************
     # Atmospheric Parameters
-    e_s = (0.6108*np.exp((17.27*(T_A_K-273.16))/((T_A_K-273.16)+237.3)))
-    Ss = 4098.*e_s/(((T_A_K-273.16)+237.3)**2)
-    lambda1 = (2.501-(0.002361*(T_A_K-273.16)))*1000000
+    e_s = (0.6108*np.exp((17.27*T_A_C)/(T_A_C+237.3)))
+    Ss = 4098.*e_s/((T_A_C+237.3)**2)
+    lambda1 = (2.501-(0.002361*T_A_C))*1000000
     z = np.tile(300.,np.shape(hc))
     ####+++TESING IDL SCRIPT##########
     p = 101.3*(((293.-0.0065*z)/293.)**5.26)
@@ -254,11 +255,15 @@ def TSEB_PT_usda(
     #************************************************************************
     # Inizialitaziono of TSEB
     a_PT = mask*a_PT_in
-    e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))
+    e_atm = 1.0-(0.2811*(np.exp(-0.0003523*(T_A_C**2))))
 
     Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr = albedo_separation(
                 albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, 
                 z, T_A_K, zs, 1)
+    print("Rs_c:%f" % Rs_c[testx,testy])
+    print("Rs_s:%f" % Rs_s[testx,testy])
+    print("albedo_c:%f" % albedo_c[testx,testy])
+    print("albedo_s:%f" % albedo_s[testx,testy])
     r_air = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287  
     cp = np.tile(1004.16,np.shape(T_A_K))
   
@@ -299,8 +304,6 @@ def TSEB_PT_usda(
         mask_sum = np.array(np.sum(mask_iter), dtype='float')
         mask_size = np.array(np.sum(mask), dtype='float')
         chk_iter = mask_sum/mask_size
-        print("mask_iter size: %d" % mask_size)
-        print("mask_iter sum: %d" % mask_sum)
         print("check_iter: %f" % chk_iter)
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)
         r_ah, r_s, r_x, u_attr = compute_resistence(u, Ts, Tc, hc, lai, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, fm, fh, fm_h)

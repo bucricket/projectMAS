@@ -643,7 +643,21 @@ class disALEXI(object):
 #      hc_max = ((hc_max eq bad)*0.5)+((hc_max ne bad)*hc_max)
 #      xl = ((xl eq bad)*0.5)+((xl ne bad)*xl)
 
-    
+#          ; Correct Clumping Factor
+#
+#      p_atm = 101.3*(((293.-0.0065*z)/293.)^5.26)   ; Air Pressure
+#    
+#      clump = clump_0                               ; NO Correction for solar angle is introduced yet
+#    
+#      F = lai*clump                                 ; LAI for leaf spherical distribution 
+#      fc = 1-(exp(-0.5*F))                          ; Fraction cover at nadir (view=0)
+#      fc = ((fc le 0.01)*0.01)+((fc gt 0.01)*fc)
+#      fc = ((fc ge 0.90)*0.90)+((fc lt 0.90)*fc)
+#      lai_c = lai/fc                                ; LAI relative to canopy projection only
+#      fc_q=1-(exp(-0.5*F/cos(view*!DTOR)))          ; Houborg modification (according to Anderson et al. 2005)
+#      ;fc_q = 1-((1-fc)/ cos(view*!DTOR))           ; Fraction cover at sensor view angle (for Trad separation)
+#      fc_q = ((fc_q le 0.05)*0.05)+((fc_q gt 0.05)*fc_q)
+#      fc_q = ((fc_q ge 0.90)*0.90)+((fc_q lt 0.90)*fc_q)
 #        LAI[np.isnan(LAI)]=0.01
         F = LAI*clump                                 #LAI for leafs spherical distribution 
         f_c = 1-(np.exp(-0.5*F))                          #fraction cover at nadir (view=0)
