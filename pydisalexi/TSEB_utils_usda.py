@@ -308,7 +308,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
 #        fg = fg_itr
 #        z_inter = 0.
 
-    for zzz in range(z_inter):
+    for zzz in range(z_inter+1): # +1 to do what IDL does 
   
         rsoiln = rsoilv*ratio_soil
         
@@ -499,15 +499,11 @@ def compute_Rn(albedo_c, albedo_s, t_air, Tc, Ts, e_atm, Rs_c, Rs_s, F):
 
 def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
     
-    Tc_lin = ((t_air/r_ah)+(t0/r_s/(1-fc))+(H_c*r_x/r_air/cp*((1/r_ah)+\
-                (1/r_s)+(1/r_x))))/((1/r_ah)+(1/r_s)+(fc/r_s/(1-fc)))
+    Tc_lin = ((t_air/r_ah)+(t0/r_s/(1-fc))+(H_c*r_x/r_air/cp*((1/r_ah)+(1/r_s)+(1/r_x))))/((1/r_ah)+(1/r_s)+(fc/r_s/(1-fc)))
 
+    Td = (Tc_lin*(1+(r_s/r_ah)))-(H_c*r_x/r_air/cp*(1+(r_s/r_x)+(r_s/r_ah)))-(t_air*r_s/r_ah)
 
-    Td = (Tc_lin*(1+(r_s/r_ah)))-(H_c*r_x/r_air/cp*(1+(r_s/r_x)+\
-                  (r_s/r_ah)))-(t_air*r_s/r_ah)
-
-    delta_Tc = ((t0**4)-(fc*(Tc_lin**4))-((1-fc)*(Td**4)))/((4*(1-fc)*(Td**3)*\
-                 (1+(r_s/r_ah)))+(4*fc*(Tc_lin**3)))
+    delta_Tc = ((t0**4)-(fc*(Tc_lin**4))-((1-fc)*(Td**4)))/((4*(1-fc)*(Td**3)*(1+(r_s/r_ah)))+(4*fc*(Tc_lin**3)))
 
     Tc = (Tc_lin+delta_Tc)  
     Tc[fc < 0.10]=t0[fc < 0.10]
