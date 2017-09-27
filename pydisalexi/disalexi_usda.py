@@ -775,20 +775,20 @@ class disALEXI(object):
 #            flag, Ts, Tc, Tac, lETc, H_c, lEs, H_s, G0
             #==lETc=====>
             lETc_24outName = 'lETc_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
-            fName = '%s%s%s' % (lETc_24outName,os.sep,ET_24outName)
+            fName = '%s%s%s' % (outET24Path,os.sep,lETc_24outName)
             writeArray2Tiff(output[4],inRes,inUL,ls.proj4,fName,outFormat)
             #==lEs=====>
             lEs_24outName = 'lEs_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
-            fName = '%s%s%s' % (lEs_24outName,os.sep,ET_24outName)
+            fName = '%s%s%s' % (outET24Path,os.sep,lEs_24outName)
             writeArray2Tiff(output[6],inRes,inUL,ls.proj4,fName,outFormat)
             
             #==H_c=====>
             H_c_24outName = 'H_c_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
-            fName = '%s%s%s' % (H_c_24outName,os.sep,ET_24outName)
+            fName = '%s%s%s' % (outET24Path,os.sep,H_c_24outName)
             writeArray2Tiff(output[5],inRes,inUL,ls.proj4,fName,outFormat)
             #==H_s=====>
             H_s_24outName = 'H_s_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
-            fName = '%s%s%s' % (H_s_24outName,os.sep,ET_24outName)
+            fName = '%s%s%s' % (outET24Path,os.sep,H_s_24outName)
             writeArray2Tiff(output[7],inRes,inUL,ls.proj4,fName,outFormat)
             
             
