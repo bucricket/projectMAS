@@ -255,7 +255,7 @@ def TSEB_PT_usda(
     #************************************************************************
     # Inizialitaziono of TSEB
     a_PT = mask*a_PT_in
-    e_atm = 1.0-(0.2811*(np.exp(-0.0003523*(T_A_C**2))))
+    e_atm = 1.0-(0.2811*(np.exp(-0.0003523*(T_A_C**2.))))
 
     Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr = albedo_separation(
                 albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, 
@@ -280,7 +280,7 @@ def TSEB_PT_usda(
 
     #************************************************************************
     # Start Loop for Stability Correction and Water Stress
-    for i in range(35):     
+    for i in range(35+1):     
         Rn_s, Rn_c, Rn = compute_Rn(albedo_c, albedo_s, T_A_K, Tc, Ts, e_atm, Rs_c, Rs_s, F)
         G0 = compute_G0(Rn, Rn_s, albedo, ndvi, t_rise, t_end, time, EF_s)
       
