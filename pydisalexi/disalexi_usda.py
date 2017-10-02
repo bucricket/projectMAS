@@ -610,12 +610,12 @@ class disALEXI(object):
         #---------->get ALEXI mask...
 #        ET_ALEXI[np.where(albedo<0)]=-9999
 #        mask = ET_ALEXI.copy()
-        mask = np.tile(1,albedo.shape)
-        mask[cfmask>0]=0
-        mask[albedo<0]=0
+        mask = np.tile(1.,albedo.shape)
+        mask[cfmask>0]=0.
+        mask[albedo<0]=0.
 #        mask[mask==0]=1.
 #        mask[mask==-9999.] = 0.
-        albedo[np.where(albedo<0)]=np.nan
+        albedo[np.where(albedo<0.)]=np.nan
         
         #====================get LC based variables===============================
         s = ndimage.__file__
@@ -703,7 +703,7 @@ class disALEXI(object):
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
             ET_24[ET_24<0.01]=0.01
-            ET_24 = np.array(ET_24*1000,dtype='uint16')
+            ET_24 = np.array(ET_24*1000.,dtype='uint16')
         else:
 
             output = self.DisALEXI_PT(
@@ -732,7 +732,7 @@ class disALEXI(object):
                     t_end,
                     leaf_width=leaf_width,
                     alpha_PT=alpha_PT)
-            T_A_K= np.array((output['T_A_K']-273.15)*1000,dtype='uint16')
+            T_A_K= np.array((output['T_A_K']-273.15)*1000.,dtype='uint16')
             
         outFormat = gdal.GDT_UInt16
         outET24Path = os.path.join(self.resultsBase,scene)

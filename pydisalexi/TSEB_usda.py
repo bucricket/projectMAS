@@ -273,7 +273,7 @@ def TSEB_PT_usda(
 #      compute_resistence, U, T_A_K, T_A_K, hc, lai, d0, z0m, z0h, z_U, z_T, leaf_width, leaf, leafs, leafc, 0, 0, 0     
 
     Tc=T_A_K
-    Ts = (Tr_K-(fc_q*Tc))/(1-fc_q)
+    Ts = (Tr_K-(fc_q*Tc))/(1.-fc_q)
     H_iter = np.tile(200.,np.shape(Tc))
 #      H_iter = (Tc ne 1000)*200.
     EF_s = np.tile(0.,np.shape(Tc))

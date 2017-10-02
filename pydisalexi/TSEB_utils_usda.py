@@ -102,7 +102,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     zs_temp = zs.copy()
     zs_temp[np.rad2deg(zs)>=89.5] = np.deg2rad(89.5)
     ind = np.rad2deg(zs) <89.5 
-    airmas[ind] = (airmas[ind]-2.8/(90.-np.rad2deg(zs_temp[ind]))**2)  #Correct for refraction(good up to 89.5 deg.)
+    airmas[ind] = (airmas[ind]-2.8/(90.-np.rad2deg(zs_temp[ind]))**2.)  #Correct for refraction(good up to 89.5 deg.)
 
     potbm1 = 600.*np.exp(-.160*airmas)
     potvis = (potbm1+(600.-potbm1)*.4)*np.cos(zs)
@@ -327,7 +327,7 @@ def compute_resistence(U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs
     # Computation of the resistance of the air between soil and canopy space
     Uc = u_attr/0.41*((np.log((hc-d0)/z0m))-fm_h)
     Uc[Uc<=0]=0.1
-    Us = Uc*np.exp(-leaf*(1-(0.05/hc)))
+    Us = Uc*np.exp(-leaf*(1.-(0.05/hc)))
 
     r_ss = 1./(c_a+(c_b*(Uc*np.exp(-leafs*(1.-(0.05/hc))))))
     r_s1 = 1./((((abs(Ts-Tc))**(1./3.))*c_c)+(c_b*Us))
@@ -335,11 +335,11 @@ def compute_resistence(U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs
   
     r_s = (((r_ss-1.)/0.09*(F-0.01))+1.)
     r_s[F>0.1]=r_s1[F>0.1]                                                         #linear fuction between 0(bare soil) anf the value at F=0.1
-    r_s[abs(Ts-Tc) <1]=r_s2[abs(Ts-Tc) <1]  
-    r_s[F >3]=r_s2[F >3]    
+    r_s[abs(Ts-Tc) <1.]=r_s2[abs(Ts-Tc) <1.]  
+    r_s[F >3.]=r_s2[F >3.]    
       
     # Computation of the canopy boundary layer resistance
-    Ud = Uc*np.exp(-leafc*(1-((d0+z0m)/hc)))
+    Ud = Uc*np.exp(-leafc*(1.-((d0+z0m)/hc)))
     Ud[Ud <= 0.] = 100.
     r_x = C/F*((xl/Ud)**0.5)
     r_x[Ud==100.] = 0.1
@@ -354,11 +354,11 @@ def compute_Rn(albedo_c, albedo_s, t_air, Tc, Ts, e_atm, Rs_c, Rs_s, F):
     eps_s = 0.94        #Soil Emissivity [-]
     eps_c = 0.99        #Canopy emissivity [-]
       
-    Lc = eps_c*0.0000000567*(Tc**4)
-    Ls = eps_s*0.0000000567*(Ts**4)
-    Rle = e_atm*0.0000000567*(t_air**4)
-    Rn_c = ((1-albedo_c)*Rs_c)+((1-np.exp(-kL*F))*(Rle+Ls-2*Lc))
-    Rn_s = ((1-albedo_s)*Rs_s)+((np.exp(-kL*F))*Rle)+((1-np.exp(-kL*F))*Lc)-Ls
+    Lc = eps_c*0.0000000567*(Tc**4.)
+    Ls = eps_s*0.0000000567*(Ts**4.)
+    Rle = e_atm*0.0000000567*(t_air**4.)
+    Rn_c = ((1.-albedo_c)*Rs_c)+((1.-np.exp(-kL*F))*(Rle+Ls-2.*Lc))
+    Rn_s = ((1.-albedo_s)*Rs_s)+((np.exp(-kL*F))*Rle)+((1.-np.exp(-kL*F))*Lc)-Ls
     Rn = Rn_s+Rn_c
 
     
@@ -370,18 +370,18 @@ def compute_Rn(albedo_c, albedo_s, t_air, Tc, Ts, e_atm, Rs_c, Rs_s, F):
 
 def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
     
-    Tc_lin = ((t_air/r_ah)+(t0/r_s/(1-fc))+(H_c*r_x/r_air/cp*((1/r_ah)+(1/r_s)+(1/r_x))))/((1/r_ah)+(1/r_s)+(fc/r_s/(1-fc)))
+    Tc_lin = ((t_air/r_ah)+(t0/r_s/(1.-fc))+(H_c*r_x/r_air/cp*((1./r_ah)+(1./r_s)+(1./r_x))))/((1./r_ah)+(1./r_s)+(fc/r_s/(1.-fc)))
 
-    Td = (Tc_lin*(1+(r_s/r_ah)))-(H_c*r_x/r_air/cp*(1+(r_s/r_x)+(r_s/r_ah)))-(t_air*r_s/r_ah)
+    Td = (Tc_lin*(1+(r_s/r_ah)))-(H_c*r_x/r_air/cp*(1.+(r_s/r_x)+(r_s/r_ah)))-(t_air*r_s/r_ah)
 
-    delta_Tc = ((t0**4)-(fc*(Tc_lin**4))-((1-fc)*(Td**4)))/((4*(1-fc)*(Td**3)*(1+(r_s/r_ah)))+(4*fc*(Tc_lin**3)))
+    delta_Tc = ((t0**4.)-(fc*(Tc_lin**4.))-((1.-fc)*(Td**4.)))/((4.*(1.-fc)*(Td**3.)*(1.+(r_s/r_ah)))+(4.*fc*(Tc_lin**3.)))
 
     Tc = (Tc_lin+delta_Tc)  
     Tc[fc < 0.10]=t0[fc < 0.10]
     Tc[fc >0.90]=t0[fc >0.90]
 #======get Ts==================================================================  
-    Delta = (t0**4)-(fc*(Tc**4))
-    Delta[Delta<=0]=10.
+    Delta = (t0**4.)-(fc*(Tc**4.))
+    Delta[Delta<=0.]=10.
     
     Ts= (Delta/(1-fc))**0.25
     ind = ((t0**4)-(fc*Tc**4.))<=0.
@@ -411,11 +411,11 @@ def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
 def compute_stability(H, t0, r_air,cp, u_attr, z_u, z_T, hc, d0, z0m, z0h):
     t0[t0 == 0.] = 100.
     L_ob = -(r_air*cp*t0*(u_attr**3.0)/0.41/9.806/H)
-    L_ob[L_ob>=0] = -99.
+    L_ob[L_ob>=0.] = -99.
   
-    mm = ((1-(16.*(z_u-d0)/L_ob))**0.25)
-    mm_h = ((1-(16.*(hc-d0)/L_ob))**0.25)
-    mh = ((1-(16.*(z_T-d0)/L_ob))**0.25)
+    mm = ((1.-(16.*(z_u-d0)/L_ob))**0.25)
+    mm_h = ((1.-(16.*(hc-d0)/L_ob))**0.25)
+    mh = ((1.-(16.*(z_T-d0)/L_ob))**0.25)
     ind = L_ob==-99.
     mm[ind] = 0.
     mm_h[ind] = 0.
@@ -423,14 +423,14 @@ def compute_stability(H, t0, r_air,cp, u_attr, z_u, z_T, hc, d0, z0m, z0h):
     
 
     fm = np.zeros(mh.shape)
-    ind = np.logical_and((L_ob < 100),(L_ob > (-100)))
-    fm[ind] = ((2.0*np.log((1.0+mm[ind])/2.0))+(np.log((1.0+(mm[ind]**2))/2.0))-(2.0*np.arctan(mm[ind]))+(np.pi/2))
+    ind = np.logical_and((L_ob < 100.),(L_ob > (-100.)))
+    fm[ind] = ((2.0*np.log((1.0+mm[ind])/2.0))+(np.log((1.0+(mm[ind]**2.))/2.0))-(2.0*np.arctan(mm[ind]))+(np.pi/2.))
 
     fm_h = np.zeros(mh.shape)
-    fm_h[ind] = ((2.0*np.log((1.0+mm_h[ind])/2.0))+(np.log((1.0+(mm_h[ind]**2))/2.0))-(2.0*np.arctan(mm_h[ind]))+(np.pi/2))
+    fm_h[ind] = ((2.0*np.log((1.0+mm_h[ind])/2.0))+(np.log((1.0+(mm_h[ind]**2.))/2.0))-(2.0*np.arctan(mm_h[ind]))+(np.pi/2.))
 
     fh = np.zeros(mh.shape)
-    fh[ind] = ((2.0*np.log((1.0+(mh[ind]**2))/2.0)))
+    fh[ind] = ((2.0*np.log((1.0+(mh[ind]**2.))/2.0)))
     ind = (fm == (np.log((z_u-d0)/z0m)))
     fm[ind]=fm[ind]+1.
     ind = (fm_h == (np.log((hc-d0)/z0m)))
