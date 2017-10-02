@@ -384,7 +384,7 @@ def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
     Delta[Delta<=0]=10.
     
     Ts= (Delta/(1-fc))**0.25
-    ind = ((t0**4)-(fc*Tc**4))<=0.
+    ind = ((t0**4)-(fc*Tc**4.))<=0.
     Ts[ind]=(t0[ind]-(fc[ind]*Tc[ind]))/(1-fc[ind])
     
     Ts[fc < 0.1] = t0[fc < 0.1]

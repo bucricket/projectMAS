@@ -118,8 +118,8 @@ def main():
 #            clean(os.path.join(resultsBase,scene),"Ta")
             lat_fName = os.path.join(landsatSR,'temp','lat.tif')
             lon_fName = os.path.join(landsatSR,'temp','lon.tif')
-            os.remove(lat_fName)
-            os.remove(lon_fName)
+#            os.remove(lat_fName)
+#            os.remove(lon_fName)
     
 if __name__ == "__main__":
     try:
