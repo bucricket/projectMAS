@@ -773,6 +773,7 @@ class disALEXI(object):
             
             #======write out fluxes==================================
 #            flag, Ts, Tc, Tac, lETc, H_c, lEs, H_s, G0
+            outFormat = gdal.GDT_Float32
             #==Ts=====>
             Ts_24outName = 'Ts_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
             fName = '%s%s%s' % (outET24Path,os.sep,Ts_24outName)
