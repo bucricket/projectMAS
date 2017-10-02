@@ -113,8 +113,10 @@ def getParFromExcel(data,landsatLC,classification,varName):
     LCdata = data
     if data.ndim==1:
         outVarArray = np.zeros((data.shape[0]), dtype=np.float)
+        outVarArray[:]=np.nan
     else:
         outVarArray = np.zeros((data.shape[0],data.shape[1]), dtype=np.float)
+        outVarArray[:]=np.nan
     for row in lcDF.itertuples():
         if classification=='NLCD':
             outVarArray[LCdata == eval('row.%s' % 'NLCD_class')]=eval('row.%s' % varName)
