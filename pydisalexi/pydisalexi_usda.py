@@ -89,17 +89,17 @@ def main():
             #============Run DisALEXI in parallel======================================
             dd = disALEXI(filepath,dt,isUSA)
             #===COMMENTED FOR TESTING ONLY=================== 
-#            dd.runDisALEXI(0,0,ALEXIgeodict,0)
+            dd.runDisALEXI(0,0,ALEXIgeodict,0)
             nsamples = ll.nrow
             nlines = ll.ncol
-#            print 'Running disALEXI...'
-#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,200,200,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
-#            
-#            # =================merge Ta files============================================
-#            print 'merging Ta files...'            
-#            intFile = os.path.join(resultsBase,scene,'Taxxxxx.tif')
-#            cmd = 'gdal_merge.py -o %s %s' % (intFile,os.path.join(resultsBase,scene,'Ta*'))
-#            buildvrt(cmd)
+            print 'Running disALEXI...'
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,200,200,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
+            
+            # =================merge Ta files============================================
+            print 'merging Ta files...'            
+            intFile = os.path.join(resultsBase,scene,'Taxxxxx.tif')
+            cmd = 'gdal_merge.py -o %s %s' % (intFile,os.path.join(resultsBase,scene,'Ta*'))
+            buildvrt(cmd)
             
             # =================run TSEB one last time in parallel=======================
 #            print "run one last time in serial"
