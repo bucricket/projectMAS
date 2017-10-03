@@ -664,7 +664,7 @@ class disALEXI(object):
         time = self.dt.hour+(self.dt.minute/60.)
         print("time:%f" % time)
         t_rise, t_end, zs = sunset_sunrise(self.dt,np.deg2rad(lon),np.deg2rad(lat),time)
-        print("t_rise:%f, t_end:%f" (t_rise,t_end))
+        print("t_rise:%f, t_end:%f" % (t_rise,t_end))
 #        zs = np.tile(sz,np.shape(LAI))
        
     #================RUN DisALEXI=================================
