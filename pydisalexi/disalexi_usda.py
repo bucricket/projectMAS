@@ -633,6 +633,9 @@ class disALEXI(object):
         xl     = getParFromExcel(LCdata,landsatLC,landcover,'xl')
         clump = getParFromExcel(LCdata,landsatLC,landcover,'omega')
         clump[clump==0]=0.99
+        LAI[LCdata==11]=0.01
+        ndvi[LCdata==11]=-0.5
+        
         
         aleafv[np.isnan(aleafv)]=0.9
         aleafn[np.isnan(aleafn)]=0.9
