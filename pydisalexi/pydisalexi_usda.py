@@ -38,6 +38,7 @@ def main():
     isUSA = args.isUSA
     base = os.getcwd()
     njobs = args.njobs
+    subsetSize = 200
 
    
     Folders = folders(base)    
@@ -101,10 +102,10 @@ def main():
 #            buildvrt(cmd)
             
             # =================run TSEB one last time in parallel=======================
-            print "run one last time in serial"
-            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)
-#            print "run TSEB one last time in parallel"
-#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,200,200,ALEXIgeodict,1) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200)) 
+#            print "run one last time in serial"
+#            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)
+            print "run TSEB one last time in parallel"
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,1) for xStart in range(0,nsamples,subsetSize) for yStart in range(0,nlines,subsetSize)) 
 
             #=====================merge all files =====================================
             print 'merging ETd files...'
