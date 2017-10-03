@@ -409,7 +409,7 @@ def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
 #
 #  COMMON com_stab, fm, fh, fm_h
 def compute_stability(H, t0, r_air,cp, u_attr, z_u, z_T, hc, d0, z0m, z0h):
-    t0[t0 == 0.] = 100.
+    t0[t0 == 273.16] = 373.16
     L_ob = -(r_air*cp*t0*(u_attr**3.0)/0.41/9.806/H)
     L_ob[L_ob>=0.] = -99.
   
