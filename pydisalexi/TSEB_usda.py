@@ -196,6 +196,30 @@ def TSEB_PT_usda(
     testx = 400
     testy = 400
     T_A_C = T_A_K-273.16
+    print("=======printing all inputs for pixel 400,400============")
+    print("Tr_K:%f" % Tr_K[testx,testy])
+    print("vza:%f" % vza[testx,testy])
+    print("T_A_K:%f" % T_A_K[testx,testy])
+    print("u:%f" % u[testx,testy])
+    print("p:%f" % p[testx,testy])
+    print("Rs_1:%f" % Rs_1[testx,testy])
+    print("zs:%f" % zs[testx,testy])
+    print("aleafv:%f" %  aleafv[testx,testy])
+    print("aleafn:%f" %  aleafn[testx,testy])
+    print("aleafl:%f" %  aleafl[testx,testy])
+    print("adeadv:%f" % adeadv[testx,testy])
+    print("adeadn:%f" %  adeadn[testx,testy])
+    print("adeadl:%f" % adeadl[testx,testy])
+    print("albedo:%f" % albedo[testx,testy])
+    print("ndvi:%f" % ndvi[testx,testy])
+    print("lai:%f" % lai[testx,testy])
+    print("clump:%f" % clump[testx,testy])
+    print("hc:%f" % hc[testx,testy])
+    print("mask:%f" % mask[testx,testy])
+    print("leaf_width:%f" % leaf_width[testx,testy])
+    print("a_PT_in:%f" % a_PT_in[testx,testy])
+    print("=======printing all inputs for pixel 400,400============")
+          
     f_green  = 1.
     F = lai*clump                                 # LAI for leaf spherical distribution 
     fc = 1-(np.exp(-0.5*F))  
