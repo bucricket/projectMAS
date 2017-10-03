@@ -193,32 +193,32 @@ def TSEB_PT_usda(
     '''
       #************************************************************************
       # Correct Clumping Factor
-    testx = 400
-    testy = 400
+#    testx = 400
+#    testy = 400
     T_A_C = T_A_K-273.16
-    print("=======printing all inputs for pixel 400,400============")
-    print("Tr_K:%f" % Tr_K[testx,testy])
-    print("vza:%f" % vza[testx,testy])
-    print("T_A_K:%f" % T_A_K[testx,testy])
-    print("u:%f" % u[testx,testy])
-    print("p:%f" % p[testx,testy])
-    print("Rs_1:%f" % Rs_1[testx,testy])
-    print("zs:%f" % zs[testx,testy])
-    print("aleafv:%f" %  aleafv[testx,testy])
-    print("aleafn:%f" %  aleafn[testx,testy])
-    print("aleafl:%f" %  aleafl[testx,testy])
-    print("adeadv:%f" % adeadv[testx,testy])
-    print("adeadn:%f" %  adeadn[testx,testy])
-    print("adeadl:%f" % adeadl[testx,testy])
-    print("albedo:%f" % albedo[testx,testy])
-    print("ndvi:%f" % ndvi[testx,testy])
-    print("lai:%f" % lai[testx,testy])
-    print("clump:%f" % clump[testx,testy])
-    print("hc:%f" % hc[testx,testy])
-    print("mask:%f" % mask[testx,testy])
-    print("leaf_width:%f" % leaf_width[testx,testy])
-    print("a_PT_in:%f" % a_PT_in[testx,testy])
-    print("=======printing all inputs for pixel 400,400============")
+#    print("=======printing all inputs for pixel 400,400============")
+#    print("Tr_K:%f" % Tr_K[testx,testy])
+#    print("vza:%f" % vza[testx,testy])
+#    print("T_A_K:%f" % T_A_K[testx,testy])
+#    print("u:%f" % u[testx,testy])
+#    print("p:%f" % p[testx,testy])
+#    print("Rs_1:%f" % Rs_1[testx,testy])
+#    print("zs:%f" % zs[testx,testy])
+#    print("aleafv:%f" %  aleafv[testx,testy])
+#    print("aleafn:%f" %  aleafn[testx,testy])
+#    print("aleafl:%f" %  aleafl[testx,testy])
+#    print("adeadv:%f" % adeadv[testx,testy])
+#    print("adeadn:%f" %  adeadn[testx,testy])
+#    print("adeadl:%f" % adeadl[testx,testy])
+#    print("albedo:%f" % albedo[testx,testy])
+#    print("ndvi:%f" % ndvi[testx,testy])
+#    print("lai:%f" % lai[testx,testy])
+#    print("clump:%f" % clump[testx,testy])
+#    print("hc:%f" % hc[testx,testy])
+#    print("mask:%f" % mask[testx,testy])
+#    print("leaf_width:%f" % leaf_width[testx,testy])
+#    print("a_PT_in:%f" % a_PT_in[testx,testy])
+#    print("=======printing all inputs for pixel 400,400============")
           
     f_green  = 1.
     F = lai*clump                                 # LAI for leaf spherical distribution 
@@ -230,8 +230,8 @@ def TSEB_PT_usda(
     fc_q=1-(np.exp(-0.5*F/np.cos(np.deg2rad(vza))))          # Houborg modification (according to Anderson et al. 2005)
     fc_q[fc_q <= 0.05] = 0.05
     fc_q[fc_q >= 0.90] = 0.90
-    print("fc_q:%f" % fc_q[testx,testy])
-    print("F:%f" % F[testx,testy])
+#    print("fc_q:%f" % fc_q[testx,testy])
+#    print("F:%f" % F[testx,testy])
 
     z0m = 0.123*hc                              #;Brutsaert (1982)
     z0h = z0m.copy()
@@ -284,11 +284,11 @@ def TSEB_PT_usda(
     Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr = albedo_separation(
                 albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, 
                 z, T_A_K, zs, 1)
-    print("Rs_c:%f" % Rs_c[testx,testy])
-    print("Rs_s:%f" % Rs_s[testx,testy])
-    print("albedo_c:%f" % albedo_c[testx,testy])
-    print("albedo_s:%f" % albedo_s[testx,testy])
-    print("mask:%f" % mask[testx,testy])
+#    print("Rs_c:%f" % Rs_c[testx,testy])
+#    print("Rs_s:%f" % Rs_s[testx,testy])
+#    print("albedo_c:%f" % albedo_c[testx,testy])
+#    print("albedo_s:%f" % albedo_s[testx,testy])
+#    print("mask:%f" % mask[testx,testy])
     r_air = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287  
     cp = np.tile(1004.16,np.shape(T_A_K))
   
@@ -313,8 +313,8 @@ def TSEB_PT_usda(
         H_c = Rn_c-lETc
         
         Tc,Ts,Tac = temp_separation(H_c, fc_q, T_A_K, Tr_K, r_ah, r_x, r_s, r_air,cp)
-        print("Ts:%f" % Ts[testx,testy])
-        print("Tc:%f" % Tc[testx,testy])
+#        print("Ts:%f" % Ts[testx,testy])
+#        print("Tc:%f" % Tc[testx,testy])
       
         H_s = r_air*cp*(Ts-Tac)/r_s
         H_c = r_air*cp*(Tc-Tac)/r_x
