@@ -89,11 +89,11 @@ def main():
             #============Run DisALEXI in parallel======================================
             dd = disALEXI(filepath,dt,isUSA)
             #===COMMENTED FOR TESTING ONLY=================== 
-            dd.runDisALEXI(0,0,ALEXIgeodict,0)
+            dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
             nsamples = ll.nrow
             nlines = ll.ncol
             print 'Running disALEXI...'
-            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,200,200,ALEXIgeodict,0) for xStart in range(0,nsamples,200) for yStart in range(0,nlines,200))            
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,nsamples,subsetSize) for yStart in range(0,nlines,subsetSize))            
             
             # =================merge Ta files============================================
             print 'merging Ta files...'            
