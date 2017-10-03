@@ -707,7 +707,7 @@ class disALEXI(object):
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
             ET_24[ET_24<0.01]=0.01
-            ET_24 = np.array(ET_24*1000.,dtype='uint16')
+#            ET_24 = np.array(ET_24*1000.,dtype='uint16')
         else:
 
             output = self.DisALEXI_PT(
@@ -755,6 +755,7 @@ class disALEXI(object):
         inRes = [delx,dely]
 
         if TSEB_only==1:
+            outFormat = gdal.GDT_Float32 # FOR TESTING WE CAN GO BACK TO INT LATER
             ET_24outName = 'ETd_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
             fName = '%s%s%s' % (outET24Path,os.sep,ET_24outName)
             writeArray2Tiff(ET_24,inRes,inUL,ls.proj4,fName,outFormat)
