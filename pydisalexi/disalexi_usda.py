@@ -423,7 +423,7 @@ class disALEXI(object):
         ea = ((q2*(1000./621.9907))*(p*100.))*0.001                             #kPa
         ea *= 10. #mb
         
-        if TSEB_only==1:
+        if np.logical_and(TSEB_only==1, xStart==0 ,yStart==0):
 
             #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
 
@@ -521,9 +521,9 @@ class disALEXI(object):
 #                              '%s' % coarse2fineFile, '%s' % outFN]
 #                warp(optionList)
                 #os.remove(coarseFile)
-            g = gdal.Open(outFN,GA_ReadOnly)
-            T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
-            g= None
+        g = gdal.Open(outFN,GA_ReadOnly)
+        T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
+        g= None
         
 
         sceneDir = os.path.join(self.metBase,'%s' % scene)
