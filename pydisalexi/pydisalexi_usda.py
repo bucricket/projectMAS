@@ -58,8 +58,8 @@ def main():
 #    ALEXILatRes = 0.004
 #    ALEXILonRes = 0.004
     #---------------------roughly 4 KM  FOR TESTING
-    ALEXILatRes = 0.032
-    ALEXILonRes = 0.032
+    ALEXILatRes = 0.04
+    ALEXILonRes = 0.04
     
     ALEXIshape = [3750,3750]
     ALEXIgeodict ={'ALEXI_ulLat':ALEXI_ulLat,'ALEXI_ulLon':ALEXI_ulLon,
