@@ -479,8 +479,8 @@ class disALEXI(object):
                 #=======now convert the averaged coarse Ta to fine resolution==
 #                nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
 #                ncol = int(self.meta.REFLECTIVE_LINES)+100
-                nrow = ls.nrow+100
-                ncol = ls.ncol+100
+#                nrow = ls.nrow+100
+#                ncol = ls.ncol+100
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                               '%s' % ls.proj4,'-r', 'bilinear','-ts', 
                               '%f' % nrow, '%f' % ncol,'-of',
