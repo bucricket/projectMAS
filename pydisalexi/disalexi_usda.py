@@ -677,7 +677,7 @@ class disALEXI(object):
         if TSEB_only==1:
             #convert TA from scaled celcius to kelvin
 #            T_A_K = (T_A_K/1000.)+273.15  # removed /1000 FOR TESTING!!!!
-            T_A_K = (T_A_K)+273.16  # removed /1000 FOR TESTING!!!!
+#            T_A_K = (T_A_K)+273.16  # removed /1000 FOR TESTING!!!!
 
             output = TSEB_PT_usda(
                 Tr_K,
