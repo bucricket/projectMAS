@@ -112,11 +112,58 @@ def main():
             cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
             buildvrt(cmd)
             
+            finalFile = os.path.join(resultsBase,scene,'%s_G0.tif' % sceneID[:-5])
+            print 'merging G0 files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'G0*'))
+            buildvrt(cmd)
+            
+            finalFile = os.path.join(resultsBase,scene,'%s_H_c.tif' % sceneID[:-5])
+            print 'merging H_c files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'H_c*'))
+            buildvrt(cmd)
+            
+            finalFile = os.path.join(resultsBase,scene,'%s_H_s.tif' % sceneID[:-5])
+            print 'merging H_s files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'H_s*'))
+            buildvrt(cmd)
+            
+            finalFile = os.path.join(resultsBase,scene,'%s_Tac.tif' % sceneID[:-5])
+            print 'merging Tac files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'Tac*'))
+            buildvrt(cmd)
+            
+            finalFile = os.path.join(resultsBase,scene,'%s_Tc.tif' % sceneID[:-5])
+            print 'merging Tc files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'Tc*'))
+            buildvrt(cmd)
+            
+            finalFile = os.path.join(resultsBase,scene,'%s_Ts.tif' % sceneID[:-5])
+            print 'merging Ts files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'Ts*'))
+            buildvrt(cmd)
+            
+            finalFile = os.path.join(resultsBase,scene,'%s_lETc.tif' % sceneID[:-5])
+            print 'merging lETc files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'lETc*'))
+            buildvrt(cmd)
+            
+            finalFile = os.path.join(resultsBase,scene,'%s_lEs.tif' % sceneID[:-5])
+            print 'merging lEs files...'
+            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'lEs*'))
+            buildvrt(cmd)
+            
             #=======================clean up files===================================
             print 'cleaning up...'
             
             clean(os.path.join(resultsBase,scene),"ETd")
-#            clean(os.path.join(resultsBase,scene),"Ta")
+            clean(os.path.join(resultsBase,scene),"Ta")
+            clean(os.path.join(resultsBase,scene),"Ts")
+            clean(os.path.join(resultsBase,scene),"Tc")
+            clean(os.path.join(resultsBase,scene),"G0")
+            clean(os.path.join(resultsBase,scene),"H_c")
+            clean(os.path.join(resultsBase,scene),"H_s")
+            clean(os.path.join(resultsBase,scene),"lETc")
+            clean(os.path.join(resultsBase,scene),"lEs")
             lat_fName = os.path.join(landsatSR,'temp','lat.tif')
             lon_fName = os.path.join(landsatSR,'temp','lon.tif')
 #            os.remove(lat_fName)

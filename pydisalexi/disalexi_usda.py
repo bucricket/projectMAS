@@ -464,7 +464,7 @@ class disALEXI(object):
                 #=======now convert the averaged coarse Ta to fine resolution==
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                               '%s' % ls.proj4,'-r', 'near','-ts', 
-                              '%f' % ls.nrow, '%f' % ls.ncol,'-of',
+                              '%f' % ls.nrow+100, '%f' % ls.ncol+100,'-of',
                               'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 warp(optionList)
                 #========smooth Ta data========================================
@@ -699,6 +699,7 @@ class disALEXI(object):
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
             ET_24[ET_24<0.01]=0.01
+            ET_24 = ET_24-273.16 # USE CELCIUS FOR TESTING
 #            ET_24 = np.array(ET_24*1000.,dtype='uint16')
         else:
 
