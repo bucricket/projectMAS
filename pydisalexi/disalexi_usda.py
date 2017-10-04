@@ -444,10 +444,10 @@ class disALEXI(object):
                 
                 maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
                 g = gdal.Open(maskFN,GA_ReadOnly)
-                cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
+                cfmask = g.ReadAsArray()
                 g= None
                 g = gdal.Open(outfile,GA_ReadOnly)
-                ta = g.ReadAsArray(xStart,yStart,xSize,ySize)
+                ta = g.ReadAsArray()
                 ta[cfmask > 0]=0
                 g= None
                 mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
