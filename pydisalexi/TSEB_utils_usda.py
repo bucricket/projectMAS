@@ -513,8 +513,8 @@ def smooth(signal, owidth, edge_truncate=False):
 #END
 
 def interp_ta(Ta,coarseRes,fineRes):
-    course2fineRatio = coarseRes/fineRes
-    rid2 = course2fineRatio
+    course2fineRatio = coarseRes**2/fineRes**2
+    rid2 = np.sqrt(course2fineRatio)
     ta_m = np.nanmean(Ta)
     ta_v = np.nanstd(Ta)
     
