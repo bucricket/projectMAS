@@ -454,8 +454,6 @@ class disALEXI(object):
                 masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
                 ls.clone(mask,ta)
                 subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
-                
-                
                 optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
                               '%s' % inProj4,'-r', 'average','-tr', 
                               '%f' % ALEXILatRes, '%f' % ALEXILonRes,
