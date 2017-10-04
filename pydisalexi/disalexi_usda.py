@@ -30,7 +30,7 @@ from .TSEB_usda import TSEB_PT_usda
 from .utils import writeArray2Tiff,getParFromExcel,warp,folders
 from scipy import ndimage
 from .landsatTools import landsat_metadata,GeoTIFF
-from .TSEB_utils_usda import sunset_sunrise
+from .TSEB_utils_usda import sunset_sunrise,interp_ta
 
 
 
@@ -464,6 +464,26 @@ class disALEXI(object):
                 
                 warp(optionList)
                 
+                #========smooth Ta data========================================
+                ulx = ls.ulx
+                uly = ls.uly
+                lrx = ls.lrx
+                lry = ls.lry
+                delx = ls.delx
+                dely = -ls.dely
+                fineRes = ls.Lat[0,0]-ls.Lat[1,0]
+                coarseRes = ALEXILatRes
+                inUL = [ulx,uly]
+                inRes = [delx,dely]
+                g = gdal.Open(coarseFile,GA_ReadOnly)
+                ta = g.ReadAsArray()
+                g= None
+                
+                Ta = interp_ta(ta,coarseRes,fineRes)
+                
+                outFormat = gdal.GDT_Float32 
+                writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
+                
 #                #========fill in missing data from VIIRS and Landsat data======
 #                sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
 #                etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
@@ -481,30 +501,25 @@ class disALEXI(object):
 #                ncol = int(self.meta.REFLECTIVE_LINES)+100
 #                nrow = ls.nrow+100
 #                ncol = ls.ncol+100
-                optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
-                              '%s' % ls.proj4,'-r', 'bilinear','-ts', 
-                              '%f' % nrow, '%f' % ncol,'-of',
-                              'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
-                
-                warp(optionList)
-                #======now subset to match original image
-#                ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
-#                uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
-#                lrx = self.meta.CORNER_LR_PROJECTION_X_PRODUCT
-#                lry = self.meta.CORNER_LR_PROJECTION_Y_PRODUCT
-#                delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
-#                dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
-                ulx = ls.ulx
-                uly = ls.uly
-                lrx = ls.lrx
-                lry = ls.lry
-                delx = ls.delx
-                dely = -ls.dely
-                optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
-                              '%f' % lrx,'%f' % uly,'-tr',
-                              '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
-                              '%s' % coarse2fineFile, '%s' % outFN]
-                warp(optionList)
+#                optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
+#                              '%s' % ls.proj4,'-r', 'bilinear','-ts', 
+#                              '%f' % nrow, '%f' % ncol,'-of',
+#                              'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
+#                
+#                warp(optionList)
+#                #======now subset to match original image
+##                ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
+##                uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
+##                lrx = self.meta.CORNER_LR_PROJECTION_X_PRODUCT
+##                lry = self.meta.CORNER_LR_PROJECTION_Y_PRODUCT
+##                delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
+##                dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
+#
+#                optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
+#                              '%f' % lrx,'%f' % uly,'-tr',
+#                              '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
+#                              '%s' % coarse2fineFile, '%s' % outFN]
+#                warp(optionList)
                 #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
             T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)

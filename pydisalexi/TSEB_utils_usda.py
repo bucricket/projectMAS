@@ -437,3 +437,89 @@ def compute_stability(H, t0, r_air,cp, u_attr, z_u, z_T, hc, d0, z0m, z0h):
     fm_h[ind]= fm_h[ind]+1.
 
     return fm, fh, fm_h
+
+def smooth(signal, owidth, edge_truncate=False):
+    """Replicates the IDL ``SMOOTH()`` function.
+
+    Parameters
+    ----------
+    signal : array-like
+        The array to be smoothed.
+    owidth : :class:`int` or array-like
+        Width of the smoothing window.  Can be a scalar or an array with
+        length equal to the number of dimensions of `signal`.
+    edge_truncate : :class:`bool`, optional
+        Set `edge_truncate` to ``True`` to apply smoothing to all points.
+        Points near the edge are normally excluded from smoothing.
+
+    Returns
+    -------
+    array-like
+        A smoothed array with the same dimesions and type as `signal`.
+
+    Notes
+    -----
+
+    References
+    ----------
+    http://www.exelisvis.com/docs/SMOOTH.html
+
+    Examples
+    --------
+    """
+    if owidth % 2 == 0:
+        width = owidth + 1
+    else:
+        width = owidth
+    if width < 3:
+        return signal
+    n = signal.size
+    istart = int((width-1)/2)
+    iend = n - int((width+1)/2)
+    w2 = int(width/2)
+    s = signal.copy()
+    for i in range(n):
+        if i < istart:
+            if edge_truncate:
+                s[i] = (np.nansum(signal[0:istart+i+1]) +
+                        (istart-i)*signal[0])/float(width)
+        elif i > iend:
+            if edge_truncate:
+                s[i] = (np.nansum(signal[i-istart:n]) +
+                        (i-iend)*signal[n-1])/float(width)
+        else:
+            s[i] = np.nansum(signal[i-w2:i+w2+1])/float(width)
+    return s
+
+#FUNCTION interp_ta, Ta, bad, rid 
+#  ;mask_full = where(Ta ne bad)
+#  ;t_air = Ta[mask_full]
+#  hold=where(Ta EQ bad, vct)
+#  if vct GT 0 then Ta[where(Ta EQ bad)]=!values.f_nan
+#  t_air=Ta
+#  ta_m = mean(t_air,/nan)
+#  ta_v = sqrt(variance(t_air,/nan))
+#      
+#  mask_bad = where(abs(Ta-ta_m) gt 10*ta_v, c_bad)
+#  Ta_temp = Ta
+#  IF c_bad ne 0 THEN BEGIN
+#    Ta_temp[mask_bad] = !Values.F_NAN
+#  ENDIF
+#
+#  rid2=sqrt(rid)
+#  Ta_smooth = SMOOTH(Ta_temp, rid2/1., /EDGE_TRUNCATE, MISSING=ta_m, /NAN)
+#
+#  RETURN, Ta_smooth
+#END
+
+def interp_ta(Ta,coarseRes,fineRes):
+    course2fineRatio = coarseRes/fineRes
+    rid2 = course2fineRatio
+    ta_m = np.nanmean(Ta)
+    ta_v = np.nanstd(Ta)
+    
+    mask_bad = (abs(Ta-ta_m) > 10*ta_v)
+    Ta[mask_bad] = np.nan
+    
+    return smooth(Ta, rid2,True)
+    
