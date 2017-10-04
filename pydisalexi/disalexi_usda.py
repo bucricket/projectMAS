@@ -449,6 +449,7 @@ class disALEXI(object):
                 g = gdal.Open(outfile,GA_ReadOnly)
                 ta = g.ReadAsArray()
                 ta[cfmask > 0]=0
+                g= None
                 mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
                 masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
                 ls.clone(mask,ta)
@@ -740,9 +741,11 @@ class disALEXI(object):
                     t_end,
                     leaf_width=leaf_width,
                     alpha_PT=alpha_PT)
-            T_A_K= np.array((output['T_A_K']-273.15)*1000.,dtype='uint16')
+#            T_A_K= np.array((output['T_A_K']-273.15)*1000.,dtype='uint16')
+            T_A_K= np.array(output['T_A_K'],dtype='Float32')
             
-        outFormat = gdal.GDT_UInt16
+#        outFormat = gdal.GDT_UInt16
+        outFormat = gdal.GDT_Float32
         outET24Path = os.path.join(self.resultsBase,scene)
         if not os.path.exists(outET24Path):
             os.makedirs(outET24Path)
