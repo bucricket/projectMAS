@@ -7,6 +7,7 @@ Created on Thu Jun  1 15:32:10 2017
 """
 import numpy as np
 import math
+from scipy import ndimage
 #   script imports
 #imports
 
@@ -518,71 +519,15 @@ def interp_ta(Ta,coarseRes,fineRes):
     ta_m = np.nanmean(Ta)
     ta_v = np.nanstd(Ta)
     
-    mask_bad = (abs(Ta-ta_m) > 10*ta_v)
+    mask_bad = (abs(Ta-ta_m) > 10.*ta_v)
     Ta[mask_bad] = np.nan
     
-    return smooth(Ta, rid2,True)
+    kern = np.hanning(rid2)   # a Hanning window with width 50
+    kern /= kern.sum()      # normalize the kernel weights to sum to 1
+
+    hanning = ndimage.convolve1d(Ta, kern, 1)
+#    return smooth(Ta, rid2,True)
+    return hanning
 
 
-import numpy as np
-import matplotlib.pyplot as mp
-
-def Smooth(v1, w, nanopt): 
-
-    # v1 is the input 2D numpy array.
-    # w is the width of the square window along one dimension
-    # nanopt can be replace or propagate 
-
-    '''
-    v1 = np.array(
-    [[3.33692829e-02, 6.79152655e-02, 9.66020487e-01, 8.56235492e-01], 
-    [3.04355923e-01, np.nan        , 4.86013025e-01, 1.00000000e+02],
-    [9.40659566e-01, 5.23314093e-01, np.nan        , 9.09669768e-01],
-    [1.85165123e-02, 4.44609040e-02, 5.10472165e-02, np.nan ]])
-    w = 2
-    '''
-
-#    mp.imshow(v1, interpolation='None', cmap='autumn')
-#    mp.show()
-
-    # make a copy of the array for the output:
-    vout=np.copy(v1)
-
-    # If w is even, add one
-    if w % 2 == 0:
-        w = w + 1
-
-    # get the size of each dim of the input:
-    r,c = v1.shape
-
-    # Assume that w, the width of the window is always square.
-    startrc = (w - 1)/2
-    stopr = r - ((w + 1)/2) + 1
-    stopc = c - ((w + 1)/2) + 1
-
-    # For all pixels within the border defined by the box size, calculate the average in the window.
-    # There are two options:
-    # Ignore NaNs and replace the value where possible.
-    # Propagate the NaNs
-
-    for col in range(startrc,stopc):
-        # Calculate the window start and stop columns
-        startwc = col - (w/2) 
-        stopwc = col + (w/2) + 1
-        for row in range (startrc,stopr):
-            # Calculate the window start and stop rows
-            startwr = row - (w/2)
-            stopwr = row + (w/2) + 1
-            # Extract the window
-            window = v1[startwr:stopwr, startwc:stopwc]
-            if nanopt == 'replace':
-                # If we're replacing Nans, then select only the finite elements
-                window = window[np.isfinite(window)]
-            # Calculate the mean of the window
-            vout[row,col] = np.mean(window)
-
-#    mp.imshow(vout, interpolation='None', cmap='autumn')
-#    mp.show()
-
-    return vout
     
