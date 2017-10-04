@@ -463,7 +463,13 @@ class disALEXI(object):
                               '-of','GTiff','%s' % masked, '%s' % coarseFile]
                 
                 warp(optionList)
-                
+                #=======now convert the averaged coarse Ta to fine resolution==
+                nrow = ls.nrow#+100
+                ncol = ls.ncol#+100
+                optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
+                              '%s' % ls.proj4,'-r', 'bilinear','-ts', 
+                              '%f' % nrow, '%f' % ncol,'-of',
+                              'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 #========smooth Ta data========================================
                 ulx = ls.ulx
                 uly = ls.uly
@@ -475,7 +481,7 @@ class disALEXI(object):
                 coarseRes = ALEXILatRes
                 inUL = [ulx,uly]
                 inRes = [delx,dely]
-                g = gdal.Open(coarseFile,GA_ReadOnly)
+                g = gdal.Open(coarse2fineFile,GA_ReadOnly)
                 ta = g.ReadAsArray()
                 g= None
                 
@@ -483,37 +489,6 @@ class disALEXI(object):
                 
                 outFormat = gdal.GDT_Float32 
                 writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
-                
-#                #========fill in missing data from VIIRS and Landsat data======
-#                sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
-#                etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
-#                g = gdal.Open(etFN,GA_ReadOnly)
-#                et= g.ReadAsArray()
-#                et[et==-9999]=0
-#                ls = GeoTIFF(etFN)
-#                mask = os.path.join(self.resultsBase,scene,"TaMask.tif")
-#                masked = os.path.join(self.resultsBase,scene,"TaMasked.tif")
-#                ls.clone(mask,et)
-#                subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (coarseFile,masked,mask),shell=True)
-                #os.remove(outfile)
-                #=======now convert the averaged coarse Ta to fine resolution==
-#                nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
-#                ncol = int(self.meta.REFLECTIVE_LINES)+100
-#                nrow = ls.nrow+100
-#                ncol = ls.ncol+100
-#                optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
-#                              '%s' % ls.proj4,'-r', 'bilinear','-ts', 
-#                              '%f' % nrow, '%f' % ncol,'-of',
-#                              'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
-#                
-#                warp(optionList)
-#                #======now subset to match original image
-##                ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
-##                uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
-##                lrx = self.meta.CORNER_LR_PROJECTION_X_PRODUCT
-##                lry = self.meta.CORNER_LR_PROJECTION_Y_PRODUCT
-##                delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
-##                dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
 #
 #                optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
 #                              '%f' % lrx,'%f' % uly,'-tr',
