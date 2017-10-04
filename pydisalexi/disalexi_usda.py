@@ -429,7 +429,7 @@ class disALEXI(object):
 
             #=======================convert fine TA to coarse resolution=========
 #            outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
-            outfile = os.path.join(resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
     
             coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
             coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
