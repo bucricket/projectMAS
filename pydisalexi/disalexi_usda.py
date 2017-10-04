@@ -423,7 +423,7 @@ class disALEXI(object):
         ea = ((q2*(1000./621.9907))*(p*100.))*0.001                             #kPa
         ea *= 10. #mb
         
-        if np.logical_and(TSEB_only==1, xStart==0 ,yStart==0):
+        if ((TSEB_only==1) & (xStart==0) & (yStart==0)):
 
             #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
 
