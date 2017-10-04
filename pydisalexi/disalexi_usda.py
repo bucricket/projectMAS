@@ -447,7 +447,7 @@ class disALEXI(object):
                 cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
                 g= None
                 g = gdal.Open(outfile,GA_ReadOnly)
-                ta = g.ReadAsArray()
+                ta = g.ReadAsArray(xStart,yStart,xSize,ySize)
                 ta[cfmask > 0]=0
                 g= None
                 mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
@@ -742,7 +742,7 @@ class disALEXI(object):
                     leaf_width=leaf_width,
                     alpha_PT=alpha_PT)
 #            T_A_K= np.array((output['T_A_K']-273.15)*1000.,dtype='uint16')
-            T_A_K= np.array(output['T_A_K'],dtype='Float32')
+            T_A_K= np.array(output['T_A_K'],dtype='float32')
             
 #        outFormat = gdal.GDT_UInt16
         outFormat = gdal.GDT_Float32
