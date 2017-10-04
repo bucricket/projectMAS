@@ -470,6 +470,7 @@ class disALEXI(object):
                               '%s' % ls.proj4,'-r', 'bilinear','-ts', 
                               '%f' % nrow, '%f' % ncol,'-of',
                               'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
+                warp(optionList)
                 #========smooth Ta data========================================
                 ulx = ls.ulx
                 uly = ls.uly
