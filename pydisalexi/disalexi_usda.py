@@ -428,7 +428,8 @@ class disALEXI(object):
             #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
 
             #=======================convert fine TA to coarse resolution=========
-            outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
+#            outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
+            outfile = os.path.join(resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
     
             coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
             coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
@@ -484,7 +485,7 @@ class disALEXI(object):
                 ta = g.ReadAsArray()
                 g= None
                 
-                Ta = interp_ta(ta,coarseRes,fineRes)
+                Ta = interp_ta(ta,coarseRes,fineRes)-273.16
                 
                 outFormat = gdal.GDT_Float32 
                 writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
@@ -496,7 +497,7 @@ class disALEXI(object):
 #                warp(optionList)
                 #os.remove(coarseFile)
         g = gdal.Open(outFN,GA_ReadOnly)
-        T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
+        T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)+273.16
         g= None
         
 
@@ -701,7 +702,6 @@ class disALEXI(object):
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
             ET_24[ET_24<0.01]=0.01
-            ET_24 = ET_24-273.16 # USE CELCIUS FOR TESTING
 #            ET_24 = np.array(ET_24*1000.,dtype='uint16')
         else:
 
