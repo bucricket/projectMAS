@@ -18,6 +18,7 @@ import copy_reg
 import pycurl
 warnings.simplefilter('ignore', np.RankWarning)
 from .landsatTools import landsat_metadata,GeoTIFF
+import time as timer
 
 
 def _pickle_method(m):
@@ -73,7 +74,7 @@ def main():
     
             
     #USER INPUT END===============================================================
-
+    start = timer.time()
     for i in range(len(fileList)):
         filepath = fileList[i]
         tiff = tiffList[i]
@@ -173,6 +174,8 @@ def main():
             clean(os.path.join(resultsBase,scene),"lEs")
             lat_fName = os.path.join(landsatSR,'temp','lat.tif')
             lon_fName = os.path.join(landsatSR,'temp','lon.tif')
+    end = timer.time()
+    print("program duration: %f minutes" % ((end - start)/60.))
 #            os.remove(lat_fName)
 #            os.remove(lon_fName)
     
