@@ -109,6 +109,7 @@ def main():
             r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,1) for xStart in range(0,nsamples,subsetSize) for yStart in range(0,nlines,subsetSize)) 
 
             #=====================merge all files =====================================
+            finalFile = os.path.join(resultsBase,scene,'%s_ETd.tif' % sceneID[:-5])
             print 'merging ETd files...'
             cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
             buildvrt(cmd)
