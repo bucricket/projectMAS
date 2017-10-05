@@ -26,6 +26,7 @@ import numpy as np
 import subprocess
 from osgeo import gdal
 from osgeo.gdalconst import GA_ReadOnly
+import pandas as pd
 from .TSEB_usda import TSEB_PT_usda
 from .utils import writeArray2Tiff,getParFromExcel,warp,folders
 from scipy import ndimage
@@ -398,22 +399,48 @@ class disALEXI(object):
             mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
             masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
             ls.clone(mask,ta)
-            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
-            optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
-                          '%s' % inProj4,'-r', 'average','-tr', 
-                          '%f' % ALEXILatRes, '%f' % ALEXILonRes,
-                          '-srcnodata','270.','-dstnodata','0.0',
-                          '-of','GTiff','%s' % masked, '%s' % coarseFile]
             
-            warp(optionList)
-            #=======now convert the averaged coarse Ta to fine resolution==
-            nrow = ls.nrow#+100.
-            ncol = ls.ncol#+100.
-            optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
-                          '%s' % ls.proj4,'-r', 'near','-ts', 
-                          '%f' % nrow, '%f' % ncol,'-of',
-                          'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
-            warp(optionList)
+            #=============find Average Ta======================================
+    
+            sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
+            etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
+            g = gdal.Open(etFN,GA_ReadOnly)
+            ET_ALEXI = g.ReadAsArray()
+            g= None
+            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+            
+            g = gdal.Open(masked,GA_ReadOnly)
+            ta_Masked = g.ReadAsArray()
+            g= None
+            
+            ta_masked = np.reshape(ta_Masked,[np.size(ta_Masked)])
+            taDict = {'ID':et_alexi,'ta':ta_masked}
+            taDF = pd.DataFrame(taDict, columns=taDict.keys())
+            group = taDF['ta'].groupby(taDF['ID'])
+            valMean = group.mean()
+            outData = np.zeros(ta_masked.size)
+            for i in range(valMean.size):
+                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+            ta = np.reshape(outData,ta_Masked.shape)
+            
+#            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
+#            optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
+#                          '%s' % inProj4,'-r', 'average','-tr', 
+#                          '%f' % ALEXILatRes, '%f' % ALEXILonRes,
+#                          '-srcnodata','270.','-dstnodata','0.0',
+#                          '-of','GTiff','%s' % masked, '%s' % coarseFile]
+#            
+#            
+#            
+#            warp(optionList)
+#            #=======now convert the averaged coarse Ta to fine resolution==
+#            nrow = ls.nrow#+100.
+#            ncol = ls.ncol#+100.
+#            optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
+#                          '%s' % ls.proj4,'-r', 'near','-ts', 
+#                          '%f' % nrow, '%f' % ncol,'-of',
+#                          'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
+#            warp(optionList)
             #========smooth Ta data========================================
             ulx = ls.ulx
             uly = ls.uly
@@ -423,9 +450,9 @@ class disALEXI(object):
             coarseRes = ALEXILatRes
             inUL = [ulx,uly]
             inRes = [delx,dely]
-            g = gdal.Open(coarse2fineFile,GA_ReadOnly)
-            ta = g.ReadAsArray()
-            g= None
+#            g = gdal.Open(coarse2fineFile,GA_ReadOnly)
+#            ta = g.ReadAsArray()
+#            g= None
             
             Ta = interp_ta(ta,coarseRes,fineRes)-273.16
             
