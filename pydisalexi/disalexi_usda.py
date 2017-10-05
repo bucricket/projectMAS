@@ -428,12 +428,13 @@ class disALEXI(object):
             #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
 
             #=======================convert fine TA to coarse resolution=========
-#            outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
-            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+            outfile = os.path.join(self.resultsBase,scene,'Ta_DisALEXI.tif')
+#            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
     
             coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
             coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
-            outFN = coarseFile[:-10]+'.tif'
+#            outFN = coarseFile[:-10]+'.tif'
+            outFN = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
             if not os.path.exists(outFN):
                 print 'get->Ta'
                 # get mask from Landsat LAI
