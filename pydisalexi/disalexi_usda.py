@@ -399,7 +399,7 @@ class disALEXI(object):
             mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
             masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
             ls.clone(mask,ta)
-            
+            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
             #=============find Average Ta======================================
     
             sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
@@ -423,7 +423,7 @@ class disALEXI(object):
                 outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
             ta = np.reshape(outData,ta_Masked.shape)
             
-#            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
+            
 #            optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
 #                          '%s' % inProj4,'-r', 'average','-tr', 
 #                          '%f' % ALEXILatRes, '%f' % ALEXILonRes,
