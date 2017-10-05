@@ -526,7 +526,7 @@ def interp_ta(Ta,coarseRes,fineRes):
     kern /= kern.sum()      # normalize the kernel weights to sum to 1
 
 #    hanning = ndimage.convolve1d(Ta, kern, 1)
-    local_mean = ndimage.uniform_filter(Ta, size=rid2)
+    local_mean = ndimage.uniform_filter(Ta, size=rid2,mode='nearest')
 #    return smooth(Ta, rid2,True)
     return local_mean
 
