@@ -98,7 +98,8 @@ def main():
             # =================merge Ta files============================================
             print 'merging Ta files...'            
 
-            finalFile = os.path.join(resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+#            finalFile = os.path.join(resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+            finalFile = os.path.join(resultsBase,scene,'Ta_DisALEXI.tif')
             cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'Ta*'))
             buildvrt(cmd)
             

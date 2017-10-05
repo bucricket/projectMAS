@@ -329,7 +329,6 @@ def TSEB_PT_usda(
         mask_sum = np.array(np.sum(mask_iter), dtype='float')
         mask_size = np.array(np.sum(mask), dtype='float')
         chk_iter = mask_sum/mask_size
-        print("check_iter: %f" % chk_iter)
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)
         r_ah, r_s, r_x, u_attr = compute_resistence(u, Ts, Tc, hc, lai, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, fm, fh, fm_h)
     
@@ -340,7 +339,7 @@ def TSEB_PT_usda(
         den_s = Rn_s-G0
         den_s[den_s==0.] = np.nan        
         EF_s = lEs/den_s
-      
+    print("check_iter: %f" % chk_iter) 
     #      ENDFOR ; ii (Loop for Stability Correction and Water Stress)
     
     #************************************************************************
