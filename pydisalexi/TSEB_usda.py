@@ -304,6 +304,7 @@ def TSEB_PT_usda(
 
     #************************************************************************
     # Start Loop for Stability Correction and Water Stress
+    iterchange = []
     for i in range(35+1):     
         Rn_s, Rn_c, Rn = compute_Rn(albedo_c, albedo_s, T_A_K, Tc, Ts, e_atm, Rs_c, Rs_s, F)
         G0 = compute_G0(Rn, Rn_s, albedo, ndvi, t_rise, t_end, time, EF_s)
@@ -329,6 +330,11 @@ def TSEB_PT_usda(
         mask_sum = np.array(np.sum(mask_iter), dtype='float')
         mask_size = np.array(np.sum(mask), dtype='float')
         chk_iter = mask_sum/mask_size
+        iterchange.append(chk_iter)
+        if i >0:
+            if np.diff(iterchange)[-1]==0:
+                break
+            
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)
         r_ah, r_s, r_x, u_attr = compute_resistence(u, Ts, Tc, hc, lai, d_0, z0m, z0h, z_u, z_T, leaf_width, leaf, leafs, leafc, fm, fh, fm_h)
     

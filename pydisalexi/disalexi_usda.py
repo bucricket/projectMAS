@@ -422,7 +422,8 @@ class disALEXI(object):
     
         ea = ((q2*(1000./621.9907))*(p*100.))*0.001                             #kPa
         ea *= 10. #mb
-        
+        #====get air temperature===============================================
+        outFN = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
         if ((TSEB_only==1) & (xStart==0) & (yStart==0)):
 
             #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
@@ -434,7 +435,7 @@ class disALEXI(object):
             coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
             coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
 #            outFN = coarseFile[:-10]+'.tif'
-            outFN = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+            
             if not os.path.exists(outFN):
                 print 'get->Ta'
                 # get mask from Landsat LAI
