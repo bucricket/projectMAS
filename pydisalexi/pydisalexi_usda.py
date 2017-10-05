@@ -103,6 +103,10 @@ def main():
             cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'Ta*'))
             buildvrt(cmd)
             
+            #=========smooth the TA data=======================================
+            print 'Smoothing Ta...'
+            dd.smoothTaData(ALEXIgeodict)
+            
             # =================run TSEB one last time in parallel=======================
 #            print "run one last time in serial"
 #            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)

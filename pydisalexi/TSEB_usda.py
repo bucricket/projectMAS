@@ -332,7 +332,7 @@ def TSEB_PT_usda(
         chk_iter = mask_sum/mask_size
         iterchange.append(chk_iter)
         if i >0:
-            if np.diff(iterchange)[-1]==0:
+            if np.diff(iterchange)[-1]<0.001:
                 break
             
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)
@@ -345,7 +345,7 @@ def TSEB_PT_usda(
         den_s = Rn_s-G0
         den_s[den_s==0.] = np.nan        
         EF_s = lEs/den_s
-    print("check_iter: %f" % chk_iter) 
+    print("check_iter: %f, loops: %d" % (chk_iter,i)) 
     #      ENDFOR ; ii (Loop for Stability Correction and Water Stress)
     
     #************************************************************************

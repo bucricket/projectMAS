@@ -360,6 +360,76 @@ class disALEXI(object):
         output ={'T_A_K':T_A_K}
         return output
     
+    def smoothTaData(self,ALEXIgeodict):
+        
+        ALEXILatRes = ALEXIgeodict['ALEXI_LatRes']
+        ALEXILonRes = ALEXIgeodict['ALEXI_LonRes']
+        sceneID =self.sceneID
+        scene = self.scene
+        outFN = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+        inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+        #=======================convert fine TA to coarse resolution=========
+        outfile = os.path.join(self.resultsBase,scene,'Ta_DisALEXI.tif')
+#            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+
+        coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
+        coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
+#            outFN = coarseFile[:-10]+'.tif'
+        
+        if not os.path.exists(outFN):
+            print 'get->Ta'
+            # get mask from Landsat LAI
+            ls = GeoTIFF(outfile)
+#                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+#                hdf = SD(laiFN,SDC.READ)
+#                data2D = hdf.select('cfmask')
+#                cfmask = data2D[:,:].astype(np.double)
+            
+            maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
+            g = gdal.Open(maskFN,GA_ReadOnly)
+            cfmask = g.ReadAsArray()
+            g= None
+            g = gdal.Open(outfile,GA_ReadOnly)
+            ta = g.ReadAsArray()
+            ta[cfmask > 0]=0
+            g= None
+            mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
+            masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
+            ls.clone(mask,ta)
+            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
+            optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
+                          '%s' % inProj4,'-r', 'average','-tr', 
+                          '%f' % ALEXILatRes, '%f' % ALEXILonRes,
+                          '-srcnodata','270.','-dstnodata','0.0',
+                          '-of','GTiff','%s' % masked, '%s' % coarseFile]
+            
+            warp(optionList)
+            #=======now convert the averaged coarse Ta to fine resolution==
+            nrow = ls.nrow+100.
+            ncol = ls.ncol+100.
+            optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
+                          '%s' % ls.proj4,'-r', 'near','-ts', 
+                          '%f' % nrow, '%f' % ncol,'-of',
+                          'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
+            warp(optionList)
+            #========smooth Ta data========================================
+            ulx = ls.ulx
+            uly = ls.uly
+            delx = ls.delx
+            dely = -ls.dely
+            fineRes = ls.Lat[1,0]-ls.Lat[0,0]
+            coarseRes = ALEXILatRes
+            inUL = [ulx,uly]
+            inRes = [delx,dely]
+            g = gdal.Open(coarse2fineFile,GA_ReadOnly)
+            ta = g.ReadAsArray()
+            g= None
+            
+            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
+            
+            outFormat = gdal.GDT_Float32 
+            writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
+    
     def runDisALEXI(self,xStart,yStart,xSize,ySize,ALEXIgeodict,TSEB_only):
         # USER INPUT============================================================
         ALEXILatRes = ALEXIgeodict['ALEXI_LatRes']
@@ -425,79 +495,79 @@ class disALEXI(object):
         #====get air temperature===============================================
         outFN = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
         if (TSEB_only==1):
-            if ((xStart==0) & (yStart==0)):
-                #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
-    
-                #=======================convert fine TA to coarse resolution=========
-                outfile = os.path.join(self.resultsBase,scene,'Ta_DisALEXI.tif')
-    #            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
-        
-                coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
-                coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
-    #            outFN = coarseFile[:-10]+'.tif'
-                
-                if not os.path.exists(outFN):
-                    print 'get->Ta'
-                    # get mask from Landsat LAI
-                    ls = GeoTIFF(outfile)
-    #                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-    #                hdf = SD(laiFN,SDC.READ)
-    #                data2D = hdf.select('cfmask')
-    #                cfmask = data2D[:,:].astype(np.double)
-                    
-                    maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
-                    g = gdal.Open(maskFN,GA_ReadOnly)
-                    cfmask = g.ReadAsArray()
-                    g= None
-                    g = gdal.Open(outfile,GA_ReadOnly)
-                    ta = g.ReadAsArray()
-                    ta[cfmask > 0]=0
-                    g= None
-                    mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
-                    masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
-                    ls.clone(mask,ta)
-                    subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
-                    optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
-                                  '%s' % inProj4,'-r', 'average','-tr', 
-                                  '%f' % ALEXILatRes, '%f' % ALEXILonRes,
-                                  '-srcnodata','270.','-dstnodata','0.0',
-                                  '-of','GTiff','%s' % masked, '%s' % coarseFile]
-                    
-                    warp(optionList)
-                    #=======now convert the averaged coarse Ta to fine resolution==
-                    nrow = ls.nrow+100.
-                    ncol = ls.ncol+100.
-                    optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
-                                  '%s' % ls.proj4,'-r', 'near','-ts', 
-                                  '%f' % nrow, '%f' % ncol,'-of',
-                                  'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
-                    warp(optionList)
-                    #========smooth Ta data========================================
-                    ulx = ls.ulx
-                    uly = ls.uly
-                    lrx = ls.lrx
-                    lry = ls.lry
-                    delx = ls.delx
-                    dely = -ls.dely
-                    fineRes = ls.Lat[1,0]-ls.Lat[0,0]
-                    coarseRes = ALEXILatRes
-                    inUL = [ulx,uly]
-                    inRes = [delx,dely]
-                    g = gdal.Open(coarse2fineFile,GA_ReadOnly)
-                    ta = g.ReadAsArray()
-                    g= None
-                    
-                    Ta = interp_ta(ta,coarseRes,fineRes)-273.16
-                    
-                    outFormat = gdal.GDT_Float32 
-                    writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
-    #
-    #                optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
-    #                              '%f' % lrx,'%f' % uly,'-tr',
-    #                              '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
-    #                              '%s' % coarse2fineFile, '%s' % outFN]
-    #                warp(optionList)
-                    #os.remove(coarseFile)
+#            if ((xStart==0) & (yStart==0)):
+#                #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
+#    
+#                #=======================convert fine TA to coarse resolution=========
+#                outfile = os.path.join(self.resultsBase,scene,'Ta_DisALEXI.tif')
+#    #            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+#        
+#                coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
+#                coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
+#    #            outFN = coarseFile[:-10]+'.tif'
+#                
+#                if not os.path.exists(outFN):
+#                    print 'get->Ta'
+#                    # get mask from Landsat LAI
+#                    ls = GeoTIFF(outfile)
+#    #                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+#    #                hdf = SD(laiFN,SDC.READ)
+#    #                data2D = hdf.select('cfmask')
+#    #                cfmask = data2D[:,:].astype(np.double)
+#                    
+#                    maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
+#                    g = gdal.Open(maskFN,GA_ReadOnly)
+#                    cfmask = g.ReadAsArray()
+#                    g= None
+#                    g = gdal.Open(outfile,GA_ReadOnly)
+#                    ta = g.ReadAsArray()
+#                    ta[cfmask > 0]=0
+#                    g= None
+#                    mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
+#                    masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
+#                    ls.clone(mask,ta)
+#                    subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
+#                    optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
+#                                  '%s' % inProj4,'-r', 'average','-tr', 
+#                                  '%f' % ALEXILatRes, '%f' % ALEXILonRes,
+#                                  '-srcnodata','270.','-dstnodata','0.0',
+#                                  '-of','GTiff','%s' % masked, '%s' % coarseFile]
+#                    
+#                    warp(optionList)
+#                    #=======now convert the averaged coarse Ta to fine resolution==
+#                    nrow = ls.nrow+100.
+#                    ncol = ls.ncol+100.
+#                    optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
+#                                  '%s' % ls.proj4,'-r', 'near','-ts', 
+#                                  '%f' % nrow, '%f' % ncol,'-of',
+#                                  'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
+#                    warp(optionList)
+#                    #========smooth Ta data========================================
+#                    ulx = ls.ulx
+#                    uly = ls.uly
+#                    lrx = ls.lrx
+#                    lry = ls.lry
+#                    delx = ls.delx
+#                    dely = -ls.dely
+#                    fineRes = ls.Lat[1,0]-ls.Lat[0,0]
+#                    coarseRes = ALEXILatRes
+#                    inUL = [ulx,uly]
+#                    inRes = [delx,dely]
+#                    g = gdal.Open(coarse2fineFile,GA_ReadOnly)
+#                    ta = g.ReadAsArray()
+#                    g= None
+#                    
+#                    Ta = interp_ta(ta,coarseRes,fineRes)-273.16
+#                    
+#                    outFormat = gdal.GDT_Float32 
+#                    writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
+#    #
+#    #                optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
+#    #                              '%f' % lrx,'%f' % uly,'-tr',
+#    #                              '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
+#    #                              '%s' % coarse2fineFile, '%s' % outFN]
+#    #                warp(optionList)
+#                    #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
             T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)+273.16
             g= None
