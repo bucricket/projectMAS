@@ -347,8 +347,10 @@ class disALEXI(object):
         bias[np.where(nanIndex==7),:]=1.
         f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
         f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
-        biasInterp = f_bias(range(270,340))
-        TaInterp = f_ta(range(270,340))
+#        biasInterp = f_bias(range(270,340))
+#        TaInterp = f_ta(range(270,340))
+        biasInterp = f_bias(np.linspace(270,340,700))
+        TaInterp = f_ta(np.linspace(270,340,700))
         # extract the Ta based on minimum bias at Fine resolution
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
