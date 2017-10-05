@@ -405,8 +405,8 @@ class disALEXI(object):
             
             warp(optionList)
             #=======now convert the averaged coarse Ta to fine resolution==
-            nrow = ls.nrow+100.
-            ncol = ls.ncol+100.
+            nrow = ls.nrow#+100.
+            ncol = ls.ncol#+100.
             optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                           '%s' % ls.proj4,'-r', 'near','-ts', 
                           '%f' % nrow, '%f' % ncol,'-of',
