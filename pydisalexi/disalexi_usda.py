@@ -394,7 +394,7 @@ class disALEXI(object):
             g= None
             g = gdal.Open(outfile,GA_ReadOnly)
             ta = g.ReadAsArray()
-            ta[cfmask > 0]=0
+            ta[cfmask == 1]=0
             g= None
             mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
             masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
