@@ -394,7 +394,7 @@ class disALEXI(object):
             g= None
             g = gdal.Open(outfile,GA_ReadOnly)
             ta = g.ReadAsArray()
-#            ta[cfmask == 1]=0 # FOR TESTING
+            ta[cfmask == 1]=0 
             g= None
             mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
             masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
@@ -486,9 +486,9 @@ class disALEXI(object):
         nsamples = ls.nrow
         nlines = ls.ncol
         if xStart==((nsamples/xSize)*xSize):
-            xSize = (nsamples-xStart)-1
+            xSize = (nsamples-xStart)
         if yStart==((nlines/ySize)*ySize):
-            ySize = (nlines-yStart)-1
+            ySize = (nlines-yStart)
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         sz = np.radians(90-solZen) # convert sza to radians
     

@@ -94,7 +94,7 @@ def main():
             nsamples = ll.nrow
             nlines = ll.ncol
             print 'Running disALEXI...'
-            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,nsamples,subsetSize) for yStart in range(0,nlines,subsetSize))            
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,nsamples,subsetSize) for yStart in range(0,nlines+1,subsetSize))            
             
             # =================merge Ta files============================================
             print 'merging Ta files...'            
