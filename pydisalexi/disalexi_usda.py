@@ -394,7 +394,7 @@ class disALEXI(object):
             g= None
             g = gdal.Open(outfile,GA_ReadOnly)
             ta = g.ReadAsArray()
-            ta[cfmask == 1]=0
+#            ta[cfmask == 1]=0 # FOR TESTING
             g= None
             mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
             masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
@@ -454,7 +454,8 @@ class disALEXI(object):
 #            ta = g.ReadAsArray()
 #            g= None
             
-            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
+#            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
+            Ta = ta-273.16 # FOR TESTING!!
             
             outFormat = gdal.GDT_Float32 
             writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
