@@ -486,9 +486,9 @@ class disALEXI(object):
         nsamples = ls.nrow
         nlines = ls.ncol
         if xStart==((nsamples/xSize)*xSize):
-            xSize = (nsamples-xStart)
+            xSize = (nsamples-xStart)+1
         if yStart==((nlines/ySize)*ySize):
-            ySize = (nlines-yStart)
+            ySize = (nlines-yStart)+1
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         sz = np.radians(90-solZen) # convert sza to radians
     
