@@ -357,7 +357,8 @@ class disALEXI(object):
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==7)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
-        
+        TaShape = Tareshape.shape
+        print("Ta size: x=%d, y=%d" % (TaShape[1],TaShape[0]))
         #============Run one last time with the final smoothed T_A_K
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}
@@ -486,9 +487,9 @@ class disALEXI(object):
         nsamples = ls.nrow
         nlines = ls.ncol
         if xStart==((nsamples/xSize)*xSize):
-            xSize = (nsamples-xStart)+1
+            xSize = (nsamples-xStart)
         if yStart==((nlines/ySize)*ySize):
-            ySize = (nlines-yStart)+1
+            ySize = (nlines-yStart)
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         sz = np.radians(90-solZen) # convert sza to radians
     
