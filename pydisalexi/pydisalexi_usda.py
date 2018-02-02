@@ -160,10 +160,11 @@ def main():
             for i in range(valMean.size):
                 outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
             et_avg = np.reshape(outData,ET_24.shape)
+            et_diff = abs(et_avg-ET_ALEXI)
             outET24Path = os.path.join(resultsBase,scene)
-            ET_24outName = '%s_ETd_avg.tif' % sceneID[:-5]
-            fName = '%s%s%s' % (outET24Path,os.sep,ET_24outName)
-            writeArray2Tiff(et_avg,inRes,inUL,ls.proj4,fName,outFormat)
+            ET_diff_outName = '%s_ETd_diff.tif' % sceneID[:-5]
+            fName = '%s%s%s' % (outET24Path,os.sep,ET_diff_outName)
+            writeArray2Tiff(et_diff,inRes,inUL,ls.proj4,fName,outFormat)
             
             finalFile = os.path.join(resultsBase,scene,'%s_G0.tif' % sceneID[:-5])
             print 'merging G0 files...'

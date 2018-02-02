@@ -277,10 +277,10 @@ class disALEXI(object):
         MatXsize = 7
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
-        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
-#        Tr_ADD = np.tile(np.transpose(range(0,20,3)),[np.size(hc),1])
-#        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])
-#        T_A_Kresize = Tr_Kcol-Tr_ADD
+#        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
+        Tr_ADD = np.tile(np.transpose(range(0,20,3)),[np.size(hc),1])
+        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-20.
+        T_A_Kresize = Tr_Kcol+Tr_ADD
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
         presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
         Rs_1resize = np.tile(np.resize(Rs_1,[np.size(Rs_1),1]),(1,MatXsize))
@@ -339,7 +339,8 @@ class disALEXI(object):
         # ======interpolate over mutiple Ta solutions===========================================
 
         from scipy.interpolate import interp1d
-        x = range(270,340,10)
+#        x = range(270,340,10)
+        x = range(0,20,3)
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
         # check if all values inrow are nan
@@ -348,10 +349,11 @@ class disALEXI(object):
         bias[np.where(nanIndex==7),:]=1.
         f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
         f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
-#        biasInterp = f_bias(range(270,340))
-#        TaInterp = f_ta(range(270,340))
-        biasInterp = f_bias(np.linspace(270,340,700))
-        TaInterp = f_ta(np.linspace(270,340,700))
+
+        biasInterp = f_bias(np.linspace(0,20,700))
+        TaInterp = f_ta(np.linspace(0,20,700))
+#        biasInterp = f_bias(np.linspace(minVal,maxVal,700))
+#        TaInterp = f_ta(np.linspace(minVal,maxVal,700))
         # extract the Ta based on minimum bias at Fine resolution
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
