@@ -11,7 +11,7 @@ import warnings
 from .disalexi_usda import disALEXI
 import argparse
 import glob
-from .utils import buildvrt,clean,folders
+from .utils import writeArray2Tiff,buildvrt,clean,folders
 from joblib import Parallel, delayed
 import types
 import copy_reg
@@ -20,6 +20,8 @@ warnings.simplefilter('ignore', np.RankWarning)
 from .landsatTools import landsat_metadata,GeoTIFF
 import time as timer
 from osgeo import gdal
+import pandas as pd
+from osgeo.gdalconst import GA_ReadOnly
 
 
 def _pickle_method(m):
@@ -48,7 +50,7 @@ def main():
     resultsBase = Folders['resultsBase']
     landsatTemp = os.path.join(landsatSR,'temp')
     landsatDataBase = Folders['landsatDataBase']
-
+    ALEXIbase = Folders['ALEXIbase']
     #======FIND AVAILABLE FILES FOR PROCESSING=============================
 
 
@@ -127,6 +129,41 @@ def main():
             print 'merging ETd files...'
             cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
             buildvrt(cmd)
+            
+            
+            #=============find Average ET_24======================================
+            outFormat = gdal.GDT_Float32
+            ls = GeoTIFF(finalFile)
+            ulx = ls.ulx
+            uly = ls.uly
+            delx = ls.delx
+            dely = -ls.dely
+            inUL = [ulx,uly]
+            inRes = [delx,dely]
+            sceneDir = os.path.join(ALEXIbase,'%s' % scene)        
+            etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
+            g = gdal.Open(etFN,GA_ReadOnly)
+            ET_ALEXI = g.ReadAsArray()
+            g= None
+            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+            
+            g = gdal.Open(finalFile,GA_ReadOnly)
+            ET_24 = g.ReadAsArray()
+            g= None
+            
+            ET_24 = np.reshape(ET_24,[np.size(ET_24)])
+            etDict = {'ID':et_alexi,'et':ET_24}
+            etDF = pd.DataFrame(etDict, columns=etDict.keys())
+            group = etDF['et'].groupby(etDF['ID'])
+            valMean = group.mean()
+            outData = np.zeros(ET_24.size)
+            for i in range(valMean.size):
+                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+            et_avg = np.reshape(outData,ET_24.shape)
+            outET24Path = os.path.join(resultsBase,scene)
+            ET_24outName = '%s_ETd_avg.tif' % sceneID[:-5]
+            fName = '%s%s%s' % (outET24Path,os.sep,ET_24outName)
+            writeArray2Tiff(et_avg,inRes,inUL,ls.proj4,fName,outFormat)
             
             finalFile = os.path.join(resultsBase,scene,'%s_G0.tif' % sceneID[:-5])
             print 'merging G0 files...'
