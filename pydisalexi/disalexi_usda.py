@@ -278,8 +278,8 @@ class disALEXI(object):
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
 #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
-        Tr_ADD = np.tile(np.transpose(range(0,20,3)),[np.size(hc),1])
-        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-20.
+        Tr_ADD = np.tile(np.transpose(range(10,30,3)),[np.size(hc),1])
+        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-30.
         T_A_Kresize = Tr_Kcol+Tr_ADD
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
         presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
@@ -340,7 +340,7 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
 #        x = range(270,340,10)
-        x = range(0,20,3)
+        x = range(10,30,3)
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
         # check if all values inrow are nan
@@ -350,8 +350,8 @@ class disALEXI(object):
         f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
         f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
 
-        biasInterp = f_bias(np.linspace(0,20,700))
-        TaInterp = f_ta(np.linspace(0,20,700))
+        biasInterp = f_bias(np.linspace(10,30,700))
+        TaInterp = f_ta(np.linspace(10,30,700))
 #        biasInterp = f_bias(np.linspace(minVal,maxVal,700))
 #        TaInterp = f_ta(np.linspace(minVal,maxVal,700))
         # extract the Ta based on minimum bias at Fine resolution
@@ -359,92 +359,93 @@ class disALEXI(object):
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==7)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
-        #============Run one last time to refine it============================
-        MatXsize = 5
-        Tr_Kresize = np.tile(np.array(np.resize(Tareshape,[np.size(Tareshape),1])),(1,MatXsize))
-        vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
-#        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
-        Tr_ADD = np.tile(np.transpose(range(-5,5,2)),[np.size(hc),1])
-        Tr_Kcol = np.resize(Tareshape,[np.size(Tareshape),1])
-        T_A_Kresize = Tr_Kcol+Tr_ADD
-        uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
-        presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
-        Rs_1resize = np.tile(np.resize(Rs_1,[np.size(Rs_1),1]),(1,MatXsize))
-        zsresize = np.tile(np.resize(zs,[np.size(zs),1]),(1,MatXsize))
-        aleafvresize = np.tile(np.resize(aleafv,[np.size(hc),1]),(1,MatXsize))
-        aleafnresize = np.tile(np.resize(aleafn,[np.size(hc),1]),(1,MatXsize))
-        aleaflresize = np.tile(np.resize(aleafl,[np.size(hc),1]),(1,MatXsize))
-        adeadvresize = np.tile(np.resize(adeadv,[np.size(hc),1]),(1,MatXsize))
-        adeadnresize = np.tile(np.resize(adeadn,[np.size(hc),1]),(1,MatXsize))
-        adeadlresize = np.tile(np.resize(adeadl,[np.size(hc),1]),(1,MatXsize))
-        albedoresize = np.tile(np.resize(albedo,[np.size(hc),1]),(1,MatXsize))
-        ndviresize = np.tile(np.resize(ndvi,[np.size(hc),1]),(1,MatXsize))
-        LAIresize = np.tile(np.resize(LAI,[np.size(LAI),1]),(1,MatXsize))
-        clumpresize = np.tile(np.resize(clump,[np.size(hc),1]),(1,MatXsize))
-        hcresize = np.tile(np.resize(hc,[np.size(hc),1]),(1,MatXsize))
-        maskresize = np.tile(np.array(np.resize(mask,[np.size(hc),1])),(1,MatXsize))
-        timeresize = np.tile(np.array(np.resize(time,[np.size(hc),1])),(1,MatXsize))
-        t_riseresize = np.tile(np.array(np.resize(t_rise,[np.size(hc),1])),(1,MatXsize))
-        t_endresize = np.tile(np.array(np.resize(t_end,[np.size(hc),1])),(1,MatXsize))
-        leaf_widthresize = np.tile(np.resize(leaf_width,[np.size(hc),1]),(1,MatXsize))
-        alpha_PTresize = np.tile(np.resize(alpha_PT,[np.size(hc),1]),(1,MatXsize))
-
-        # run TSEB over TA options
-        output = TSEB_PT_usda(
-            Tr_Kresize,
-            vzaresize,
-            T_A_Kresize,
-            uresize,
-            presize,
-            Rs_1resize,
-            zsresize,
-            aleafvresize, 
-            aleafnresize, 
-            aleaflresize, 
-            adeadvresize, 
-            adeadnresize, 
-            adeadlresize,
-            albedoresize,
-            ndviresize,
-            LAIresize,
-            clumpresize,
-            hcresize,
-            maskresize,
-            timeresize,
-            t_riseresize,
-            t_endresize,
-            leaf_width=leaf_widthresize,
-            a_PT_in=alpha_PTresize)
-            
-        scaling = 1.0
-        Fsun =  (output[4]+output[6])/np.resize(Rs_1,[np.size(hc),1])
-        EFeq=Fsun*(np.reshape(Rs24in,[np.size(hc),1]))
-        et = EFeq/2.45*scaling
-        et[et<0.01] = 0.01
         
-        # ======interpolate over mutiple Ta solutions===========================================
-
-        from scipy.interpolate import interp1d
-#        x = range(270,340,10)
-        x = range(-5,5,2)
-        et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
-        bias = et_alexi-et
-        # check if all values inrow are nan
-        nanIndex = np.sum(np.isnan(bias),axis=1)
-        # set all to 1 so it doesnt throw an error below
-        bias[np.where(nanIndex==5),:]=1.
-        f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
-        f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
-
-        biasInterp = f_bias(np.linspace(-5,5,700))
-        TaInterp = f_ta(np.linspace(-5,5,700))
-#        biasInterp = f_bias(np.linspace(minVal,maxVal,700))
-#        TaInterp = f_ta(np.linspace(minVal,maxVal,700))
-        # extract the Ta based on minimum bias at Fine resolution
-        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
-        TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
-        TaExtrap[np.where(nanIndex==5)]=np.nan
-        Tareshape = np.reshape(TaExtrap,np.shape(hc))
+#        #============Run one last time to refine it============================
+#        MatXsize = 5
+#        Tr_Kresize = np.tile(np.array(np.resize(Tareshape,[np.size(Tareshape),1])),(1,MatXsize))
+#        vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
+##        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
+#        Tr_ADD = np.tile(np.transpose(range(-5,5,2)),[np.size(hc),1])
+#        Tr_Kcol = np.resize(Tareshape,[np.size(Tareshape),1])
+#        T_A_Kresize = Tr_Kcol+Tr_ADD
+#        uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
+#        presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
+#        Rs_1resize = np.tile(np.resize(Rs_1,[np.size(Rs_1),1]),(1,MatXsize))
+#        zsresize = np.tile(np.resize(zs,[np.size(zs),1]),(1,MatXsize))
+#        aleafvresize = np.tile(np.resize(aleafv,[np.size(hc),1]),(1,MatXsize))
+#        aleafnresize = np.tile(np.resize(aleafn,[np.size(hc),1]),(1,MatXsize))
+#        aleaflresize = np.tile(np.resize(aleafl,[np.size(hc),1]),(1,MatXsize))
+#        adeadvresize = np.tile(np.resize(adeadv,[np.size(hc),1]),(1,MatXsize))
+#        adeadnresize = np.tile(np.resize(adeadn,[np.size(hc),1]),(1,MatXsize))
+#        adeadlresize = np.tile(np.resize(adeadl,[np.size(hc),1]),(1,MatXsize))
+#        albedoresize = np.tile(np.resize(albedo,[np.size(hc),1]),(1,MatXsize))
+#        ndviresize = np.tile(np.resize(ndvi,[np.size(hc),1]),(1,MatXsize))
+#        LAIresize = np.tile(np.resize(LAI,[np.size(LAI),1]),(1,MatXsize))
+#        clumpresize = np.tile(np.resize(clump,[np.size(hc),1]),(1,MatXsize))
+#        hcresize = np.tile(np.resize(hc,[np.size(hc),1]),(1,MatXsize))
+#        maskresize = np.tile(np.array(np.resize(mask,[np.size(hc),1])),(1,MatXsize))
+#        timeresize = np.tile(np.array(np.resize(time,[np.size(hc),1])),(1,MatXsize))
+#        t_riseresize = np.tile(np.array(np.resize(t_rise,[np.size(hc),1])),(1,MatXsize))
+#        t_endresize = np.tile(np.array(np.resize(t_end,[np.size(hc),1])),(1,MatXsize))
+#        leaf_widthresize = np.tile(np.resize(leaf_width,[np.size(hc),1]),(1,MatXsize))
+#        alpha_PTresize = np.tile(np.resize(alpha_PT,[np.size(hc),1]),(1,MatXsize))
+#
+#        # run TSEB over TA options
+#        output = TSEB_PT_usda(
+#            Tr_Kresize,
+#            vzaresize,
+#            T_A_Kresize,
+#            uresize,
+#            presize,
+#            Rs_1resize,
+#            zsresize,
+#            aleafvresize, 
+#            aleafnresize, 
+#            aleaflresize, 
+#            adeadvresize, 
+#            adeadnresize, 
+#            adeadlresize,
+#            albedoresize,
+#            ndviresize,
+#            LAIresize,
+#            clumpresize,
+#            hcresize,
+#            maskresize,
+#            timeresize,
+#            t_riseresize,
+#            t_endresize,
+#            leaf_width=leaf_widthresize,
+#            a_PT_in=alpha_PTresize)
+#            
+#        scaling = 1.0
+#        Fsun =  (output[4]+output[6])/np.resize(Rs_1,[np.size(hc),1])
+#        EFeq=Fsun*(np.reshape(Rs24in,[np.size(hc),1]))
+#        et = EFeq/2.45*scaling
+#        et[et<0.01] = 0.01
+#        
+#        # ======interpolate over mutiple Ta solutions===========================================
+#
+#        from scipy.interpolate import interp1d
+##        x = range(270,340,10)
+#        x = range(-5,5,2)
+#        et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
+#        bias = et_alexi-et
+#        # check if all values inrow are nan
+#        nanIndex = np.sum(np.isnan(bias),axis=1)
+#        # set all to 1 so it doesnt throw an error below
+#        bias[np.where(nanIndex==5),:]=1.
+#        f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
+#        f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
+#
+#        biasInterp = f_bias(np.linspace(-5,5,700))
+#        TaInterp = f_ta(np.linspace(-5,5,700))
+##        biasInterp = f_bias(np.linspace(minVal,maxVal,700))
+##        TaInterp = f_ta(np.linspace(minVal,maxVal,700))
+#        # extract the Ta based on minimum bias at Fine resolution
+#        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
+#        TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
+#        TaExtrap[np.where(nanIndex==5)]=np.nan
+#        Tareshape = np.reshape(TaExtrap,np.shape(hc))
         
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}
