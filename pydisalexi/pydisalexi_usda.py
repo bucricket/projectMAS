@@ -151,8 +151,8 @@ def main():
             ET_24 = g.ReadAsArray()
             g= None
             
-            ET_24 = np.reshape(ET_24,[np.size(ET_24)])
-            etDict = {'ID':et_alexi,'et':ET_24}
+            et_24 = np.reshape(ET_24,[np.size(ET_24)])
+            etDict = {'ID':et_alexi,'et':et_24}
             etDF = pd.DataFrame(etDict, columns=etDict.keys())
             group = etDF['et'].groupby(etDF['ID'])
             valMean = group.mean()
