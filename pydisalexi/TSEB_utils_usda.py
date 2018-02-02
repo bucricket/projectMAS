@@ -566,7 +566,7 @@ def Smooth(v1, w, nanopt):
 
 def interp_ta(Ta,coarseRes,fineRes):
     course2fineRatio = coarseRes**2/fineRes**2
-    rid2 = np.sqrt(course2fineRatio)
+    rid2 = int(np.sqrt(course2fineRatio))
     ta_m = np.nanmean(Ta)
     ta_v = np.nanstd(Ta)
     
