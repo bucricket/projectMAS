@@ -274,12 +274,12 @@ class disALEXI(object):
         '''
 
         # Set up input parameters
-        MatXsize = 7
+        MatXsize = 10
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
 #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
-        Tr_ADD = np.tile(np.transpose(range(0,20,3)),[np.size(hc),1])
-        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-20.
+        Tr_ADD = np.tile(np.transpose(range(0,30,3)),[np.size(hc),1])
+        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-30.
         T_A_Kresize = Tr_Kcol+Tr_ADD
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
         presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
@@ -340,18 +340,18 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
 #        x = range(270,340,10)
-        x = range(0,20,3)
+        x = range(0,30,3)
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
         # check if all values inrow are nan
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==7),:]=1.
-        f_bias = interp1d(x,bias,kind='slinear', bounds_error=False)
-        f_ta= interp1d(x,T_A_Kresize,kind='slinear', bounds_error=False)
+        f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
+        f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
 
-        biasInterp = f_bias(np.linspace(0,20,700))
-        TaInterp = f_ta(np.linspace(0,20,700))
+        biasInterp = f_bias(np.linspace(0,30,700))
+        TaInterp = f_ta(np.linspace(0,30,700))
 #        biasInterp = f_bias(np.linspace(minVal,maxVal,700))
 #        TaInterp = f_ta(np.linspace(minVal,maxVal,700))
         # extract the Ta based on minimum bias at Fine resolution
