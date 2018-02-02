@@ -340,7 +340,7 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
 #        x = range(270,340,10)
-        x = range(10,30,3)
+        x = range(10,30)
         ET_ALEXI[mask==0]=-9999.
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
