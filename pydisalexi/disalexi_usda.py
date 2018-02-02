@@ -274,11 +274,11 @@ class disALEXI(object):
         '''
 
         # Set up input parameters
-        MatXsize = 30
+        MatXsize = 20
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
 #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
-        Tr_ADD = np.tile(np.transpose(range(0,30)),[np.size(hc),1])
+        Tr_ADD = np.tile(np.transpose(range(10,30)),[np.size(hc),1])
         Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-30.
         T_A_Kresize = Tr_Kcol+Tr_ADD
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
@@ -340,7 +340,7 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
 #        x = range(270,340,10)
-        x = range(0,30,3)
+        x = range(10,30,3)
         ET_ALEXI[mask==0]=-9999.
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
@@ -348,17 +348,17 @@ class disALEXI(object):
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==MatXsize),:]=1.
-#        f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
-#        f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
+        f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
+        f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
 
-#        biasInterp = f_bias(np.linspace(10,30,700))
-#        TaInterp = f_ta(np.linspace(10,30,700))
+        biasInterp = f_bias(np.linspace(10,30,700))
+        TaInterp = f_ta(np.linspace(10,30,700))
         # extract the Ta based on minimum bias at Fine resolution
-#        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
-#        TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
+        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
+        TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         #------use calculated data--------TESTING
-        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
-        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
+#        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
+#        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
         
