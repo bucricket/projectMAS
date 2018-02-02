@@ -347,7 +347,7 @@ class disALEXI(object):
         # check if all values inrow are nan
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
-        bias[np.where(nanIndex==7),:]=1.
+        bias[np.where(nanIndex==MatXsize),:]=1.
 #        f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
 #        f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
 
@@ -359,7 +359,7 @@ class disALEXI(object):
         #------use calculated data--------TESTING
         minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
         TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
-        TaExtrap[np.where(nanIndex==7)]=np.nan
+        TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
         
         T_A_K = Tareshape
