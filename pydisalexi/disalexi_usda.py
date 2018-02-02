@@ -341,6 +341,7 @@ class disALEXI(object):
         from scipy.interpolate import interp1d
 #        x = range(270,340,10)
         x = range(10,30,3)
+        ET_ALEXI[mask==0]=-9999.
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
         # check if all values inrow are nan
@@ -544,8 +545,8 @@ class disALEXI(object):
 #            ta = g.ReadAsArray()
 #            g= None
             
-#            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
-            Ta = ta-273.16 # FOR TESTING!!
+            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
+#            Ta = ta-273.16 # FOR TESTING!!
             
             outFormat = gdal.GDT_Float32 
             writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)

@@ -522,13 +522,13 @@ def interp_ta(Ta,coarseRes,fineRes):
     mask_bad = (abs(Ta-ta_m) > 10.*ta_v)
     Ta[mask_bad] = np.nan
     
-    kern = np.hanning(rid2)   # a Hanning window with width 50
-    kern /= kern.sum()      # normalize the kernel weights to sum to 1
+#    kern = np.hanning(rid2)   # a Hanning window with width 50
+#    kern /= kern.sum()      # normalize the kernel weights to sum to 1
 
 #    hanning = ndimage.convolve1d(Ta, kern, 1)
-    local_mean = ndimage.uniform_filter(Ta, size=rid2,mode='nearest')
-#    return smooth(Ta, rid2,True)
-    return local_mean
+#    local_mean = ndimage.uniform_filter(Ta, size=rid2,mode='nearest')
+    return smooth(Ta, rid2,True)
+#    return local_mean
 
 
     
