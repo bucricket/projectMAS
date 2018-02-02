@@ -395,12 +395,12 @@ class disALEXI(object):
             g= None
             g = gdal.Open(outfile,GA_ReadOnly)
             ta = g.ReadAsArray()
-            ta[cfmask == 1]=0 
+            ta[cfmask == 1]=np.nan 
             g= None
-            mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
-            masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
-            ls.clone(mask,ta)
-            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
+#            mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
+#            masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
+#            ls.clone(mask,ta)
+#            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
             #=============find Average Ta======================================
     
             sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
@@ -410,11 +410,12 @@ class disALEXI(object):
             g= None
             et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
             
-            g = gdal.Open(masked,GA_ReadOnly)
-            ta_Masked = g.ReadAsArray()
-            g= None
+#            g = gdal.Open(masked,GA_ReadOnly)
+#            ta_Masked = g.ReadAsArray()
+#            g= None
             
-            ta_masked = np.reshape(ta_Masked,[np.size(ta_Masked)])
+#            ta_masked = np.reshape(ta_Masked,[np.size(ta_Masked)])
+            ta_masked = np.reshape(ta,[np.size(ta)])
             taDict = {'ID':et_alexi,'ta':ta_masked}
             taDF = pd.DataFrame(taDict, columns=taDict.keys())
             group = taDF['ta'].groupby(taDF['ID'])
@@ -422,7 +423,8 @@ class disALEXI(object):
             outData = np.zeros(ta_masked.size)
             for i in range(valMean.size):
                 outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
-            ta = np.reshape(outData,ta_Masked.shape)
+#            ta = np.reshape(outData,ta_Masked.shape)
+            ta = np.reshape(outData,ta.shape)
             
             
 #            optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
