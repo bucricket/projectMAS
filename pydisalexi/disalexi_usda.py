@@ -650,7 +650,7 @@ class disALEXI(object):
 #        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
         outFN = os.path.join(self.landsatDataBase,'LAI',scene,'%s_lai.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
-        LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)*0.001 # TESTING
+        LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)#*0.001 # TESTING
         g= None
 #        LAI[np.where(LAI==-9.999)]=np.nan
 #        LAI[np.where(LAI<=0.)]=0.001
@@ -690,8 +690,8 @@ class disALEXI(object):
         g = gdal.Open(outFN,GA_ReadOnly)
         # *NOTE: version 0.2.0 forward------>
         # convert from scaled celcius to kelvin int16->float32
-        Tr_K = (g.ReadAsArray(xStart,yStart,xSize,ySize)/100.)+273.15 
-#        Tr_K = g.ReadAsArray(xStart,yStart,xSize,ySize)+273.16 # TESTING
+#        Tr_K = (g.ReadAsArray(xStart,yStart,xSize,ySize)/100.)+273.15 
+        Tr_K = g.ReadAsArray(xStart,yStart,xSize,ySize)+273.16 # TESTING
         g= None    
         Tr_K[np.where(albedo<0)]=np.nan
         #---------->get LC...
