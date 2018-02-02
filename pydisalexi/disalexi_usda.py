@@ -347,8 +347,8 @@ class disALEXI(object):
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==7),:]=1.
-        f_bias = interp1d(x,bias,kind='cubic', bounds_error=False)
-        f_ta= interp1d(x,T_A_Kresize,kind='cubic', bounds_error=False)
+        f_bias = interp1d(x,bias,kind='nearest', bounds_error=False)
+        f_ta= interp1d(x,T_A_Kresize,kind='nearest', bounds_error=False)
 
         biasInterp = f_bias(np.linspace(0,20,700))
         TaInterp = f_ta(np.linspace(0,20,700))
