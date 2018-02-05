@@ -354,8 +354,6 @@ class disALEXI(object):
         etDF = pd.DataFrame(etDict)
         group = etDF.groupby(etDF['ID'])
         valMean = group.mean()
-        print("valMean shape is:")
-        print valMean.shape
 #        outData = np.zeros(et_masked.size)
         outData = np.zeros(et.shape)
         for i in range(valMean.shape[0]):
