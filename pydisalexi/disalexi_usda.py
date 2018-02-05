@@ -341,11 +341,6 @@ class disALEXI(object):
         
         et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        et_masked = np.reshape(et,[np.size(et)])
-        print("et_alexi shape is:")
-        print et_alexi.shape
-        print("et_disalexi column shape is:")
-#        col1 = np.reshape(et[:,0],[np.size(ET_ALEXI)])
-        print et.shape
         etDict = {'ID':et_alexi,
                   'et1':np.reshape(et[:,0],[np.size(ET_ALEXI)]),
                   'et2':np.reshape(et[:,1],[np.size(ET_ALEXI)]),
@@ -359,6 +354,8 @@ class disALEXI(object):
         etDF = pd.DataFrame(etDict)
         group = etDF.groupby(etDF['ID'])
         valMean = group.mean()
+        print("valMean shape is:")
+        print valMean.shape
 #        outData = np.zeros(et_masked.size)
         outData = np.zeros(et.shape)
         for i in range(valMean.size):
