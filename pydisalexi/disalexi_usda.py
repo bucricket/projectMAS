@@ -358,7 +358,7 @@ class disALEXI(object):
         print valMean.shape
 #        outData = np.zeros(et_masked.size)
         outData = np.zeros(et.shape)
-        for i in range(valMean.size):
+        for i in range(valMean.shape[0]):
             outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
         et = np.reshape(outData,et.shape)
         # ======interpolate over mutiple Ta solutions===========================================
