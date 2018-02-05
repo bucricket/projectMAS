@@ -345,12 +345,15 @@ class disALEXI(object):
         ET_ALEXI = g.ReadAsArray()
         g= None
         et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-        et_masked = np.reshape(et,[np.size(et)])
-        etDict = {'ID':et_alexi,'et':et_masked}
-        etDF = pd.DataFrame(etDict, columns=etDict.keys())
-        group = etDF['et'].groupby(etDF['ID'])
+#        et_masked = np.reshape(et,[np.size(et)])
+        etDict = {'ID':et_alexi,'et':et}
+#        etDF = pd.DataFrame(etDict, columns=etDict.keys())
+#        group = etDF['et'].groupby(etDF['ID'])
+        etDF = pd.DataFrame(etDict)
+        group = etDF.groupby(etDF['ID'])
         valMean = group.mean()
-        outData = np.zeros(et_masked.size)
+#        outData = np.zeros(et_masked.size)
+        outData = np.zeros(et.shape)
         for i in range(valMean.size):
             outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
         et = np.reshape(outData,et.shape)
