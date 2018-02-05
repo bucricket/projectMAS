@@ -346,8 +346,13 @@ class disALEXI(object):
         g= None
         et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        et_masked = np.reshape(et,[np.size(et)])
-        etDict = {'ID':et_alexi,'et1':et[:,0],'et2':et[:,1],'et3':et[:,2],
-                  'et4':et[:,3],'et5':et[:,4],'et6':et[:,5],'et7':et[:,6]}
+        etDict = {'ID':et_alexi,'et1':np.reshape(et[:,0],[np.size(ET_ALEXI)]),
+                  'et2':np.reshape(et[:,1],[np.size(ET_ALEXI)]),
+                  'et3':np.reshape(et[:,2],[np.size(ET_ALEXI)]),
+                  'et4':np.reshape(et[:,3],[np.size(ET_ALEXI)]),
+                  'et5':np.reshape(et[:,4],[np.size(ET_ALEXI)]),
+                  'et6':np.reshape(et[:,5],[np.size(ET_ALEXI)]),
+                  'et7':np.reshape(et[:,6],[np.size(ET_ALEXI)])}
         etDF = pd.DataFrame(etDict, columns=etDict.keys())
 #        group = etDF['et'].groupby(etDF['ID'])
         etDF = pd.DataFrame(etDict)
