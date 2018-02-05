@@ -346,7 +346,7 @@ class disALEXI(object):
         g= None
         et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
         et_masked = np.reshape(et,[np.size(et)])
-        etDict = {'ID':et_alexi,'et':et}
+        etDict = {'ID':et_alexi,'et':et_masked}
         etDF = pd.DataFrame(etDict, columns=etDict.keys())
         group = etDF['et'].groupby(etDF['ID'])
         valMean = group.mean()
