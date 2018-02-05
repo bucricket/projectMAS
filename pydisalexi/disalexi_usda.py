@@ -348,7 +348,10 @@ class disALEXI(object):
                   'et4':np.reshape(et[:,3],[np.size(ET_ALEXI)]),
                   'et5':np.reshape(et[:,4],[np.size(ET_ALEXI)]),
                   'et6':np.reshape(et[:,5],[np.size(ET_ALEXI)]),
-                  'et7':np.reshape(et[:,6],[np.size(ET_ALEXI)])}
+                  'et7':np.reshape(et[:,6],[np.size(ET_ALEXI)]),
+                  'et8':np.reshape(et[:,7],[np.size(ET_ALEXI)]),
+                  'et9':np.reshape(et[:,8],[np.size(ET_ALEXI)]),
+                  'et10':np.reshape(et[:,9],[np.size(ET_ALEXI)])}
         etDF = pd.DataFrame(etDict, columns=etDict.keys())
 #        group = etDF['et'].groupby(etDF['ID'])
         etDF = pd.DataFrame(etDict)
