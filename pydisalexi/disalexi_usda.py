@@ -346,7 +346,13 @@ class disALEXI(object):
         g= None
         et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        et_masked = np.reshape(et,[np.size(et)])
-        etDict = {'ID':et_alexi,'et1':np.reshape(et[:,0],[np.size(ET_ALEXI)]),
+        print("et_alexi shape is:")
+        print et_alexi.shape
+        print("et_disalexi column shape is:")
+        col1 = np.reshape(et[:,0],[np.size(ET_ALEXI)])
+        print col1.shape
+        etDict = {'ID':et_alexi,
+                  'et1':np.reshape(et[:,0],[np.size(ET_ALEXI)]),
                   'et2':np.reshape(et[:,1],[np.size(ET_ALEXI)]),
                   'et3':np.reshape(et[:,2],[np.size(ET_ALEXI)]),
                   'et4':np.reshape(et[:,3],[np.size(ET_ALEXI)]),
