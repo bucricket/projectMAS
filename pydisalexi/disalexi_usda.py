@@ -274,12 +274,12 @@ class disALEXI(object):
         '''
 
         # Set up input parameters
-        MatXsize = 20
+        MatXsize = 7
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
 #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
-        Tr_ADD = np.tile(np.transpose(range(10,30)),[np.size(hc),1])
-        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-30.
+        Tr_ADD = np.tile(np.transpose(range(0,20,3)),[np.size(hc),1])
+        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-20.
         T_A_Kresize = Tr_Kcol+Tr_ADD
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
         presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
@@ -340,7 +340,7 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
 #        x = range(270,340,10)
-        x = range(10,30)
+        x = range(0,20,3)
         ET_ALEXI[mask==0]=-9999.
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
@@ -351,8 +351,8 @@ class disALEXI(object):
         f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
         f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
 
-        biasInterp = f_bias(np.linspace(10,30,700))
-        TaInterp = f_ta(np.linspace(10,30,700))
+        biasInterp = f_bias(np.linspace(0,20,700))
+        TaInterp = f_ta(np.linspace(0,20,700))
         # extract the Ta based on minimum bias at Fine resolution
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
@@ -403,50 +403,24 @@ class disALEXI(object):
 #            masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
 #            ls.clone(mask,ta)
 #            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
-            #=============find Average Ta======================================
-    
-            sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
-            etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
-            g = gdal.Open(etFN,GA_ReadOnly)
-            ET_ALEXI = g.ReadAsArray()
-            g= None
-            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-            
-#            g = gdal.Open(masked,GA_ReadOnly)
-#            ta_Masked = g.ReadAsArray()
+#            #=============find Average Ta====================================== COMMENTED FOR TESTING
+#    
+#            sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
+#            etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
+#            g = gdal.Open(etFN,GA_ReadOnly)
+#            ET_ALEXI = g.ReadAsArray()
 #            g= None
-            
-#            ta_masked = np.reshape(ta_Masked,[np.size(ta_Masked)])
-            ta_masked = np.reshape(ta,[np.size(ta)])
-            taDict = {'ID':et_alexi,'ta':ta_masked}
-            taDF = pd.DataFrame(taDict, columns=taDict.keys())
-            group = taDF['ta'].groupby(taDF['ID'])
-            valMean = group.mean()
-            outData = np.zeros(ta_masked.size)
-            for i in range(valMean.size):
-                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
-#            ta = np.reshape(outData,ta_Masked.shape)
-            ta = np.reshape(outData,ta.shape)
-            
-            
-#            optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
-#                          '%s' % inProj4,'-r', 'average','-tr', 
-#                          '%f' % ALEXILatRes, '%f' % ALEXILonRes,
-#                          '-srcnodata','270.','-dstnodata','0.0',
-#                          '-of','GTiff','%s' % masked, '%s' % coarseFile]
-#            
-#            
-#            
-#            warp(optionList)
-#            #=======now convert the averaged coarse Ta to fine resolution==
-#            nrow = ls.nrow#+100.
-#            ncol = ls.ncol#+100.
-#            optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
-#                          '%s' % ls.proj4,'-r', 'near','-ts', 
-#                          '%f' % nrow, '%f' % ncol,'-of',
-#                          'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
-#            warp(optionList)
-            #========smooth Ta data========================================
+#            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+#            ta_masked = np.reshape(ta,[np.size(ta)])
+#            taDict = {'ID':et_alexi,'ta':ta_masked}
+#            taDF = pd.DataFrame(taDict, columns=taDict.keys())
+#            group = taDF['ta'].groupby(taDF['ID'])
+#            valMean = group.mean()
+#            outData = np.zeros(ta_masked.size)
+#            for i in range(valMean.size):
+#                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+#            ta = np.reshape(outData,ta.shape)
+#            #========smooth Ta data========================================
             ulx = ls.ulx
             uly = ls.uly
             delx = ls.delx
@@ -455,9 +429,6 @@ class disALEXI(object):
             coarseRes = ALEXILatRes
             inUL = [ulx,uly]
             inRes = [delx,dely]
-#            g = gdal.Open(coarse2fineFile,GA_ReadOnly)
-#            ta = g.ReadAsArray()
-#            g= None
             
 #            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
             Ta = ta-273.16 # FOR TESTING!!
