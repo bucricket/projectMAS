@@ -428,23 +428,23 @@ class disALEXI(object):
 #            masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
 #            ls.clone(mask,ta)
 #            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
-#            #=============find Average Ta====================================== COMMENTED FOR TESTING
-#    
-#            sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
-#            etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
-#            g = gdal.Open(etFN,GA_ReadOnly)
-#            ET_ALEXI = g.ReadAsArray()
-#            g= None
-#            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-#            ta_masked = np.reshape(ta,[np.size(ta)])
-#            taDict = {'ID':et_alexi,'ta':ta_masked}
-#            taDF = pd.DataFrame(taDict, columns=taDict.keys())
-#            group = taDF['ta'].groupby(taDF['ID'])
-#            valMean = group.mean()
-#            outData = np.zeros(ta_masked.size)
-#            for i in range(valMean.size):
-#                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
-#            ta = np.reshape(outData,ta.shape)
+            #=============find Average Ta====================================== COMMENTED FOR TESTING
+    
+            sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
+            etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
+            g = gdal.Open(etFN,GA_ReadOnly)
+            ET_ALEXI = g.ReadAsArray()
+            g= None
+            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+            ta_masked = np.reshape(ta,[np.size(ta)])
+            taDict = {'ID':et_alexi,'ta':ta_masked}
+            taDF = pd.DataFrame(taDict, columns=taDict.keys())
+            group = taDF['ta'].groupby(taDF['ID'])
+            valMean = group.mean()
+            outData = np.zeros(ta_masked.size)
+            for i in range(valMean.size):
+                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+            ta = np.reshape(outData,ta.shape)
             #========smooth Ta data========================================
             ulx = ls.ulx
             uly = ls.uly
