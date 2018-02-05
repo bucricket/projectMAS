@@ -336,6 +336,24 @@ class disALEXI(object):
         et = EFeq/2.45*scaling
         et[et<0.01] = 0.01
         
+        
+        #=============find Average ETd====================================== 
+    
+        sceneDir = os.path.join(self.ALEXIbase,'%s' % self.scene)        
+        etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % self.sceneID)         
+        g = gdal.Open(etFN,GA_ReadOnly)
+        ET_ALEXI = g.ReadAsArray()
+        g= None
+        et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+        et_masked = np.reshape(et,[np.size(et)])
+        etDict = {'ID':et_alexi,'et':et}
+        etDF = pd.DataFrame(etDict, columns=etDict.keys())
+        group = etDF['et'].groupby(etDF['ID'])
+        valMean = group.mean()
+        outData = np.zeros(et_masked.size)
+        for i in range(valMean.size):
+            outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+        et = np.reshape(outData,et.shape)
         # ======interpolate over mutiple Ta solutions===========================================
 
         from scipy.interpolate import interp1d
@@ -420,7 +438,7 @@ class disALEXI(object):
 #            for i in range(valMean.size):
 #                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
 #            ta = np.reshape(outData,ta.shape)
-#            #========smooth Ta data========================================
+            #========smooth Ta data========================================
             ulx = ls.ulx
             uly = ls.uly
             delx = ls.delx
