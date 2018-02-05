@@ -338,7 +338,7 @@ class disALEXI(object):
         
         
         #=============find Average ETd====================================== 
-    
+        
         sceneDir = os.path.join(self.ALEXIbase,'%s' % self.scene)        
         etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % self.sceneID)         
         g = gdal.Open(etFN,GA_ReadOnly)
@@ -346,8 +346,9 @@ class disALEXI(object):
         g= None
         et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        et_masked = np.reshape(et,[np.size(et)])
-        etDict = {'ID':et_alexi,'et':et}
-#        etDF = pd.DataFrame(etDict, columns=etDict.keys())
+        etDict = {'ID':et_alexi,'et1':et[:,0],'et2':et[:,1],'et3':et[:,2],
+                  'et4':et[:,3],'et5':et[:,4],'et6':et[:,5],'et7':et[:,6]}
+        etDF = pd.DataFrame(etDict, columns=etDict.keys())
 #        group = etDF['et'].groupby(etDF['ID'])
         etDF = pd.DataFrame(etDict)
         group = etDF.groupby(etDF['ID'])
