@@ -339,11 +339,6 @@ class disALEXI(object):
         
         #=============find Average ETd====================================== 
         
-        sceneDir = os.path.join(self.ALEXIbase,'%s' % self.scene)        
-        etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % self.sceneID)         
-        g = gdal.Open(etFN,GA_ReadOnly)
-        ET_ALEXI = g.ReadAsArray()
-        g= None
         et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        et_masked = np.reshape(et,[np.size(et)])
         print("et_alexi shape is:")
