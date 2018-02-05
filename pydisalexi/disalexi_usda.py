@@ -274,11 +274,11 @@ class disALEXI(object):
         '''
 
         # Set up input parameters
-        MatXsize = 10
+        MatXsize = 7
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
 #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
-        Tr_ADD = np.tile(np.transpose(range(0,20,2)),[np.size(hc),1])
+        Tr_ADD = np.tile(np.transpose(range(0,20,3)),[np.size(hc),1])
         Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-20.
         T_A_Kresize = Tr_Kcol+Tr_ADD
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
@@ -348,10 +348,10 @@ class disALEXI(object):
                   'et4':np.reshape(et[:,3],[np.size(ET_ALEXI)]),
                   'et5':np.reshape(et[:,4],[np.size(ET_ALEXI)]),
                   'et6':np.reshape(et[:,5],[np.size(ET_ALEXI)]),
-                  'et7':np.reshape(et[:,6],[np.size(ET_ALEXI)]),
-                  'et8':np.reshape(et[:,7],[np.size(ET_ALEXI)]),
-                  'et9':np.reshape(et[:,8],[np.size(ET_ALEXI)]),
-                  'et10':np.reshape(et[:,9],[np.size(ET_ALEXI)])}
+                  'et7':np.reshape(et[:,6],[np.size(ET_ALEXI)])}#,
+#                  'et8':np.reshape(et[:,7],[np.size(ET_ALEXI)]),
+#                  'et9':np.reshape(et[:,8],[np.size(ET_ALEXI)]),
+#                  'et10':np.reshape(et[:,9],[np.size(ET_ALEXI)])}
         etDF = pd.DataFrame(etDict, columns=etDict.keys())
 #        group = etDF['et'].groupby(etDF['ID'])
         etDF = pd.DataFrame(etDict)
@@ -366,7 +366,7 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
 #        x = range(270,340,10)
-        x = range(0,20,2)
+        x = range(0,20,3)
         ET_ALEXI[mask==0]=-9999.
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
