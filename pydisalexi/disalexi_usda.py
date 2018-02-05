@@ -349,8 +349,8 @@ class disALEXI(object):
         print("et_alexi shape is:")
         print et_alexi.shape
         print("et_disalexi column shape is:")
-        col1 = np.reshape(et[:,0],[np.size(ET_ALEXI)])
-        print col1.shape
+#        col1 = np.reshape(et[:,0],[np.size(ET_ALEXI)])
+        print et.shape
         etDict = {'ID':et_alexi,
                   'et1':np.reshape(et[:,0],[np.size(ET_ALEXI)]),
                   'et2':np.reshape(et[:,1],[np.size(ET_ALEXI)]),
