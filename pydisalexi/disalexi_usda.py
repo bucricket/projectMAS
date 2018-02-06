@@ -354,11 +354,10 @@ class disALEXI(object):
 #                  'et9':np.reshape(et[:,8],[np.size(ET_ALEXI)]),
 #                  'et10':np.reshape(et[:,9],[np.size(ET_ALEXI)])}
         etDF = pd.DataFrame(etDict, columns=etDict.keys())
-        etDF = etDF.interpolate(axis=1,limit=2,limit_direction='both')
 #        group = etDF['et'].groupby(etDF['ID'])
 #        etDF = pd.DataFrame(etDict)
         group = etDF.groupby(etDF['ID'])
-        valMean = group.mean()
+        valMean = group.transform('mean')
 #        outData = np.zeros(et_masked.size)
         outData = np.zeros(et.shape)
         for i in range(valMean.shape[0]):
@@ -376,6 +375,7 @@ class disALEXI(object):
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==MatXsize),:]=1.
+
         
         #======finding the best interpolated temperature======================
 #        #linear-------------------------------------------------->
