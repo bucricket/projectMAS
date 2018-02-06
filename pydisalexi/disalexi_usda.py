@@ -388,7 +388,7 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-#        Ta_linear = np.reshape(Ta_linear,np.shape(hc))
+        Ta_linear = np.reshape(Ta_linear,np.size(hc))
         #nearest---------------------------------------------------
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
@@ -402,7 +402,7 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_nearest[np.where(nanIndex==MatXsize)]=np.nan
-#        Ta_nearest = np.reshape(Ta_nearest,np.shape(hc))
+        Ta_nearest = np.reshape(Ta_nearest,np.size(hc))
         #zero--------------------------------------------------------
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
@@ -416,13 +416,13 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_zero[np.where(nanIndex==MatXsize)]=np.nan
-#        Ta_zero = np.reshape(Ta_zero,np.shape(hc))
+        Ta_zero = np.reshape(Ta_zero,np.size(hc))
         
         #----run DisALEXI with new temperatures-----------------
         # Set up input parameters
         Ta_all = np.hstack((Ta_linear,Ta_nearest,Ta_zero))
         MatXsize = 3
-        Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
+#        Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
         T_A_Kresize = Ta_all
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
