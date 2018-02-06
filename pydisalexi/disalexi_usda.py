@@ -389,6 +389,16 @@ class disALEXI(object):
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
         Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
+        
+        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+        taDict = {'ID':id,'ta':Ta_linear}
+        taDF = pd.DataFrame(taDict, columns=taDict.keys())
+        group = taDF['ta'].groupby(taDF['ID'])
+        valMean = group.mean()
+        outData = np.zeros(Ta_linear.size)
+        for i in range(valMean.size):
+            outData[id==valMean.index[i]]=valMean.iloc[i]
+        Ta_linear = np.reshape(outData,Ta_linear.shape)
         #nearest---------------------------------------------------
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
@@ -403,6 +413,16 @@ class disALEXI(object):
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_nearest[np.where(nanIndex==MatXsize)]=np.nan
         Ta_nearest = np.reshape(Ta_nearest,[np.size(hc),1])
+        
+        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+        taDict = {'ID':id,'ta':Ta_nearest}
+        taDF = pd.DataFrame(taDict, columns=taDict.keys())
+        group = taDF['ta'].groupby(taDF['ID'])
+        valMean = group.mean()
+        outData = np.zeros(Ta_nearest.size)
+        for i in range(valMean.size):
+            outData[id==valMean.index[i]]=valMean.iloc[i]
+        Ta_nearest = np.reshape(outData,Ta_nearest.shape)
         #zero--------------------------------------------------------
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
@@ -417,6 +437,15 @@ class disALEXI(object):
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_zero[np.where(nanIndex==MatXsize)]=np.nan
         Ta_zero = np.reshape(Ta_zero,[np.size(hc),1])
+        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+        taDict = {'ID':id,'ta':Ta_zero}
+        taDF = pd.DataFrame(taDict, columns=taDict.keys())
+        group = taDF['ta'].groupby(taDF['ID'])
+        valMean = group.mean()
+        outData = np.zeros(Ta_zero.size)
+        for i in range(valMean.size):
+            outData[id==valMean.index[i]]=valMean.iloc[i]
+        Ta_zero = np.reshape(outData,Ta_zero.shape)
         
         #----run DisALEXI with new temperatures-----------------
         # Set up input parameters
