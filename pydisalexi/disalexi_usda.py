@@ -354,8 +354,9 @@ class disALEXI(object):
 #                  'et9':np.reshape(et[:,8],[np.size(ET_ALEXI)]),
 #                  'et10':np.reshape(et[:,9],[np.size(ET_ALEXI)])}
         etDF = pd.DataFrame(etDict, columns=etDict.keys())
+        etDF = etDF.interpolate(axis=1,limit=2,limit_direction='both')
 #        group = etDF['et'].groupby(etDF['ID'])
-        etDF = pd.DataFrame(etDict)
+#        etDF = pd.DataFrame(etDict)
         group = etDF.groupby(etDF['ID'])
         valMean = group.mean()
 #        outData = np.zeros(et_masked.size)
