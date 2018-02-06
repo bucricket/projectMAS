@@ -375,7 +375,7 @@ class disALEXI(object):
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==MatXsize),:]=1.
         #======finding the best interpolated temperature======================
-        #linear------------------------------------------------
+        #linear-------------------------------------------------->
         f_bias = interp1d(x,bias,kind='linear', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='linear', fill_value='extrapolate')
 
@@ -385,8 +385,6 @@ class disALEXI(object):
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         #------use calculated data--------TESTING
-#        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
-#        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
         Ta_linear = np.reshape(Ta_linear,[np.size(hc)])
         
@@ -399,7 +397,8 @@ class disALEXI(object):
         for i in range(valMean.size):
             outData[id==valMean.index[i]]=valMean.iloc[i]
         Ta_linear = np.reshape(outData,[np.size(hc),1])
-        #nearest---------------------------------------------------
+        
+        #nearest---------------------------------------------------->
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
 
@@ -409,8 +408,6 @@ class disALEXI(object):
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         Ta_nearest = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         #------use calculated data--------TESTING
-#        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
-#        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_nearest[np.where(nanIndex==MatXsize)]=np.nan
         Ta_nearest = np.reshape(Ta_nearest,[np.size(hc)])
         
@@ -423,7 +420,8 @@ class disALEXI(object):
         for i in range(valMean.size):
             outData[id==valMean.index[i]]=valMean.iloc[i]
         Ta_nearest = np.reshape(outData,[np.size(hc),1])
-        #zero--------------------------------------------------------
+        
+        #zero-------------------------------------------------------->
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
 
@@ -433,8 +431,6 @@ class disALEXI(object):
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         Ta_zero = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         #------use calculated data--------TESTING
-#        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
-#        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_zero[np.where(nanIndex==MatXsize)]=np.nan
         Ta_zero = np.reshape(Ta_zero,[np.size(hc)])
         id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
@@ -524,6 +520,7 @@ class disALEXI(object):
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
+        Tareshape = np.reshape(Ta_linear,np.shape(hc))
         
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}
@@ -594,7 +591,7 @@ class disALEXI(object):
             inRes = [delx,dely]
             
 #            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
-            Ta = ta-273.16 # FOR TESTING!!
+            Ta = ta#-273.16 # FOR TESTING!!
             
             outFormat = gdal.GDT_Float32 
             writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
