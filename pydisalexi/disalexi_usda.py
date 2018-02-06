@@ -505,7 +505,6 @@ class disALEXI(object):
         #------use calculated data--------TESTING
         minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
         TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
-        TaExtrap = T_A_Kresize[:,minBiasIndex]
         TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
 #        Tareshape = np.reshape(T_A_Kresize[:,1],np.shape(hc))
