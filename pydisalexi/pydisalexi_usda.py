@@ -210,7 +210,7 @@ def main():
             print 'cleaning up...'
             
             clean(os.path.join(resultsBase,scene),"ETd")
-#            clean(os.path.join(resultsBase,scene),"Ta")
+            clean(os.path.join(resultsBase,scene),"Ta")
             clean(os.path.join(resultsBase,scene),"Ts")
             clean(os.path.join(resultsBase,scene),"Tc")
             clean(os.path.join(resultsBase,scene),"G0")
