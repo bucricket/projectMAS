@@ -488,10 +488,10 @@ class disALEXI(object):
         
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
-#        # check if all values inrow are nan
-#        nanIndex = np.sum(np.isnan(bias),axis=1)
-#        # set all to 1 so it doesnt throw an error below
-#        bias[np.where(nanIndex==MatXsize),:]=1.
+        # check if all values inrow are nan
+        nanIndex = np.sum(np.isnan(bias),axis=1)
+        # set all to 1 so it doesnt throw an error below
+        bias[np.where(nanIndex==MatXsize),:]=1.
         
         # extract the Ta based on minimum bias at Fine resolution
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
@@ -501,7 +501,7 @@ class disALEXI(object):
         TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
-#        Tareshape = np.reshape(Ta_nearest,np.shape(hc))
+        Tareshape = np.reshape(T_A_Kresize[:,0],np.shape(hc))
         
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}
