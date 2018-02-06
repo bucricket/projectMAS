@@ -375,18 +375,18 @@ class disALEXI(object):
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==MatXsize),:]=1.
         #======finding the best interpolated temperature======================
-        #linear-------------------------------------------------->
-        f_bias = interp1d(x,bias,kind='linear', fill_value='extrapolate')
-        f_ta= interp1d(x,T_A_Kresize,kind='linear', fill_value='extrapolate')
-
-        biasInterp = f_bias(np.linspace(-40,40,1000))
-        TaInterp = f_ta(np.linspace(-40,40,1000))
-        # extract the Ta based on minimum bias at Fine resolution
-        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
-        Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
-        #------use calculated data--------TESTING
-        Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-        Ta_linear = np.reshape(Ta_linear,[np.size(hc)])
+#        #linear-------------------------------------------------->
+#        f_bias = interp1d(x,bias,kind='linear', fill_value='extrapolate')
+#        f_ta= interp1d(x,T_A_Kresize,kind='linear', fill_value='extrapolate')
+#
+#        biasInterp = f_bias(np.linspace(-40,40,1000))
+#        TaInterp = f_ta(np.linspace(-40,40,1000))
+#        # extract the Ta based on minimum bias at Fine resolution
+#        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
+#        Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
+#        #------use calculated data--------TESTING
+#        Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
+#        Ta_linear = np.reshape(Ta_linear,[np.size(hc)])
         
 #        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        taDict = {'ID':id,'ta':Ta_linear}
@@ -398,18 +398,18 @@ class disALEXI(object):
 #            outData[id==valMean.index[i]]=valMean.iloc[i]
 #        Ta_linear = np.reshape(outData,[np.size(hc),1])
 #        
-#        #nearest---------------------------------------------------->
-#        f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
-#        f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
-#
-#        biasInterp = f_bias(np.linspace(-40,40,1000))
-#        TaInterp = f_ta(np.linspace(-40,40,1000))
-#        # extract the Ta based on minimum bias at Fine resolution
-#        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
-#        Ta_nearest = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
-#        #------use calculated data--------TESTING
-#        Ta_nearest[np.where(nanIndex==MatXsize)]=np.nan
-#        Ta_nearest = np.reshape(Ta_nearest,[np.size(hc)])
+        #nearest---------------------------------------------------->
+        f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
+        f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
+
+        biasInterp = f_bias(np.linspace(-40,40,1000))
+        TaInterp = f_ta(np.linspace(-40,40,1000))
+        # extract the Ta based on minimum bias at Fine resolution
+        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
+        Ta_nearest = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
+        #------use calculated data--------TESTING
+        Ta_nearest[np.where(nanIndex==MatXsize)]=np.nan
+        Ta_nearest = np.reshape(Ta_nearest,[np.size(hc)])
 #        
 #        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        taDict = {'ID':id,'ta':Ta_nearest}
