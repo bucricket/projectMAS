@@ -426,6 +426,7 @@ class disALEXI(object):
         #----run DisALEXI with new temperatures-----------------
         # Set up input parameters
         Ta_all = np.hstack((Ta_linear,Ta_nearest))
+        print Ta_all.shape
         MatXsize = 2
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
