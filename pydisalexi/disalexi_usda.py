@@ -520,7 +520,7 @@ class disALEXI(object):
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
 #        TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
 #        Tareshape = np.reshape(TaExtrap,np.shape(hc))
-        Tareshape = np.reshape(Ta_linear,np.shape(hc))
+        Tareshape = np.reshape(Ta_nearest,np.shape(hc))
         
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}
