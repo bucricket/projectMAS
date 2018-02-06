@@ -422,7 +422,7 @@ class disALEXI(object):
         # Set up input parameters
         Ta_all = np.hstack((Ta_linear,Ta_nearest,Ta_zero))
         MatXsize = 3
-#        Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
+        Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
         T_A_Kresize = Ta_all
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
