@@ -388,7 +388,7 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-        Ta_linear = np.reshape(Ta_linear,np.size(hc))
+        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
         #nearest---------------------------------------------------
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
@@ -402,7 +402,7 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_nearest[np.where(nanIndex==MatXsize)]=np.nan
-        Ta_nearest = np.reshape(Ta_nearest,np.size(hc))
+        Ta_nearest = np.reshape(Ta_nearest,[np.size(hc),1])
         #zero--------------------------------------------------------
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
@@ -416,7 +416,7 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_zero[np.where(nanIndex==MatXsize)]=np.nan
-        Ta_zero = np.reshape(Ta_zero,np.size(hc))
+        Ta_zero = np.reshape(Ta_zero,[np.size(hc),1])
         
         #----run DisALEXI with new temperatures-----------------
         # Set up input parameters
