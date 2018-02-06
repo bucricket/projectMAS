@@ -398,7 +398,7 @@ class disALEXI(object):
         outData = np.zeros(Ta_linear.size)
         for i in range(valMean.size):
             outData[id==valMean.index[i]]=valMean.iloc[i]
-        Ta_linear = np.reshape(outData,Ta_linear.shape)
+        Ta_linear = np.reshape(outData,[np.size(hc),1])
         #nearest---------------------------------------------------
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
@@ -422,7 +422,7 @@ class disALEXI(object):
         outData = np.zeros(Ta_nearest.size)
         for i in range(valMean.size):
             outData[id==valMean.index[i]]=valMean.iloc[i]
-        Ta_nearest = np.reshape(outData,Ta_nearest.shape)
+        Ta_nearest = np.reshape(outData,[np.size(hc),1])
         #zero--------------------------------------------------------
         f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
@@ -445,7 +445,7 @@ class disALEXI(object):
         outData = np.zeros(Ta_zero.size)
         for i in range(valMean.size):
             outData[id==valMean.index[i]]=valMean.iloc[i]
-        Ta_zero = np.reshape(outData,Ta_zero.shape)
+        Ta_zero = np.reshape(outData,[np.size(hc),1])
         
         #----run DisALEXI with new temperatures-----------------
         # Set up input parameters
