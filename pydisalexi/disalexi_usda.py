@@ -388,7 +388,7 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
+        Ta_linear = np.reshape(Ta_linear,[np.size(hc)])
         
         id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
         taDict = {'ID':id,'ta':Ta_linear}
@@ -412,7 +412,7 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_nearest[np.where(nanIndex==MatXsize)]=np.nan
-        Ta_nearest = np.reshape(Ta_nearest,[np.size(hc),1])
+        Ta_nearest = np.reshape(Ta_nearest,[np.size(hc)])
         
         id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
         taDict = {'ID':id,'ta':Ta_nearest}
@@ -436,7 +436,7 @@ class disALEXI(object):
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         Ta_zero[np.where(nanIndex==MatXsize)]=np.nan
-        Ta_zero = np.reshape(Ta_zero,[np.size(hc),1])
+        Ta_zero = np.reshape(Ta_zero,[np.size(hc)])
         id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
         taDict = {'ID':id,'ta':Ta_zero}
         taDF = pd.DataFrame(taDict, columns=taDict.keys())
