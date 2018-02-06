@@ -426,7 +426,7 @@ class disALEXI(object):
         #----run DisALEXI with new temperatures-----------------
         # Set up input parameters
         Ta_all = np.hstack((Ta_linear,Ta_nearest))
-        print Ta_all.shape
+#        print Ta_all.shape
         MatXsize = 2
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
@@ -486,12 +486,12 @@ class disALEXI(object):
         et = EFeq/2.45*scaling
         et[et<0.01] = 0.01
         
-        
+        et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
-        # check if all values inrow are nan
-        nanIndex = np.sum(np.isnan(bias),axis=1)
-        # set all to 1 so it doesnt throw an error below
-        bias[np.where(nanIndex==MatXsize),:]=1.
+#        # check if all values inrow are nan
+#        nanIndex = np.sum(np.isnan(bias),axis=1)
+#        # set all to 1 so it doesnt throw an error below
+#        bias[np.where(nanIndex==MatXsize),:]=1.
         
         # extract the Ta based on minimum bias at Fine resolution
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
