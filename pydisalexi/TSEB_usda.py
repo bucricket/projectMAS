@@ -331,8 +331,8 @@ def TSEB_PT_usda(
         mask_size = np.array(np.sum(mask), dtype='float')
         chk_iter = mask_sum/mask_size
         iterchange.append(chk_iter)
-        if i >0:
-            if np.diff(iterchange)[-1]<0.001:
+        if i >4:
+            if ((np.diff(iterchange)[-4:]).sum()/4.)<0.001:
                 break
             
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)

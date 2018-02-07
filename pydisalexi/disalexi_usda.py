@@ -447,8 +447,8 @@ class disALEXI(object):
             inUL = [ulx,uly]
             inRes = [delx,dely]
             
-            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
-#            Ta = ta-273.16 # FOR TESTING!!
+#            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
+            Ta = ta-273.16 # FOR TESTING!!
             
             outFormat = gdal.GDT_Float32 
             writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
