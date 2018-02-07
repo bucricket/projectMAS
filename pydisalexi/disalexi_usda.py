@@ -378,37 +378,38 @@ class disALEXI(object):
 
         
         #======finding the best interpolated temperature======================
-#        #linear-------------------------------------------------->
-#        f_bias = interp1d(x,bias,kind='linear', fill_value='extrapolate')
-#        f_ta= interp1d(x,T_A_Kresize,kind='linear', fill_value='extrapolate')
-#
-#        biasInterp = f_bias(np.linspace(-40,40,1000))
-#        TaInterp = f_ta(np.linspace(-40,40,1000))
+        #linear-------------------------------------------------->
+        f_bias = interp1d(x,bias,kind='linear', fill_value='extrapolate')
+        f_ta= interp1d(x,T_A_Kresize,kind='linear', fill_value='extrapolate')
+
+        biasInterp = f_bias(np.linspace(-40,40,1000))
+        TaInterp = f_ta(np.linspace(-40,40,1000))
+        # extract the Ta based on minimum bias at Fine resolution
+        minBiasIndex = np.array(np.nanargmin(biasInterp,axis=1))
+        Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
+        #------use calculated data--------TESTING
+        Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
+        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
+        
+#        #=======RectBivariateSpline=====
+#        x = range(0,20,3)
+#        y= range(np.size(ET_ALEXI))
+#        X, Y = np.meshgrid(x, y)
+#        interp_spline_Ta = RectBivariateSpline(y, x, T_A_Kresize)
+#        interp_spline_bias = RectBivariateSpline(y, x, bias)
+#        x2 = np.linspace(-40,40,1000)
+#        X2, Y2 = np.meshgrid(x2,y)
+#        TaInterp = interp_spline_Ta(y, x2)
+#        biasInterp = interp_spline_bias(y, x2)
+#        
 #        # extract the Ta based on minimum bias at Fine resolution
 #        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
 #        Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
 #        #------use calculated data--------TESTING
 #        Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-#        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
+##        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
+#        Tareshape = np.reshape(Ta_linear,hc.shape)
         
-        #=======RectBivariateSpline=====
-        x = range(0,20,3)
-        y= range(np.size(ET_ALEXI))
-        X, Y = np.meshgrid(x, y)
-        interp_spline_Ta = RectBivariateSpline(y, x, T_A_Kresize)
-        interp_spline_bias = RectBivariateSpline(y, x, bias)
-        x2 = np.linspace(-40,40,1000)
-        X2, Y2 = np.meshgrid(x2,y)
-        TaInterp = interp_spline_Ta(y, x2)
-        biasInterp = interp_spline_bias(y, x2)
-        
-        # extract the Ta based on minimum bias at Fine resolution
-        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
-        Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
-        #------use calculated data--------TESTING
-        Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-#        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
-        Tareshape = np.reshape(Ta_linear,hc.shape)
 #        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        taDict = {'ID':id,'ta':Ta_linear}
 #        taDF = pd.DataFrame(taDict, columns=taDict.keys())
