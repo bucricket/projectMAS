@@ -32,7 +32,6 @@ from .utils import writeArray2Tiff,getParFromExcel,warp,folders
 from scipy import ndimage,interp
 from .landsatTools import landsat_metadata,GeoTIFF
 from .TSEB_utils_usda import sunset_sunrise,interp_ta
-from scipy.interpolate import RectBivariateSpline
 
 
 
@@ -355,10 +354,10 @@ class disALEXI(object):
 #                  'et10':np.reshape(et[:,9],[np.size(ET_ALEXI)])}
         etDF = pd.DataFrame(etDict, columns=etDict.keys())
 #        group = etDF['et'].groupby(etDF['ID'])
-#        etDF = pd.DataFrame(etDict)
+        etDF = pd.DataFrame(etDict)
         group = etDF.groupby(etDF['ID'])
-#        valMean = group.transform('mean')
         valMean = group.mean()
+#        valMean = group.transform('mean')
 #        outData = np.zeros(et_masked.size)
         outData = np.zeros(et.shape)
         for i in range(valMean.shape[0]):
@@ -376,160 +375,19 @@ class disALEXI(object):
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==MatXsize),:]=1.
+        f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
+        f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
 
-        
-        #======finding the best interpolated temperature======================
-        #linear-------------------------------------------------->
-        f_bias = interp1d(x,bias,kind='linear', fill_value='extrapolate')
-        f_ta= interp1d(x,T_A_Kresize,kind='linear', fill_value='extrapolate')
-
-        biasInterp = f_bias(np.linspace(0,20,1000))
-        TaInterp = f_ta(np.linspace(0,20,1000))
+        biasInterp = f_bias(np.linspace(-40,40,1000))
+        TaInterp = f_ta(np.linspace(-40,40,1000))
         # extract the Ta based on minimum bias at Fine resolution
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
-        Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
+        TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         #------use calculated data--------TESTING
-        Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-#        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
-        
-#        #=======RectBivariateSpline=====
-#        x = range(0,20,3)
-#        y= range(np.size(ET_ALEXI))
-#        X, Y = np.meshgrid(x, y)
-#        interp_spline_Ta = RectBivariateSpline(y, x, T_A_Kresize)
-#        interp_spline_bias = RectBivariateSpline(y, x, bias)
-#        x2 = np.linspace(-40,40,1000)
-#        X2, Y2 = np.meshgrid(x2,y)
-#        TaInterp = interp_spline_Ta(y, x2)
-#        biasInterp = interp_spline_bias(y, x2)
-#        
-#        # extract the Ta based on minimum bias at Fine resolution
-#        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
-#        Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
-#        #------use calculated data--------TESTING
-#        Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-##        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
-        Tareshape = np.reshape(Ta_linear,hc.shape)
-        
-#        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-#        taDict = {'ID':id,'ta':Ta_linear}
-#        taDF = pd.DataFrame(taDict, columns=taDict.keys())
-#        group = taDF['ta'].groupby(taDF['ID'])
-#        valMean = group.mean()
-#        outData = np.zeros(Ta_linear.size)
-#        for i in range(valMean.size):
-#            outData[id==valMean.index[i]]=valMean.iloc[i]
-#        Ta_linear = np.reshape(outData,[np.size(hc),1])
-        
-#        #nearest---------------------------------------------------->
-#        f_bias = interp1d(x,bias,kind='nearest', fill_value='extrapolate')
-#        f_ta= interp1d(x,T_A_Kresize,kind='nearest', fill_value='extrapolate')
-#
-#        biasInterp = f_bias(np.linspace(-40,40,1000))
-#        TaInterp = f_ta(np.linspace(-40,40,1000))
-#        # extract the Ta based on minimum bias at Fine resolution
-#        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
-#        Ta_nearest = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
-#        #------use calculated data--------TESTING
-#        Ta_nearest[np.where(nanIndex==MatXsize)]=np.nan
-#        Ta_nearest = np.reshape(Ta_nearest,[np.size(hc),1])
-#        
-##        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-##        taDict = {'ID':id,'ta':Ta_nearest}
-##        taDF = pd.DataFrame(taDict, columns=taDict.keys())
-##        group = taDF['ta'].groupby(taDF['ID'])
-##        valMean = group.mean()
-##        outData = np.zeros(Ta_nearest.size)
-##        for i in range(valMean.size):
-##            outData[id==valMean.index[i]]=valMean.iloc[i]
-##        Ta_nearest = np.reshape(outData,[np.size(hc),1])
-#        
-#        
-#        #----run DisALEXI with new temperatures-----------------
-#        # Set up input parameters
-#        Ta_all = np.hstack((Ta_linear,Ta_nearest))
-##        print Ta_all.shape
-#        x = [1,2]
-#        MatXsize = 2
-#        Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
-#        vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
-#        T_A_Kresize = Ta_all
-#        uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
-#        presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
-#        Rs_1resize = np.tile(np.resize(Rs_1,[np.size(Rs_1),1]),(1,MatXsize))
-#        zsresize = np.tile(np.resize(zs,[np.size(zs),1]),(1,MatXsize))
-#        aleafvresize = np.tile(np.resize(aleafv,[np.size(hc),1]),(1,MatXsize))
-#        aleafnresize = np.tile(np.resize(aleafn,[np.size(hc),1]),(1,MatXsize))
-#        aleaflresize = np.tile(np.resize(aleafl,[np.size(hc),1]),(1,MatXsize))
-#        adeadvresize = np.tile(np.resize(adeadv,[np.size(hc),1]),(1,MatXsize))
-#        adeadnresize = np.tile(np.resize(adeadn,[np.size(hc),1]),(1,MatXsize))
-#        adeadlresize = np.tile(np.resize(adeadl,[np.size(hc),1]),(1,MatXsize))
-#        albedoresize = np.tile(np.resize(albedo,[np.size(hc),1]),(1,MatXsize))
-#        ndviresize = np.tile(np.resize(ndvi,[np.size(hc),1]),(1,MatXsize))
-#        LAIresize = np.tile(np.resize(LAI,[np.size(LAI),1]),(1,MatXsize))
-#        clumpresize = np.tile(np.resize(clump,[np.size(hc),1]),(1,MatXsize))
-#        hcresize = np.tile(np.resize(hc,[np.size(hc),1]),(1,MatXsize))
-#        maskresize = np.tile(np.array(np.resize(mask,[np.size(hc),1])),(1,MatXsize))
-#        timeresize = np.tile(np.array(np.resize(time,[np.size(hc),1])),(1,MatXsize))
-#        t_riseresize = np.tile(np.array(np.resize(t_rise,[np.size(hc),1])),(1,MatXsize))
-#        t_endresize = np.tile(np.array(np.resize(t_end,[np.size(hc),1])),(1,MatXsize))
-#        leaf_widthresize = np.tile(np.resize(leaf_width,[np.size(hc),1]),(1,MatXsize))
-#        alpha_PTresize = np.tile(np.resize(alpha_PT,[np.size(hc),1]),(1,MatXsize))
-#
-#        # run TSEB over TA options
-#        output = TSEB_PT_usda(
-#            Tr_Kresize,
-#            vzaresize,
-#            T_A_Kresize,
-#            uresize,
-#            presize,
-#            Rs_1resize,
-#            zsresize,
-#            aleafvresize, 
-#            aleafnresize, 
-#            aleaflresize, 
-#            adeadvresize, 
-#            adeadnresize, 
-#            adeadlresize,
-#            albedoresize,
-#            ndviresize,
-#            LAIresize,
-#            clumpresize,
-#            hcresize,
-#            maskresize,
-#            timeresize,
-#            t_riseresize,
-#            t_endresize,
-#            leaf_width=leaf_widthresize,
-#            a_PT_in=alpha_PTresize)
-#            
-#        scaling = 1.0
-#        Fsun =  (output[4]+output[6])/np.resize(Rs_1,[np.size(hc),1])
-#        EFeq=Fsun*(np.reshape(Rs24in,[np.size(hc),1]))
-#        et = EFeq/2.45*scaling
-#        et[et<0.01] = 0.01
-#        
-#        et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
-#        bias = et_alexi-et
-#        # check if all values inrow are nan
-#        nanIndex = np.sum(np.isnan(bias),axis=1)
-#        # set all to 1 so it doesnt throw an error below
-#        bias[np.where(nanIndex==MatXsize),:]=1.
-#        
-#        f_bias = interp1d(x,bias,kind='linear', fill_value='extrapolate')
-#        f_ta= interp1d(x,T_A_Kresize,kind='linear', fill_value='extrapolate')
-#
-#        biasInterp = f_bias(np.linspace(-10,12,1000))
-#        TaInterp = f_ta(np.linspace(-10,12,1000))
-#        # extract the Ta based on minimum bias at Fine resolution
-#        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
-#        TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
-#        #------use calculated data--------TESTING
 #        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
 #        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
-#        TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
-#        Tareshape = np.reshape(TaExtrap,np.shape(hc))
-#        Tareshape = np.reshape(T_A_Kresize[:,1],np.shape(hc))
+        TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
+        Tareshape = np.reshape(TaExtrap,np.shape(hc))
         
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}
