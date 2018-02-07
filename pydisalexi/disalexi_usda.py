@@ -408,7 +408,7 @@ class disALEXI(object):
 #        #------use calculated data--------TESTING
 #        Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
 ##        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
-#        Tareshape = np.reshape(Ta_linear,hc.shape)
+        Tareshape = np.reshape(Ta_linear,hc.shape)
         
 #        id = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
 #        taDict = {'ID':id,'ta':Ta_linear}
