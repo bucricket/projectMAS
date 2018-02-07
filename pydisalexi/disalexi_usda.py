@@ -275,6 +275,7 @@ class disALEXI(object):
 
         # Set up input parameters
         MatXsize = 7
+        Tr_K[np.where(np.isnan(Tr_K))]=-9999.
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
 #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
@@ -361,7 +362,7 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
         x = range(0,20,3)
-        ET_ALEXI[mask==0]=-9999.
+        ET_ALEXI[mask==0]=-9998. # so the bias isnt 0.0
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
         # check if all values inrow are nan
