@@ -380,7 +380,7 @@ class disALEXI(object):
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
-        TaExtrap[et_alexi==-9999.]=np.nan
+        TaExtrap[TaExtrap<0.]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
         
         
