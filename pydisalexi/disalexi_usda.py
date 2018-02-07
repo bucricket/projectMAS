@@ -368,6 +368,7 @@ class disALEXI(object):
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==MatXsize),:]=1.
+        bias[np.where(np.isnan(bias))]=0.0
         f_bias = interp1d(x,bias,kind='quadratic', fill_value='extrapolate')
         f_ta= interp1d(x,T_A_Kresize,kind='quadratic', fill_value='extrapolate')
 
