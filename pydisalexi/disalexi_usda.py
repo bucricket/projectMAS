@@ -365,7 +365,7 @@ class disALEXI(object):
         ET_ALEXI[mask==0]=-9999. # so the bias isnt 0.0
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
-        bias[et_alexi==-9999.]=-9999.
+        bias[et_alexi==-9999.,:]=-9999.
         # check if all values inrow are nan
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
@@ -380,7 +380,7 @@ class disALEXI(object):
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
-        TaExtrap[np.where(et_alexi==-9999.)]=np.nan
+        TaExtrap[et_alexi==-9999.]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
         
         
