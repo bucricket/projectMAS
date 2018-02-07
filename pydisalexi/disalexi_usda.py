@@ -362,9 +362,12 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
         x = range(0,20,3)
-        ET_ALEXI[mask==0]=-9998. # so the bias isnt 0.0
+        ET_ALEXI[mask==0]=-9999. # so the bias isnt 0.0
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
+        bias = np.reshape(bias,np.shape(hc))
+        bias[mask==0]=-9999.
+        bias = np.reshape(bias,[np.size(hc),1])
         # check if all values inrow are nan
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
