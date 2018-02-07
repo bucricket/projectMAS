@@ -385,11 +385,11 @@ class disALEXI(object):
         biasInterp = f_bias(np.linspace(-40,40,1000))
         TaInterp = f_ta(np.linspace(-40,40,1000))
         # extract the Ta based on minimum bias at Fine resolution
-        minBiasIndex = np.array(np.nanargmin(biasInterp,axis=1))
+        minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         Ta_linear = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         #------use calculated data--------TESTING
         Ta_linear[np.where(nanIndex==MatXsize)]=np.nan
-        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
+#        Ta_linear = np.reshape(Ta_linear,[np.size(hc),1])
         
 #        #=======RectBivariateSpline=====
 #        x = range(0,20,3)
