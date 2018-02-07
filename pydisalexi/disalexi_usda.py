@@ -340,7 +340,6 @@ class disALEXI(object):
         #=============find Average ETd====================================== 
         
         et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-#        et_masked = np.reshape(et,[np.size(et)])
         etDict = {'ID':et_alexi,
                   'et1':np.reshape(et[:,0],[np.size(ET_ALEXI)]),
                   'et2':np.reshape(et[:,1],[np.size(ET_ALEXI)]),
@@ -348,25 +347,19 @@ class disALEXI(object):
                   'et4':np.reshape(et[:,3],[np.size(ET_ALEXI)]),
                   'et5':np.reshape(et[:,4],[np.size(ET_ALEXI)]),
                   'et6':np.reshape(et[:,5],[np.size(ET_ALEXI)]),
-                  'et7':np.reshape(et[:,6],[np.size(ET_ALEXI)])}#,
-#                  'et8':np.reshape(et[:,7],[np.size(ET_ALEXI)]),
-#                  'et9':np.reshape(et[:,8],[np.size(ET_ALEXI)]),
-#                  'et10':np.reshape(et[:,9],[np.size(ET_ALEXI)])}
+                  'et7':np.reshape(et[:,6],[np.size(ET_ALEXI)])}
+        
         etDF = pd.DataFrame(etDict, columns=etDict.keys())
-#        group = etDF['et'].groupby(etDF['ID'])
         etDF = pd.DataFrame(etDict)
         group = etDF.groupby(etDF['ID'])
         valMean = group.mean()
-
-#        outData = np.zeros(et_masked.size)
         outData = np.zeros(et.shape)
         for i in range(valMean.shape[0]):
             outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
         et = np.reshape(outData,et.shape)
-        # ======interpolate over mutiple Ta solutions===========================================
+        # ======interpolate over mutiple Ta ===================================
 
         from scipy.interpolate import interp1d
-#        x = range(270,340,10)
         x = range(0,20,3)
         ET_ALEXI[mask==0]=-9999.
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
@@ -383,9 +376,6 @@ class disALEXI(object):
         # extract the Ta based on minimum bias at Fine resolution
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
-        #------use calculated data--------TESTING
-#        minBiasIndex = np.array(np.nanargmin(abs(bias),axis=1))
-#        TaExtrap = T_A_Kresize[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
         
@@ -457,8 +447,8 @@ class disALEXI(object):
             inUL = [ulx,uly]
             inRes = [delx,dely]
             
-#            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
-            Ta = ta-273.16 # FOR TESTING!!
+            Ta = interp_ta(ta,coarseRes,fineRes)-273.16
+#            Ta = ta-273.16 # FOR TESTING!!
             
             outFormat = gdal.GDT_Float32 
             writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
