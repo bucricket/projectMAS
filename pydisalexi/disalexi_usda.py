@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue May 23 08:46:02 2017
-
 @author: mschull
 """
 
@@ -275,7 +274,6 @@ class disALEXI(object):
 
         # Set up input parameters
         MatXsize = 7
-        Tr_K[np.where(np.isnan(Tr_K))]=-9999.
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
 #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
@@ -362,15 +360,13 @@ class disALEXI(object):
 
         from scipy.interpolate import interp1d
         x = range(0,20,3)
-        ET_ALEXI[mask==0]=-9999. # so the bias isnt 0.0
+        ET_ALEXI[mask==0]=-9999.
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
-#        bias[bias<-9000.]=-9999.
         # check if all values inrow are nan
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==MatXsize),:]=1.
-#        bias[np.where(np.isnan(bias))]=1.0
         f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
         f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
 
@@ -380,9 +376,7 @@ class disALEXI(object):
         minBiasIndex = np.array(np.nanargmin(abs(biasInterp),axis=1))
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==MatXsize)]=np.nan
-#        TaExtrap[TaExtrap<0.]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
-        
         
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}

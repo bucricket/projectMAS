@@ -331,12 +331,8 @@ def TSEB_PT_usda(
         mask_size = np.array(np.sum(mask), dtype='float')
         chk_iter = mask_sum/mask_size
         iterchange.append(chk_iter)
-#        if i >2:
-#            if (abs(np.diff(iterchange)[-2:]).sum()/2.)<0.001:
-#                break
-            
-        if i >1:
-            if np.diff(iterchange)[-1] <0.001:
+        if i >0:
+            if np.diff(iterchange)[-1]<0.001:
                 break
             
         fm,fh,fm_h = compute_stability(H, Tr_K, r_air,cp, u_attr, z_u, z_T, hc, d_0, z0m, z0h)
@@ -395,5 +391,4 @@ def TSEB_PT_usda(
                      r_x,
                      r_ah))
 
-    return flag, Ts, Tc, Tac, lETc, H_c, lEs, H_s, G0, r_s, r_x, r_ah      
-
+    return flag, Ts, Tc, Tac, lETc, H_c, lEs, H_s, G0, r_s, r_x, r_ah  
