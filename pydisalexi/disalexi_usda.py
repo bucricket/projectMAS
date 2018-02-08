@@ -371,8 +371,8 @@ class disALEXI(object):
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==MatXsize),:]=1.
 #        bias[np.where(np.isnan(bias))]=1.0
-        f_bias = interp1d(x,bias,kind='linear', fill_value='extrapolate')
-        f_ta= interp1d(x,T_A_Kresize,kind='linear', fill_value='extrapolate')
+        f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
+        f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
 
         biasInterp = f_bias(np.linspace(0,20,1000))
         TaInterp = f_ta(np.linspace(0,20,1000))
