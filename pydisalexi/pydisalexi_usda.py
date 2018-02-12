@@ -22,6 +22,10 @@ import time as timer
 from osgeo import gdal
 import pandas as pd
 from osgeo.gdalconst import GA_ReadOnly
+from processlai import processlai
+from processlst import processlst
+import sqlite3
+from getlandsatdata import getlandsatdata
 
 
 def _pickle_method(m):
@@ -36,21 +40,32 @@ copy_reg.pickle(types.MethodType, _pickle_method)
 def main():
     # Get time and location from user
     parser = argparse.ArgumentParser()
+    parser.add_argument("lat", type=float, help="latitude")
+    parser.add_argument("lon", type=float, help="longitude")
     parser.add_argument("isUSA", type=float, help="USA=1, non-USA=0")
+    parser.add_argument("start_date", type=str, help="Start date yyyy-mm-dd")
+    parser.add_argument("end_date", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("njobs", type=int, default=-1, help="number of cores to use.  To use all cores available use -1")
+    parser.add_argument('-s','--sat', nargs='?',type=int, default=8, help='which landsat to search or download, i.e. Landsat 8 = 8')
+
     args = parser.parse_args()
     isUSA = args.isUSA
-    base = os.getcwd()
     njobs = args.njobs
+    loc = [args.lat,args.lon]
+    sat = args.sat
+    start_date = args.start_date
+    end_date = args.end_date
     subsetSize = 200
-
+    base = os.getcwd()
+    cacheDir = os.path.abspath(os.path.join(base,os.pardir,"SATELLITE_DATA"))
    
     Folders = folders(base)    
     landsatSR = Folders['landsatSR']
     resultsBase = Folders['resultsBase']
-    landsatTemp = os.path.join(landsatSR,'temp')
-    landsatDataBase = Folders['landsatDataBase']
+#    landsatTemp = os.path.join(landsatSR,'temp')
+#    landsatDataBase = Folders['landsatDataBase']
     ALEXIbase = Folders['ALEXIbase']
+ 
     #======FIND AVAILABLE FILES FOR PROCESSING=============================
 
 
@@ -71,27 +86,62 @@ def main():
                    'ALEXIshape': ALEXIshape}
     
     #process scenes that have been preprocessed
-    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
-    tiffList = glob.glob(os.path.join(landsatTemp,"*lstSharp.tiff"))
-#    tiffList = glob.glob(os.path.join(landsatDataBase,"LST",scene,'*lstSharp.tiff'))
+#    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
+#    tiffList = glob.glob(os.path.join(landsatTemp,"*lstSharp.tiff"))
     
+    
+    #===FIND PROCESSED SCENES TO BE PROCESSED================================
+    landsatCacheDir = os.path.join(cacheDir,"LANDSAT")
+    db_fn = os.path.join(landsatCacheDir,"landsat_products.db")
+#    available = 'Y'
+    product = 'LST'
+#    search_df = getlandsatdata.search(loc[0],loc[1],start_date,end_date,cloud,available,landsatCacheDir,sat)
+    search_df = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
+    productIDs = search_df.LANDSAT_PRODUCT_ID
+#    fileList = search_df.local_file_path
+    #====check what products are processed against what Landsat data is available===
+    product = 'ETd'
+    if os.path.exists(db_fn):
+        conn = sqlite3.connect( db_fn )
+        res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = res.fetchall()[0]
+        if (product in tables):
+            processedProductIDs = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
+            df1 = processedProductIDs[["LANDSAT_PRODUCT_ID"]]
+            merged = df1.merge(pd.DataFrame(productIDs), indicator=True, how='outer')
+            df3 = merged[merged['_merge'] != 'both' ]
+            productIDs = df3[["LANDSAT_PRODUCT_ID"]].LANDSAT_PRODUCT_ID
+#            if len(productIDs)>0:
+#                output_df = pd.DataFrame()
+#                for productID in productIDs:
+#                    output_df = output_df.append(getlandsatdata.searchProduct(productID,cacheDir,sat),ignore_index=True)
+#                productIDs = output_df.LANDSAT_PRODUCT_ID
             
     #USER INPUT END===============================================================
     start = timer.time()
-    for i in range(len(fileList)):
-        filepath = fileList[i]
-        tiff = tiffList[i]
-        ll = GeoTIFF(tiff)
-        
-        meta = landsat_metadata(filepath)
-        sceneID = meta.LANDSAT_SCENE_ID        
+#    for i in range(len(fileList)):
+    for productID in productIDs:
+#        fn = fileList[i]
+        out_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
+        fn = os.path.join(out_df.local_file_path[0],productID+"_MTL.txt")
+        meta = landsat_metadata(fn)
+        sceneID = meta.LANDSAT_SCENE_ID
+        productID = meta.LANDSAT_PRODUCT_ID
+        satscene_path = os.sep.join(fn.split(os.sep)[:-2])
+        sceneDir = os.path.join(satscene_path,'LST')
+        tiff= os.path.join(sceneDir,'%s_lstSharp.tiff' % sceneID)
+#        tiff = tiffList[i]
+        ll = GeoTIFF(tiff)     
         scene = sceneID[3:9]
-        finalFile = os.path.join(resultsBase,scene,'%s_ETd.tif' % sceneID[:-5])
+        sceneDir = os.path.join(satscene_path,'ET','30m')
+        if not os.path.exists(sceneDir):
+            os.mkdir(sceneDir)
+        finalFile = os.path.join(sceneDir,'%s_ETd.tif' % sceneID)
         dt = meta.DATETIME_OBJ
         if not os.path.exists(finalFile):
                    
             #============Run DisALEXI in parallel======================================
-            dd = disALEXI(filepath,dt,isUSA)
+            dd = disALEXI(fn,dt,isUSA)
             #===COMMENTED FOR TESTING ONLY=================== 
             dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
             nsamples = ll.nrow
@@ -130,8 +180,11 @@ def main():
             cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
             buildvrt(cmd)
             
+            #=======================update ETd database========================
+            output_df = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
+            processlai.updateLandsatProductsDB(output_df,finalFile,landsatCacheDir,'ETd')
             
-            #=============find Average ET_24======================================
+            #=============find Average ET_24===================================
             outFormat = gdal.GDT_Float32
             ls = GeoTIFF(finalFile)
             ulx = ls.ulx
@@ -205,8 +258,8 @@ def main():
             print 'merging lEs files...'
             cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'lEs*'))
             buildvrt(cmd)
-            
-            #=======================clean up files===================================
+
+            #=======================clean up files=============================
             print 'cleaning up...'
             
             clean(os.path.join(resultsBase,scene),"ETd")
@@ -218,8 +271,6 @@ def main():
             clean(os.path.join(resultsBase,scene),"H_s")
             clean(os.path.join(resultsBase,scene),"lETc")
             clean(os.path.join(resultsBase,scene),"lEs")
-            lat_fName = os.path.join(landsatSR,'temp','lat.tif')
-            lon_fName = os.path.join(landsatSR,'temp','lon.tif')
     end = timer.time()
     print("program duration: %f minutes" % ((end - start)/60.))
 #            os.remove(lat_fName)

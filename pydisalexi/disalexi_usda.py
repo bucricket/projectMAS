@@ -42,10 +42,10 @@ class disALEXI(object):
 
         Folders = folders(base)  
         self.landsatSR = Folders['landsatSR']
-        self.landsatNDVI = Folders['landsatNDVI']
-        self.ALEXIbase = Folders['ALEXIbase']
-        self.metBase = Folders['metBase']
-        self.landsatDataBase = Folders['landsatDataBase']
+#        self.landsatNDVI = Folders['landsatNDVI']
+#        self.ALEXIbase = Folders['ALEXIbase']
+#        self.metBase = Folders['metBase']
+#        self.landsatDataBase = Folders['landsatDataBase']
         self.resultsBase = Folders['resultsBase']
         self.fn = fn
         self.meta = landsat_metadata(fn)
@@ -55,6 +55,8 @@ class disALEXI(object):
         self.scene = self.sceneID[3:9]
         self.isUSA = isUSA
         self.dt = dt
+        self.satscene_path = os.sep.join(fn.split(os.sep)[:-2])
+        
 
 
 
@@ -406,8 +408,8 @@ class disALEXI(object):
 #                hdf = SD(laiFN,SDC.READ)
 #                data2D = hdf.select('cfmask')
 #                cfmask = data2D[:,:].astype(np.double)
-            
-            maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
+            sceneDir = os.path.join(self.satscene_path,'CF_MASK')
+            maskFN = os.path.join(sceneDir,'%s_Mask.tiff' % sceneID)
             g = gdal.Open(maskFN,GA_ReadOnly)
             cfmask = g.ReadAsArray()
             g= None
@@ -421,8 +423,9 @@ class disALEXI(object):
 #            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
             #=============find Average Ta====================================== COMMENTED FOR TESTING
     
-            sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
-            etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
+#            sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
+            sceneDir = os.path.join(self.satscene_path,'ET','400m')
+            etFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID)         
             g = gdal.Open(etFN,GA_ReadOnly)
             ET_ALEXI = g.ReadAsArray()
             g= None
@@ -471,7 +474,8 @@ class disALEXI(object):
         yeardoy = sceneID[9:16]
         #-------------get Landsat information-----------
 #        ls = GeoTIFF(os.path.join(self.landsatSR,'temp',"%s_band10.tif" % productID))
-        ls = GeoTIFF(os.path.join(self.landsatDataBase,"LST",scene,'%s_lstSharp.tiff' % sceneID))
+        sceneDir = os.path.join(self.satscene_path,'LST')
+        ls = GeoTIFF(os.path.join(sceneDir,'%s_lstSharp.tiff' % sceneID))
         solZen = self.meta.SUN_ELEVATION
 #        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
 #        nlines = int(self.meta.REFLECTIVE_LINES)
@@ -487,8 +491,9 @@ class disALEXI(object):
     
         #===========================get the ETd data==============================
     
-        sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
-        outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
+#        sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)  
+        sceneDir = os.path.join(self.satscene_path,'ET','400m')
+        outFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID)         
         g = gdal.Open(outFN,GA_ReadOnly)
         ET_ALEXI = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
@@ -497,9 +502,10 @@ class disALEXI(object):
         #=============get MET data================================================
         #get CFSR MET data at overpass time
     
-        sceneDir = os.path.join(self.metBase,'%s' % scene)
+#        sceneDir = os.path.join(self.metBase,'%s' % scene)
+        sceneDir = os.path.join(self.satscene_path,'MET')
         #------------get-> surface pressure...
-        outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
+        outFN = os.path.join(sceneDir,'%s_p.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
         p = g.ReadAsArray(xStart,yStart,xSize,ySize)
         p /=100. #convert to mb
@@ -507,7 +513,7 @@ class disALEXI(object):
 
             
         #------------get-> ea...
-        outFN = os.path.join(sceneDir,'%s_q2Sub.tiff' % sceneID) 
+        outFN = os.path.join(sceneDir,'%s_q2.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
         q2 = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
@@ -595,8 +601,8 @@ class disALEXI(object):
             g= None
         
 
-        sceneDir = os.path.join(self.metBase,'%s' % scene)
-        outFN = os.path.join(sceneDir,'%s_uSub.tiff' % sceneID) 
+#        sceneDir = os.path.join(self.metBase,'%s' % scene)
+        outFN = os.path.join(sceneDir,'%s_u.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
         u = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
@@ -621,19 +627,21 @@ class disALEXI(object):
         
         
         #====get overpass hour insolation======================================
-        outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)            
+        sceneDir = os.path.join(self.satscene_path,'INSOL')
+        outFN = os.path.join(sceneDir,'%s_Insol1.tiff' % sceneID)            
         g = gdal.Open(outFN,GA_ReadOnly)
         Rs_1 = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
     
         #====get daily insolation=========================================
-        outFN = os.path.join(sceneDir,'%s_Insol24Sub.tiff' % sceneID)
+        outFN = os.path.join(sceneDir,'%s_Insol24.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         Rs24 = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
     
         #===============get biophysical parameters at overpass time============
-        sceneDir = os.path.join(self.landsatDataBase,'albedo',scene)
+        sceneDir = os.path.join(self.satscene_path,'ALEBDO')
+#        sceneDir = os.path.join(self.landsatDataBase,'albedo',scene)
         outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID)         
         g = gdal.Open(outFN,GA_ReadOnly)
         albedo = g.ReadAsArray(xStart,yStart,xSize,ySize)
@@ -641,7 +649,8 @@ class disALEXI(object):
     
         #------>get LAI...
 #        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'%s_lai.tiff' % sceneID)
+        sceneDir = os.path.join(self.satscene_path,'LAI')
+        outFN = os.path.join(sceneDir,'%s_lai.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)#*0.001 # TESTING
         g= None
@@ -656,7 +665,8 @@ class disALEXI(object):
 #        LAI[np.where(LAI<=0.)]=0.001
         
         #------>get ndvi...'
-        sceneDir = os.path.join(self.landsatNDVI,scene)
+#        sceneDir = os.path.join(self.landsatNDVI,scene)
+        sceneDir = os.path.join(self.satscene_path,'NDVI')
         outFN = os.path.join(sceneDir,'%s_ndvi.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         ndvi = g.ReadAsArray(xStart,yStart,xSize,ySize)#*0.001 # TESTING
@@ -668,7 +678,8 @@ class disALEXI(object):
 #        ndvi[np.where(ndvi==-9.999)]=np.nan
         
         #===get cfmask=======
-        outFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
+        sceneDir = os.path.join(self.satscene_path,'CF_MASK')
+        outFN = os.path.join(sceneDir,'%s_Mask.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
@@ -679,7 +690,8 @@ class disALEXI(object):
     
         
         #---------->get LST...   
-        outFN = os.path.join(self.landsatDataBase,'LST',scene,'%s_lstSharp.tiff' % sceneID)
+        sceneDir = os.path.join(self.satscene_path,'LST')
+        outFN = os.path.join(sceneDir,'%s_lstSharp.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         # *NOTE: version 0.2.0 forward------>
         # convert from scaled celcius to kelvin int16->float32
@@ -688,7 +700,8 @@ class disALEXI(object):
         g= None    
         Tr_K[np.where(albedo<0)]=np.nan
         #---------->get LC...
-        sceneDir = os.path.join(self.landsatDataBase,'LC',scene)
+        sceneDir = os.path.join(self.satscene_path,'LC')
+#        sceneDir = os.path.join(self.landsatDataBase,'LC',scene)
         outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)        
         g = gdal.Open(outFN,GA_ReadOnly)
         LCdata = g.ReadAsArray(xStart,yStart,xSize,ySize)
