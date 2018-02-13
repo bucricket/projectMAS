@@ -480,8 +480,8 @@ class disALEXI(object):
         solZen = self.meta.SUN_ELEVATION
 #        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
 #        nlines = int(self.meta.REFLECTIVE_LINES)
-        nsamples = ls.ncol
-        nlines = ls.nrow
+        nsamples = ls.nrow
+        nlines = ls.ncol
         if xStart==((nsamples/xSize)*xSize):
             xSize = (nsamples-xStart)
         if yStart==((nlines/ySize)*ySize):
