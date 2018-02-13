@@ -641,7 +641,7 @@ class disALEXI(object):
         g= None
     
         #===============get biophysical parameters at overpass time============
-        sceneDir = os.path.join(self.satscene_path,'ALEBDO')
+        sceneDir = os.path.join(self.satscene_path,'ALBEDO')
 #        sceneDir = os.path.join(self.landsatDataBase,'albedo',scene)
         outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID)         
         g = gdal.Open(outFN,GA_ReadOnly)
