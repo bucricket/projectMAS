@@ -37,8 +37,9 @@ from .TSEB_utils_usda import sunset_sunrise,interp_ta
 
 class disALEXI(object):
     def __init__(self, fn,dt,isUSA):
-        base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
-                                            os.pardir,os.pardir))
+#        base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
+#                                            os.pardir,os.pardir))
+        base = os.getcwd()
 
         Folders = folders(base)  
         self.landsatSR = Folders['landsatSR']
