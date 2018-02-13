@@ -672,7 +672,7 @@ class disALEXI(object):
         g = gdal.Open(outFN,GA_ReadOnly)
         ndvi = g.ReadAsArray(xStart,yStart,xSize,ySize)#*0.001 # TESTING
         g= None
-        ndvi[np.where(ndvi==-9.999)]=np.nan
+        ndvi[np.where(ndvi==-9999.)]=np.nan
         
 #        data2D = hdf.select('NDVI')
 #        ndvi = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
