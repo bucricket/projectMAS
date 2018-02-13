@@ -132,7 +132,7 @@ def main():
         sceneDir = os.path.join(satscene_path,'LST')
         tiff= os.path.join(sceneDir,'%s_lstSharp.tiff' % sceneID)
 #        tiff = tiffList[i]
-        ll = GeoTIFF(tiff)     
+        g = gdal.Open(tiff)     
         scene = sceneID[3:9]
         sceneDir = os.path.join(satscene_path,'ET','30m')
         if not os.path.exists(sceneDir):
@@ -145,10 +145,8 @@ def main():
             dd = disALEXI(fn,dt,isUSA)
             #===COMMENTED FOR TESTING ONLY=================== 
             dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
-            nsamples = ll.nrow
-            nlines = ll.ncol
             print 'Running disALEXI...'
-            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,nsamples,subsetSize) for yStart in range(0,nlines,subsetSize))            
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize))            
             
             # =================merge Ta files============================================
 #            print 'merging Ta files...'            
@@ -173,7 +171,7 @@ def main():
 #            print "run one last time in serial"
 #            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)
             print "run TSEB one last time in parallel"
-            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,1) for xStart in range(0,nsamples,subsetSize) for yStart in range(0,nlines,subsetSize)) 
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,1) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize)) 
 
             #=====================merge all files =====================================
             finalFile = os.path.join(resultsBase,scene,'%s_ETd.tif' % sceneID[:-5])

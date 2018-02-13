@@ -477,11 +477,12 @@ class disALEXI(object):
 #        ls = GeoTIFF(os.path.join(self.landsatSR,'temp',"%s_band10.tif" % productID))
         sceneDir = os.path.join(self.satscene_path,'LST')
         ls = GeoTIFF(os.path.join(sceneDir,'%s_lstSharp.tiff' % sceneID))
+        g = gdal.Open(os.path.join(sceneDir,'%s_lstSharp.tiff' % sceneID))
         solZen = self.meta.SUN_ELEVATION
 #        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
 #        nlines = int(self.meta.REFLECTIVE_LINES)
-        nsamples = ls.nrow
-        nlines = ls.ncol
+        nsamples = g.RasterXSize
+        nlines = g.RasterYSize
         if xStart==((nsamples/xSize)*xSize):
             xSize = (nsamples-xStart)
         if yStart==((nlines/ySize)*ySize):
