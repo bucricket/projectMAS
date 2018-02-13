@@ -12,7 +12,7 @@ import numpy as np
 import glob
 from osgeo import gdal,osr
 import pandas as pd
-from numba import jit
+#from numba import jit
 import urllib2, base64
 
 def folders(base):
@@ -172,27 +172,27 @@ def clean(directory,ext):
         if item.startswith(ext):
             os.remove(os.path.join(directory, item))
  
-@jit(['float64[:,:](float64[:,:],float64,float64)'])  
-def interpOverpassHour(dataset,overpassTime,hours=24.):
-    numPixs = dataset.shape[1]
-    stack = np.empty([1,numPixs])
-    stack[:]=np.nan
-    
-    #stackReshp = np.reshape(stack,[24,600*1440])
-    for j in xrange(numPixs):
-        y = dataset[:,j]
-        if np.sum(y)==0:
-            stack[:,j]=0.0
-        else:
-            x = range(0,int(hours),int(hours/dataset.shape[0]))
-            newX = xrange(int(hours))
-            newX = overpassTime
-            
-            #f = interp1d(x,y, kind='cubic')
-            stack[:,j]=np.interp(newX,x,y)
-        #stack[:,i]=f(newX)
-    
-    return stack
+#@jit(['float64[:,:](float64[:,:],float64,float64)'])  
+#def interpOverpassHour(dataset,overpassTime,hours=24.):
+#    numPixs = dataset.shape[1]
+#    stack = np.empty([1,numPixs])
+#    stack[:]=np.nan
+#    
+#    #stackReshp = np.reshape(stack,[24,600*1440])
+#    for j in xrange(numPixs):
+#        y = dataset[:,j]
+#        if np.sum(y)==0:
+#            stack[:,j]=0.0
+#        else:
+#            x = range(0,int(hours),int(hours/dataset.shape[0]))
+#            newX = xrange(int(hours))
+#            newX = overpassTime
+#            
+#            #f = interp1d(x,y, kind='cubic')
+#            stack[:,j]=np.interp(newX,x,y)
+#        #stack[:,i]=f(newX)
+#    
+#    return stack
     
 def findRSOILV(difvis,difnir,fvis,fnir,Rs_1,F,fc,fg,zs,aleafv,aleafn,aleafl,adeadv,adeadn,adeadl,albedo):
     #### THIS IS SOME KIND OF OPTIMIZATION LOOP  
