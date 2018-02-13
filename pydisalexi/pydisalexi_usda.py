@@ -145,8 +145,8 @@ def main():
             dd = disALEXI(fn,dt,isUSA)
             #===COMMENTED FOR TESTING ONLY=================== 
             dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
-            nsamples = ll.nrow
-            nlines = ll.ncol
+            nsamples = ll.ncol
+            nlines = ll.nrow
             print 'Running disALEXI...'
             r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,nsamples,subsetSize) for yStart in range(0,nlines,subsetSize))            
             
