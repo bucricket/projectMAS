@@ -121,6 +121,7 @@ def main():
     start = timer.time()
 #    for i in range(len(fileList)):
     for productID in productIDs:
+        print("productID:%s" % productID)
 #        fn = fileList[i]
         out_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
         fn = os.path.join(out_df.local_file_path[0],productID+"_MTL.txt")
