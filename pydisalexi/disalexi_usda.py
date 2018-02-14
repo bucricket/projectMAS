@@ -31,6 +31,7 @@ from .utils import writeArray2Tiff,getParFromExcel,warp,folders
 from scipy import ndimage,interp
 from .landsatTools import landsat_metadata,GeoTIFF
 from .TSEB_utils_usda import sunset_sunrise,interp_ta
+from joblib import Parallel, delayed
 
 
 
@@ -437,8 +438,12 @@ class disALEXI(object):
             group = taDF['ta'].groupby(taDF['ID'])
             valMean = group.mean()
             outData = np.zeros(ta_masked.size)
-            for i in range(valMean.size):
+            def getHighResMean(i):
                 outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+                return outData
+#            for i in range(valMean.size):
+#                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+            outData = Parallel(n_jobs=-1, verbose=5)(delayed(getHighResMean)(i) for i in range(valMean.size)) 
             ta = np.reshape(outData,ta.shape)
             #========smooth Ta data========================================
             ulx = ls.ulx
