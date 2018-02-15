@@ -581,7 +581,7 @@ def interp_ta(Ta,coarseRes,fineRes):
     #=====using astropy==============
     # We smooth with a Gaussian kernel with stddev=1
     # It is a 9x9 array
-    rid2 = Gaussian2DKernel(stddev=1)  
+    rid2 = Gaussian2DKernel(stddev=2)  
     local_mean = convolve(Ta, rid2)
     return local_mean
 
