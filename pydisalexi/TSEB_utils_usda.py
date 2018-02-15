@@ -9,6 +9,7 @@ import numpy as np
 import math
 from scipy import ndimage
 from astropy.convolution import convolve
+from astropy.convolution import Gaussian2DKernel
 #   script imports
 #imports
 
@@ -577,8 +578,10 @@ def interp_ta(Ta,coarseRes,fineRes):
 #    local_mean = ndimage.uniform_filter(Ta, size=rid2,mode='nearest')
 #    return smooth(Ta, rid2,True)
 #    return Smooth(Ta, rid2, 'replace')
-    #=====using astropy
-    
+    #=====using astropy==============
+    # We smooth with a Gaussian kernel with stddev=1
+    # It is a 9x9 array
+    rid2 = Gaussian2DKernel(stddev=1)  
     local_mean = convolve(Ta, rid2)
     return local_mean
 
