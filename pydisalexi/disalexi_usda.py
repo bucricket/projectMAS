@@ -435,15 +435,17 @@ class disALEXI(object):
             ta_masked = np.reshape(ta,[np.size(ta)])
             taDict = {'ID':et_alexi,'ta':ta_masked}
             taDF = pd.DataFrame(taDict, columns=taDict.keys())
-            group = taDF['ta'].groupby(taDF['ID'])
-            valMean = group.mean()
-            outData = np.zeros(ta_masked.size)
-            def getHighResMean(i):
-                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
-                return outData
+#            group = taDF['ta'].groupby(taDF['ID'])
+#            valMean = group.mean()
+#            outData = np.zeros(ta_masked.size)
+#            def getHighResMean(i):
+#                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+#                return outData
 #            for i in range(valMean.size):
 #                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
-            outData = Parallel(n_jobs=-1, verbose=5)(delayed(getHighResMean)(i) for i in range(valMean.size)) 
+#            outData = Parallel(n_jobs=-1, verbose=5)(delayed(getHighResMean)(i) for i in range(valMean.size)) 
+            outData = np.array(taDF.groupby('ID')['ta'].transform('mean'))
+            outData[np.isnan(ta)]=np.nan
             ta = np.reshape(outData,ta.shape)
             #========smooth Ta data========================================
             ulx = ls.ulx
