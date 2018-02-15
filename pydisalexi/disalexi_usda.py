@@ -446,7 +446,7 @@ class disALEXI(object):
 #            outData = Parallel(n_jobs=-1, verbose=5)(delayed(getHighResMean)(i) for i in range(valMean.size)) 
             outData = np.array(taDF.groupby('ID')['ta'].transform('mean'))
             print ta.shape
-            outData[np.isnan(ta_masked)]=-9999.
+            outData[np.isnan(ta_masked)]=np.nan
             ta = np.reshape(outData,ta.shape)
             #========smooth Ta data========================================
             ulx = ls.ulx
