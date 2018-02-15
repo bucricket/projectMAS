@@ -8,6 +8,7 @@ Created on Thu Jun  1 15:32:10 2017
 import numpy as np
 import math
 from scipy import ndimage
+from astropy.convolution import convolve
 #   script imports
 #imports
 
@@ -572,15 +573,14 @@ def interp_ta(Ta,coarseRes,fineRes):
     
     mask_bad = (abs(Ta-ta_m) > 10.*ta_v)
     Ta[mask_bad] = np.nan
-    
-#    kern = np.hanning(rid2)   # a Hanning window with width 50
-#    kern /= kern.sum()      # normalize the kernel weights to sum to 1
-
-#    hanning = ndimage.convolve1d(Ta, kern, 1)
+    #=====using scipy==========
 #    local_mean = ndimage.uniform_filter(Ta, size=rid2,mode='nearest')
 #    return smooth(Ta, rid2,True)
-    return Smooth(Ta, rid2, 'replace')
-#    return local_mean
+#    return Smooth(Ta, rid2, 'replace')
+    #=====using astropy
+    
+    local_mean = convolve(Ta, rid2)
+    return local_mean
 
 
     
