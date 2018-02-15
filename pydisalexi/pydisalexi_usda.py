@@ -143,26 +143,20 @@ def main():
                    
             #============Run DisALEXI in parallel======================================
             dd = disALEXI(fn,dt,isUSA)
-            #===COMMENTED FOR TESTING ONLY=================== 
-            dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
-            print 'Running disALEXI...'
-            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize))            
-            
-            # =================merge Ta files============================================
-#            print 'merging Ta files...'            
+#            #===COMMENTED FOR TESTING ONLY=================== 
+#            dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
+#            print 'Running disALEXI...'
+#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize))            
+#            
+#            # =================merge Ta files============================================
+#            print("merging Ta files----------------------->")
 #
-##            finalFile = os.path.join(resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
+#            tifs = glob.glob(os.path.join(resultsBase,scene,'Ta*'))
+#            finalFileVRT = os.path.join(resultsBase,scene,'Ta_DisALEXI.vrt')
 #            finalFile = os.path.join(resultsBase,scene,'Ta_DisALEXI.tif')
-#            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'Ta*'))
-#            buildvrt(cmd)
-            print("merging Ta files----------------------->")
-
-            tifs = glob.glob(os.path.join(resultsBase,scene,'Ta*'))
-            finalFileVRT = os.path.join(resultsBase,scene,'Ta_DisALEXI.vrt')
-            finalFile = os.path.join(resultsBase,scene,'Ta_DisALEXI.tif')
-            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
-            outds = gdal.Translate(finalFile, outds)
-            outds = None
+#            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
+#            outds = gdal.Translate(finalFile, outds)
+#            outds = None
             #=========smooth the TA data=======================================
             print 'Smoothing Ta...'
             dd.smoothTaData(ALEXIgeodict)
