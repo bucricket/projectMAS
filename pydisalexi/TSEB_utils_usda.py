@@ -573,7 +573,7 @@ def interp_ta(Ta,coarseRes,fineRes):
     ta_v = np.nanstd(Ta)
     
     mask_bad = (abs(Ta-ta_m) > 10.*ta_v)
-    Ta[mask_bad] = np.nan
+    Ta[np.where(mask_bad)] = np.nan
     #=====using scipy==========
 #    local_mean = ndimage.uniform_filter(Ta, size=rid2,mode='nearest')
 #    return smooth(Ta, rid2,True)
