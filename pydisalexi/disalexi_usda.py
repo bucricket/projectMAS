@@ -518,8 +518,8 @@ class disALEXI(object):
         #------------get-> surface pressure...
         outFN = os.path.join(sceneDir,'%s_p.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
-        print("xsize:%d" % xSize)
-        print("ysize:%d" % ySize)
+#        print("xsize:%d" % xSize)
+#        print("ysize:%d" % ySize)
         p = g.ReadAsArray(xStart,yStart,xSize,ySize)
         p /=100. #convert to mb
         g= None
