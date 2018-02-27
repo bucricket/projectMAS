@@ -772,7 +772,8 @@ class disALEXI(object):
 #        LAI[np.where(LAI==0.0)]=0.001        
         vza = np.tile(0.0,np.shape(LAI))
 #        Rs24 = Rs24+500. # FOR TESTING ONLY
-        Rs24 = (Rs24*0.0864)/24.0 
+#        Rs24 = (Rs24*0.0864)/24.0 # MERRA
+        Rs24 = Rs24*0.0864 #GSIP
 
         leaf_width = xl
         alpha_PT = np.tile(1.32,np.shape(LAI))
@@ -820,7 +821,8 @@ class disALEXI(object):
             Fsun =  (output[4]+output[6])/Rs_1
 #            Rs24 = ndimage.gaussian_filter(Rs24, sigma=5)
             EFeq=Fsun*(Rs24)
-            ET_24 = EFeq/2.45*scaling
+#            ET_24 = EFeq/2.45*scaling
+            ET_24 = EFeq*0.408*scaling
             ET_24[ET_24<0.01]=0.01
 #            ET_24 = np.array(ET_24*1000.,dtype='uint16')
         else:

@@ -143,27 +143,27 @@ def main():
                    
             #============Run DisALEXI in parallel======================================
             dd = disALEXI(fn,dt,isUSA)
-#            #===COMMENTED FOR TESTING ONLY=================== 
-#            dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
-#            print 'Running disALEXI...'
-#            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize))            
-#            
-#            # =================merge Ta files============================================
-#            print("merging Ta files----------------------->")
-#
-#            tifs = glob.glob(os.path.join(resultsBase,scene,'Ta*'))
-#            finalFileVRT = os.path.join(resultsBase,scene,'Ta_DisALEXI.vrt')
-#            finalFile = os.path.join(resultsBase,scene,'Ta_DisALEXI.tif')
-#            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
-#            outds = gdal.Translate(finalFile, outds)
-#            outds = None
-#            #=========smooth the TA data=======================================
-#            print 'Smoothing Ta...'
-#            dd.smoothTaData(ALEXIgeodict)
+            #===COMMENTED FOR TESTING ONLY=================== 
+            dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
+            print 'Running disALEXI...'
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize))            
             
-            # =================run TSEB one last time in parallel=======================
-#            print "run one last time in serial"
-#            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)
+            # =================merge Ta files============================================
+            print("merging Ta files----------------------->")
+
+            tifs = glob.glob(os.path.join(resultsBase,scene,'Ta*'))
+            finalFileVRT = os.path.join(resultsBase,scene,'Ta_DisALEXI.vrt')
+            finalFile = os.path.join(resultsBase,scene,'Ta_DisALEXI.tif')
+            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
+            outds = gdal.Translate(finalFile, outds)
+            outds = None
+            #=========smooth the TA data=======================================
+            print 'Smoothing Ta...'
+            dd.smoothTaData(ALEXIgeodict)
+            
+#             =================run TSEB one last time in parallel=======================
+            print "run one last time in serial"
+            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)
             print "run TSEB one last time in parallel"
             r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,1) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize)) 
 
