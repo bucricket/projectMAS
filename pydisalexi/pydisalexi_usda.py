@@ -142,7 +142,7 @@ def main():
         if not os.path.exists(finalFile):
                    
             #============Run DisALEXI in parallel======================================
-#            dd = disALEXI(fn,dt,isUSA)
+            dd = disALEXI(fn,dt,isUSA)
 #            #===COMMENTED FOR TESTING ONLY=================== 
 #            dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
 #            print 'Running disALEXI...'
