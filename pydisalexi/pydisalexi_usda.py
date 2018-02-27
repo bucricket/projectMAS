@@ -174,7 +174,8 @@ def main():
             buildvrt(cmd)
             
             #=======================update ETd database========================
-            output_df = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
+#            output_df = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
+            output_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
             processlai.updateLandsatProductsDB(output_df,finalFile,landsatCacheDir,'ETd')
             
             #=============find Average ET_24===================================
