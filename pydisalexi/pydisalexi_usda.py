@@ -178,40 +178,40 @@ def main():
             output_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
             processlai.updateLandsatProductsDB(output_df,finalFile,landsatCacheDir,'ETd')
             
-            #=============find Average ET_24===================================
-            outFormat = gdal.GDT_Float32
-            ls = GeoTIFF(finalFile)
-            ulx = ls.ulx
-            uly = ls.uly
-            delx = ls.delx
-            dely = -ls.dely
-            inUL = [ulx,uly]
-            inRes = [delx,dely]
-            sceneDir = os.path.join(ALEXIbase,'%s' % scene)        
-            etFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID)         
-            g = gdal.Open(etFN,GA_ReadOnly)
-            ET_ALEXI = g.ReadAsArray()
-            g= None
-            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-            
-            g = gdal.Open(finalFile,GA_ReadOnly)
-            ET_24 = g.ReadAsArray()
-            g= None
-            
-            et_24 = np.reshape(ET_24,[np.size(ET_24)])
-            etDict = {'ID':et_alexi,'et':et_24}
-            etDF = pd.DataFrame(etDict, columns=etDict.keys())
-            group = etDF['et'].groupby(etDF['ID'])
-            valMean = group.mean()
-            outData = np.zeros(ET_24.size)
-            for i in range(valMean.size):
-                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
-            et_avg = np.reshape(outData,ET_24.shape)
-            et_diff = abs(et_avg-ET_ALEXI)
-            outET24Path = os.path.join(resultsBase,scene)
-            ET_diff_outName = '%s_ETd_diff.tif' % sceneID[:-5]
-            fName = '%s%s%s' % (outET24Path,os.sep,ET_diff_outName)
-            writeArray2Tiff(et_diff,inRes,inUL,ls.proj4,fName,outFormat)
+#            #=============find Average ET_24===================================
+#            outFormat = gdal.GDT_Float32
+#            ls = GeoTIFF(finalFile)
+#            ulx = ls.ulx
+#            uly = ls.uly
+#            delx = ls.delx
+#            dely = -ls.dely
+#            inUL = [ulx,uly]
+#            inRes = [delx,dely]
+#            sceneDir = os.path.join(ALEXIbase,'%s' % scene)        
+#            etFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID)         
+#            g = gdal.Open(etFN,GA_ReadOnly)
+#            ET_ALEXI = g.ReadAsArray()
+#            g= None
+#            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+#            
+#            g = gdal.Open(finalFile,GA_ReadOnly)
+#            ET_24 = g.ReadAsArray()
+#            g= None
+#            
+#            et_24 = np.reshape(ET_24,[np.size(ET_24)])
+#            etDict = {'ID':et_alexi,'et':et_24}
+#            etDF = pd.DataFrame(etDict, columns=etDict.keys())
+#            group = etDF['et'].groupby(etDF['ID'])
+#            valMean = group.mean()
+#            outData = np.zeros(ET_24.size)
+#            for i in range(valMean.size):
+#                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
+#            et_avg = np.reshape(outData,ET_24.shape)
+#            et_diff = abs(et_avg-ET_ALEXI)
+#            outET24Path = os.path.join(resultsBase,scene)
+#            ET_diff_outName = '%s_ETd_diff.tif' % sceneID[:-5]
+#            fName = '%s%s%s' % (outET24Path,os.sep,ET_diff_outName)
+#            writeArray2Tiff(et_diff,inRes,inUL,ls.proj4,fName,outFormat)
             
             finalFile = os.path.join(resultsBase,scene,'%s_G0.tif' % sceneID[:-5])
             print 'merging G0 files...'
