@@ -575,15 +575,15 @@ def interp_ta(Ta,coarseRes,fineRes):
     mask_bad = (abs(Ta-ta_m) > 10.*ta_v)
     Ta[np.where(mask_bad)] = np.nan
     #=====using scipy==========
-#    local_mean = ndimage.uniform_filter(Ta, size=rid2,mode='nearest')
+    local_mean = ndimage.uniform_filter(Ta, size=rid2,mode='nearest')
 #    return smooth(Ta, rid2,True)
 #    return Smooth(Ta, rid2, 'replace')
     #=====using astropy==============
     # We smooth with a Gaussian kernel with stddev=1
     # It is a 9x9 array
 #    rid2 = Gaussian2DKernel(stddev=2)  
-    box_2D_kernel = Box2DKernel(rid2)
-    local_mean = convolve(Ta, box_2D_kernel)
+#    box_2D_kernel = Box2DKernel(rid2)
+#    local_mean = convolve(Ta, box_2D_kernel)
     return local_mean
 
 
