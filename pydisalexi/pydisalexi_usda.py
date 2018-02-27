@@ -188,7 +188,7 @@ def main():
             inUL = [ulx,uly]
             inRes = [delx,dely]
             sceneDir = os.path.join(ALEXIbase,'%s' % scene)        
-            etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
+            etFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID)         
             g = gdal.Open(etFN,GA_ReadOnly)
             ET_ALEXI = g.ReadAsArray()
             g= None
