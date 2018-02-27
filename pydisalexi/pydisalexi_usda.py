@@ -151,15 +151,15 @@ def main():
 #            # =================merge Ta files============================================
 #            print("merging Ta files----------------------->")
 #
-#            tifs = glob.glob(os.path.join(resultsBase,scene,'Ta*'))
-#            finalFileVRT = os.path.join(resultsBase,scene,'Ta_DisALEXI.vrt')
-#            finalFile = os.path.join(resultsBase,scene,'Ta_DisALEXI.tif')
-#            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
-#            outds = gdal.Translate(finalFile, outds)
-#            outds = None
+            tifs = glob.glob(os.path.join(resultsBase,scene,'Ta*'))
+            finalFileVRT = os.path.join(resultsBase,scene,'Ta_DisALEXI.vrt')
+            finalFile = os.path.join(resultsBase,scene,'Ta_DisALEXI.tif')
+            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
+            outds = gdal.Translate(finalFile, outds)
+            outds = None
 #            #=========smooth the TA data=======================================
-#            print 'Smoothing Ta...'
-#            dd.smoothTaData(ALEXIgeodict)
+            print 'Smoothing Ta...'
+            dd.smoothTaData(ALEXIgeodict)
 #            
 ##             =================run TSEB one last time in parallel=======================
 #            print "run one last time in serial"
