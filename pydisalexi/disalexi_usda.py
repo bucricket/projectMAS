@@ -31,7 +31,9 @@ from .utils import writeArray2Tiff,getParFromExcel,warp,folders
 from scipy import ndimage,interp
 from .landsatTools import landsat_metadata,GeoTIFF
 from .TSEB_utils_usda import sunset_sunrise,interp_ta
-from joblib import Parallel, delayed
+#from joblib import Parallel, delayed
+from astropy.convolution import Gaussian2DKernel
+from astropy.convolution import convolve_fft
 
 
 
@@ -424,17 +426,36 @@ class disALEXI(object):
 #            ls.clone(mask,ta)
 #            subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
             #=============find Average Ta====================================== COMMENTED FOR TESTING
-    
+            in_ds = gdal.Open(outfile)
+            coarseds = gdal.Translate(coarseFile,in_ds,
+                                      options=gdal.TranslateOptions(
+                                              resampleAlg='average',
+                                              xRes=ALEXILonRes,
+                                              yRes=ALEXILatRes))
+            fineds = gdal.Warp(outFN,coarseds,options=gdal.WarpOptions(resampleAlg='average',
+                                                                        height=ls.nrow,
+                                                                        width=ls.nrow))
+            coarseds=None
+            #========smooth Ta data========================================
+            ta = fineds.ReadAsArray()
+            fineRes = ls.Lat[1,0]-ls.Lat[0,0]
+            coarseRes = ALEXILatRes
+            course2fineRatio = coarseRes**2/fineRes**2
+            rid2 = int(np.sqrt(course2fineRatio))
+            gauss_kernal = Gaussian2DKernel(rid2)
+            ta = convolve_fft(ta, gauss_kernal,allow_huge=True)
+            fineds.GetRasterBand(1).WriteArray(ta)
+            fineds = None
 #            sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
-            sceneDir = os.path.join(self.satscene_path,'ET','400m')
-            etFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID)         
-            g = gdal.Open(etFN,GA_ReadOnly)
-            ET_ALEXI = g.ReadAsArray()
-            g= None
-            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-            ta_masked = np.reshape(ta,[np.size(ta)])
-            taDict = {'ID':et_alexi,'ta':ta_masked}
-            taDF = pd.DataFrame(taDict, columns=taDict.keys())
+#            sceneDir = os.path.join(self.satscene_path,'ET','400m')
+#            etFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID)         
+#            g = gdal.Open(etFN,GA_ReadOnly)
+#            ET_ALEXI = g.ReadAsArray()
+#            g= None
+#            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
+#            ta_masked = np.reshape(ta,[np.size(ta)])
+#            taDict = {'ID':et_alexi,'ta':ta_masked}
+#            taDF = pd.DataFrame(taDict, columns=taDict.keys())
 #            group = taDF['ta'].groupby(taDF['ID'])
 #            valMean = group.mean()
 #            outData = np.zeros(ta_masked.size)
@@ -444,11 +465,11 @@ class disALEXI(object):
 #            for i in range(valMean.size):
 #                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
 #            outData = Parallel(n_jobs=-1, verbose=5)(delayed(getHighResMean)(i) for i in range(valMean.size)) 
-            outData = np.array(taDF.groupby('ID')['ta'].transform('mean'))
-            print ta.shape
-            outData[np.isnan(ta_masked)]=np.nan
-            ta = np.reshape(outData,ta.shape)
-            #========smooth Ta data========================================
+#            outData = np.array(taDF.groupby('ID')['ta'].transform('mean'))
+#            print ta.shape
+#            outData[np.isnan(ta_masked)]=np.nan
+#            ta = np.reshape(outData,ta.shape)
+            
             ulx = ls.ulx
             uly = ls.uly
             delx = ls.delx
@@ -463,6 +484,7 @@ class disALEXI(object):
             
             outFormat = gdal.GDT_Float32 
             writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
+            os.remove(coarseFile)
     
     def runDisALEXI(self,xStart,yStart,xSize,ySize,ALEXIgeodict,TSEB_only):
         # USER INPUT============================================================
