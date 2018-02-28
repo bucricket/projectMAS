@@ -417,10 +417,10 @@ class disALEXI(object):
             g = gdal.Open(maskFN,GA_ReadOnly)
             cfmask = g.ReadAsArray()
             g= None
-            g = gdal.Open(outfile,GA_ReadOnly)
-            ta = g.ReadAsArray()
-            ta[cfmask == 1]=np.nan 
-            g= None
+#            g = gdal.Open(outfile,GA_ReadOnly)
+#            ta = g.ReadAsArray()
+#            ta[cfmask == 1]=np.nan 
+#            g= None
 #            mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
 #            masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
 #            ls.clone(mask,ta)
@@ -811,52 +811,17 @@ class disALEXI(object):
             #convert TA from scaled celcius to kelvin
 #            T_A_K = (T_A_K/1000.)+273.15  # removed /1000 FOR TESTING!!!!
 #            T_A_K = (T_A_K)+273.16  # removed /1000 FOR TESTING!!!!
-
-            output = TSEB_PT_usda(
-                Tr_K,
-                vza,
-                T_A_K,
-                u,
-                p,
-                Rs_1,
-                zs,
-                aleafv, 
-                aleafn, 
-                aleafl, 
-                adeadv, 
-                adeadn, 
-                adeadl,
-                albedo,
-                ndvi,
-                LAI,
-                clump,
-                hc,
-                mask,
-                time,
-                t_rise,
-                t_end,
-                leaf_width=leaf_width,
-                a_PT_in=alpha_PT)                           #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
-
-    
-            scaling = 1.0
-            Fsun =  (output[4]+output[6])/Rs_1
-#            Rs24 = ndimage.gaussian_filter(Rs24, sigma=5)
-            EFeq=Fsun*(Rs24)
-#            ET_24 = EFeq/2.45*scaling
-            ET_24 = EFeq*0.408*scaling
-            ET_24[ET_24<0.01]=0.01
-#            ET_24 = np.array(ET_24*1000.,dtype='uint16')
-        else:
-
-            output = self.DisALEXI_PT(
-                    ET_ALEXI,
-                    Rs_1,
-                    Rs24,
+            nan_check = np.sum(np.isnan(LAI))/LAI.size
+            if nan_check==1: # All nans
+                ET_24 = np.tile(np.nan,LAI.shape)
+            else:
+                output = TSEB_PT_usda(
                     Tr_K,
                     vza,
+                    T_A_K,
                     u,
                     p,
+                    Rs_1,
                     zs,
                     aleafv, 
                     aleafn, 
@@ -874,9 +839,50 @@ class disALEXI(object):
                     t_rise,
                     t_end,
                     leaf_width=leaf_width,
-                    alpha_PT=alpha_PT)
-#            T_A_K= np.array((output['T_A_K']-273.15)*1000.,dtype='uint16')
-            T_A_K= np.array(output['T_A_K'],dtype='float32')
+                    a_PT_in=alpha_PT)                           #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
+    
+        
+                scaling = 1.0
+                Fsun =  (output[4]+output[6])/Rs_1
+    #            Rs24 = ndimage.gaussian_filter(Rs24, sigma=5)
+                EFeq=Fsun*(Rs24)
+    #            ET_24 = EFeq/2.45*scaling
+                ET_24 = EFeq*0.408*scaling
+                ET_24[ET_24<0.01]=0.01
+#            ET_24 = np.array(ET_24*1000.,dtype='uint16')
+        else:
+            nan_check = np.sum(np.isnan(LAI))/LAI.size
+            if nan_check==1: # All nans
+                T_A_K = np.tile(np.nan,LAI.shape)
+            else:
+                output = self.DisALEXI_PT(
+                        ET_ALEXI,
+                        Rs_1,
+                        Rs24,
+                        Tr_K,
+                        vza,
+                        u,
+                        p,
+                        zs,
+                        aleafv, 
+                        aleafn, 
+                        aleafl, 
+                        adeadv, 
+                        adeadn, 
+                        adeadl,
+                        albedo,
+                        ndvi,
+                        LAI,
+                        clump,
+                        hc,
+                        mask,
+                        time,
+                        t_rise,
+                        t_end,
+                        leaf_width=leaf_width,
+                        alpha_PT=alpha_PT)
+    #            T_A_K= np.array((output['T_A_K']-273.15)*1000.,dtype='uint16')
+                T_A_K= np.array(output['T_A_K'],dtype='float32')
             
 #        outFormat = gdal.GDT_UInt16
         outFormat = gdal.GDT_Float32
