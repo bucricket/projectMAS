@@ -687,7 +687,7 @@ class disALEXI(object):
         sceneDir = os.path.join(self.satscene_path,'LAI')
         outFN = os.path.join(sceneDir,'%s_lai.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
-        LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)#*0.001 # TESTING
+        LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)*0.001 # TESTING
         g= None
 #        LAI[np.where(LAI==-9.999)]=np.nan
 #        LAI[np.where(LAI<=0.)]=0.001
