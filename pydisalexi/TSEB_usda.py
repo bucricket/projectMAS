@@ -327,8 +327,8 @@ def TSEB_PT_usda(
         H[H==0.]=10.
         r_ah[r_ah ==0.]=10.
         mask_iter  = np.logical_and((H_iter/H) <= 1.05,(H_iter/H) >= 0.95)
-        mask_sum = np.array(np.sum(mask_iter), dtype='float')
-        mask_size = np.array(np.sum(mask), dtype='float')
+        mask_sum = np.array(np.nansum(mask_iter), dtype='float')
+        mask_size = np.array(np.nansum(mask), dtype='float')
         chk_iter = mask_sum/mask_size
         iterchange.append(chk_iter)
 #        if i >0:
