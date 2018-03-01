@@ -397,7 +397,7 @@ class disALEXI(object):
         outFN = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         #=======================convert fine TA to coarse resolution=========
-        outfile = os.path.join(self.resultsBase,scene,'Ta_DisALEXI.tif')
+        outfile = os.path.join(self.resultsBase,scene,'testTa_DisALEXI.tif')
 #            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
 
         coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')

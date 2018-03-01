@@ -334,7 +334,9 @@ def TSEB_PT_usda(
 #        if i >0:
 #            if np.diff(iterchange)[-1]<0.001:
         if i >4:
-            if (abs(np.diff(iterchange)[-4:]).sum()/4.)<0.001:
+            numBreak = ((np.nansum(abs(np.diff(iterchange)[-4:]))/4.)<0.001) 
+            nanBreak = ((np.nansum(abs(np.diff(iterchange)[-4:]))/4.)==np.nan)
+            if numBreak or nanBreak:
                 break
 
             
