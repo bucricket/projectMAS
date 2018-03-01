@@ -426,7 +426,7 @@ class disALEXI(object):
                                               yRes=400))
             fineds = gdal.Warp(outFN,coarseds,options=gdal.WarpOptions(resampleAlg='average',
                                                                         height=ls.nrow,
-                                                                        width=ls.nrow))
+                                                                        width=ls.ncol))
             coarseds=None
             #========smooth Ta data========================================
             ta = fineds.ReadAsArray()
