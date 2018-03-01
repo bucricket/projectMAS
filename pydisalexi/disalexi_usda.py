@@ -430,8 +430,8 @@ class disALEXI(object):
             coarseds = gdal.Translate(coarseFile,in_ds,
                                       options=gdal.TranslateOptions(
                                               resampleAlg='average',
-                                              xRes=ALEXILonRes,
-                                              yRes=ALEXILatRes))
+                                              xRes=400,
+                                              yRes=400))
             fineds = gdal.Warp(outFN,coarseds,options=gdal.WarpOptions(resampleAlg='average',
                                                                         height=ls.nrow,
                                                                         width=ls.nrow))
