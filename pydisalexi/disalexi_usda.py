@@ -32,7 +32,7 @@ from scipy import ndimage,interp
 from .landsatTools import landsat_metadata,GeoTIFF
 from .TSEB_utils_usda import sunset_sunrise,interp_ta
 #from joblib import Parallel, delayed
-from astropy.convolution import Gaussian2DKernel
+from astropy.convolution import Gaussian2DKernel,Box2DKernel
 from astropy.convolution import convolve_fft
 
 
@@ -432,14 +432,15 @@ class disALEXI(object):
             coarseds=None
             #========smooth Ta data========================================
             ta = fineds.ReadAsArray()
-#            fineRes = ls.Lat[1,0]-ls.Lat[0,0]
-#            coarseRes = ALEXILatRes
-#            course2fineRatio = coarseRes**2/fineRes**2
-#            rid2 = int(np.sqrt(course2fineRatio))
+            fineRes = ls.Lat[1,0]-ls.Lat[0,0]
+            coarseRes = ALEXILatRes
+            course2fineRatio = coarseRes**2/fineRes**2
+            rid2 = int(np.sqrt(course2fineRatio))
 #            gauss_kernal = Gaussian2DKernel(rid2)
-#            ta = convolve_fft(ta, gauss_kernal,allow_huge=True)
-#            fineds.GetRasterBand(1).WriteArray(ta)
-#            fineds = None
+            box_kernal =Box2DKernel(rid2)
+            ta = convolve_fft(ta, box_kernal,allow_huge=True)
+            fineds.GetRasterBand(1).WriteArray(ta)
+            fineds = None
 
             
             ulx = ls.ulx
