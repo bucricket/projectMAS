@@ -34,91 +34,16 @@ from .TSEB_utils_usda import sunset_sunrise,interp_ta
 #from joblib import Parallel, delayed
 from astropy.convolution import Gaussian2DKernel,Box2DKernel
 from astropy.convolution import convolve_fft
+from joblib import Memory
+
+cachedir = os.path.join(os.getcwd(),'cachedir')
+if not os.path.exists(cachedir):
+    os.mkdir(cachedir) 
 
 
+memory = Memory(cachedir, verbose=0)
 
-
-class disALEXI(object):
-    def __init__(self, fn,dt,isUSA):
-#        base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
-#                                            os.pardir,os.pardir))
-        base = os.getcwd()
-
-        Folders = folders(base)  
-        self.landsatSR = Folders['landsatSR']
-#        self.landsatNDVI = Folders['landsatNDVI']
-#        self.ALEXIbase = Folders['ALEXIbase']
-#        self.metBase = Folders['metBase']
-#        self.landsatDataBase = Folders['landsatDataBase']
-        self.resultsBase = Folders['resultsBase']
-        self.fn = fn
-        self.meta = landsat_metadata(fn)
-        self.sceneID = self.meta.LANDSAT_SCENE_ID
-        self.productID = fn.split(os.sep)[-1][:-8]
-#        self.productID = self.meta.LANDSAT_PRODUCT_ID
-        self.scene = self.sceneID[3:9]
-        self.isUSA = isUSA
-        self.dt = dt
-        self.satscene_path = os.sep.join(fn.split(os.sep)[:-2])
-        
-
-
-
-
-
-    '''
-    Created on Sept. 8, 2016
-    @author: Mitchell Schull (mitch.schull@noaa.gov)
-    
-    
-    DESCRIPTION
-    ===========
-    This package contains the main routines inherent of Two Source Energy Balance `TSEB` models.
-    Additional functions needed in TSEB, such as computing of net radiation or estimating the
-    resistances to heat and momentum transport are imported.
-    
-    * :doc:`netRadiation` for the estimation of net radiation and radiation partitioning.
-    * :doc:`ClumpingIndex` for the estimatio of canopy clumping index.
-    * :doc:`meteoUtils` for the estimation of meteorological variables.
-    * :doc:`resistances` for the estimation of the resistances to heat and momentum transport.
-    * :doc:`MOsimilarity` for the estimation of the Monin-Obukhov length and MOST-related variables.
-    
-    PACKAGE CONTENTS
-    ================
-    
-    TSEB models
-    -----------
-    * :func:`TSEB_2T` TSEB using derived/measured canopy and soil component temperatures.
-    * :func:`TSEB_PT` Priestley-Taylor TSEB using a single observation of composite radiometric temperature.
-    * :func:`DTD` Dual-Time Differenced TSEB using composite radiometric temperatures at two times: early morning and near afternoon.
-    
-    OSEB models
-    -----------
-    * :func:`OSEB`. One Source Energy Balance Model.
-    * :func:`OSEB_below_canopy`. One Source Energy Balance Model of baresoil/understory beneath a canopy.
-    * :func:`OSEB_canopy`. One Source Energy Balance Model of a very dense canopy, i.e. `Big-leaf` model.
-    
-    Ancillary functions
-    -------------------
-    * :func:`calc_F_theta_campbell`. Gap fraction estimation.
-    * :func:`calc_G_time_diff`. Santanello & Friedl (2003) [Santanello2003]_ soil heat flux model.
-    * :func:`calc_G_ratio`. Soil heat flux as a fixed fraction of net radiation [Choudhury1987]_.
-    * :func:`calc_H_C`. canopy sensible heat flux in a parallel resistance network.
-    * :func:`calc_H_C_PT`. Priestley- Taylor Canopy sensible heat flux.
-    * :func:`calc_H_DTD_parallel`. Priestley- Taylor Canopy sensible heat flux for DTD and resistances in parallel.
-    * :func:`calc_H_DTD_series`. Priestley- Taylor Canopy sensible heat flux for DTD and resistances in series.
-    * :func:`calc_H_S`. Soil heat flux with resistances in parallel.
-    * :func:`calc_T_C`. Canopy temperature form composite radiometric temperature.
-    * :func:`calc_T_C_series.` Canopy temperature from canopy sensible heat flux and resistance in series.
-    * :func:`calc_T_CS_Norman`. Component temperatures from dual angle composite radiometric tempertures.
-    * :func:`calc_T_CS_4SAIL`. Component temperatures from dual angle composite radiometric tempertures. Using 4SAIl for the inversion.
-    * :func:`calc_4SAIL_emission_param`. Effective surface reflectance, and emissivities for soil and canopy using 4SAIL.
-    * :func:`calc_T_S`. Soil temperature from form composite radiometric temperature.
-    * :func:`calc_T_S_series`. Soil temperature from soil sensible heat flux and resistance in series.
-    '''
-       
-    def DisALEXI_PT(self,
-                    ET_ALEXI,
+def _DisALEXI_PT(ET_ALEXI,
                     Rs_1,
                     Rs24in,
                     Tr_K,
@@ -389,6 +314,62 @@ class disALEXI(object):
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}
         return output
+
+
+class disALEXI(object):
+    def __init__(self, fn,dt,isUSA):
+#        base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
+#                                            os.pardir,os.pardir))
+        base = os.getcwd()
+
+        Folders = folders(base)  
+        self.landsatSR = Folders['landsatSR']
+#        self.landsatNDVI = Folders['landsatNDVI']
+#        self.ALEXIbase = Folders['ALEXIbase']
+#        self.metBase = Folders['metBase']
+#        self.landsatDataBase = Folders['landsatDataBase']
+        self.resultsBase = Folders['resultsBase']
+        self.fn = fn
+        self.meta = landsat_metadata(fn)
+        self.sceneID = self.meta.LANDSAT_SCENE_ID
+        self.productID = fn.split(os.sep)[-1][:-8]
+#        self.productID = self.meta.LANDSAT_PRODUCT_ID
+        self.scene = self.sceneID[3:9]
+        self.isUSA = isUSA
+        self.dt = dt
+        self.satscene_path = os.sep.join(fn.split(os.sep)[:-2])
+        
+    def DisALEXI_PT(self,
+                        ET_ALEXI,
+                        Rs_1,
+                        Rs24in,
+                        Tr_K,
+                        Ta,
+                        vza,
+                        u,
+                        p,
+                        zs,
+                        aleafv, 
+                        aleafn, 
+                        aleafl, 
+                        adeadv, 
+                        adeadn, 
+                        adeadl,
+                        albedo,
+                        ndvi,
+                        LAI,
+                        clump,
+                        hc,
+                        mask,
+                        time,
+                        t_rise,
+                        t_end,
+                        leaf_width=1.,
+                        alpha_PT=1.32):
+        disalexi = memory.cache(_DisALEXI_PT)
+        return disalexi(ET_ALEXI,Rs_1,Rs24in,Tr_K,Ta,vza,u,p,zs,aleafv,aleafn,
+                        aleafl,adeadv,adeadn,adeadl,albedo,ndvi,LAI,clump,hc,
+                        mask,time,t_rise,t_end,leaf_width=1.,alpha_PT=1.32)
     
     def smoothTaData(self,ALEXIgeodict):
         

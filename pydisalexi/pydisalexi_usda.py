@@ -146,7 +146,7 @@ def main():
 #            #===COMMENTED FOR TESTING ONLY=================== 
             dd.runDisALEXI(0,0,subsetSize,subsetSize,ALEXIgeodict,0)
             print 'Running disALEXI...'
-            r = Parallel(n_jobs=njobs, verbose=5,backend="threading")(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize))            
+            r = Parallel(n_jobs=njobs, verbose=5)(delayed(dd.runDisALEXI)(xStart,yStart,subsetSize,subsetSize,ALEXIgeodict,0) for xStart in range(0,g.RasterXSize,subsetSize) for yStart in range(0,g.RasterYSize,subsetSize))            
 #            
 #            # =================merge Ta files============================================
             print("merging Ta files----------------------->")
