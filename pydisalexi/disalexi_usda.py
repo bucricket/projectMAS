@@ -122,6 +122,7 @@ class disALEXI(object):
                     Rs_1,
                     Rs24in,
                     Tr_K,
+                    Ta,
                     vza,
                     u,
                     p,
@@ -284,7 +285,8 @@ class disALEXI(object):
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
 #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
         Tr_ADD = np.tile(np.transpose(range(0,20,3)),[np.size(hc),1])
-        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])-40.
+#        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])
+        Tr_Kcol = np.resize(Ta,[np.size(Ta),1])
         T_A_Kresize = Tr_Kcol+Tr_ADD
         uresize = np.tile(np.resize(u,[np.size(u),1]),(1,MatXsize))
         presize = np.tile(np.resize(p,[np.size(p),1]),(1,MatXsize))
@@ -430,14 +432,14 @@ class disALEXI(object):
             coarseds=None
             #========smooth Ta data========================================
             ta = fineds.ReadAsArray()
-            fineRes = ls.Lat[1,0]-ls.Lat[0,0]
-            coarseRes = ALEXILatRes
-            course2fineRatio = coarseRes**2/fineRes**2
-            rid2 = int(np.sqrt(course2fineRatio))
-            gauss_kernal = Gaussian2DKernel(rid2)
-            ta = convolve_fft(ta, gauss_kernal,allow_huge=True)
-            fineds.GetRasterBand(1).WriteArray(ta)
-            fineds = None
+#            fineRes = ls.Lat[1,0]-ls.Lat[0,0]
+#            coarseRes = ALEXILatRes
+#            course2fineRatio = coarseRes**2/fineRes**2
+#            rid2 = int(np.sqrt(course2fineRatio))
+#            gauss_kernal = Gaussian2DKernel(rid2)
+#            ta = convolve_fft(ta, gauss_kernal,allow_huge=True)
+#            fineds.GetRasterBand(1).WriteArray(ta)
+#            fineds = None
 
             
             ulx = ls.ulx
@@ -525,7 +527,12 @@ class disALEXI(object):
     
         ea = ((q2*(1000./621.9907))*(p*100.))*0.001                             #kPa
         ea *= 10. #mb
-        #====get air temperature===============================================
+        #====get CFSR air temperature==========================================
+        outFN = os.path.join(sceneDir,'%s_Ta.tiff' % sceneID) 
+        g = gdal.Open(outFN,GA_ReadOnly)
+        Ta = g.ReadAsArray(xStart,yStart,xSize,ySize)
+        g= None
+        
         outFN = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
         if (TSEB_only==1):
 #            if ((xStart==0) & (yStart==0)):
@@ -830,6 +837,7 @@ class disALEXI(object):
                         Rs_1,
                         Rs24,
                         Tr_K,
+                        Ta,
                         vza,
                         u,
                         p,
