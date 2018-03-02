@@ -55,7 +55,7 @@ def main():
     sat = args.sat
     start_date = args.start_date
     end_date = args.end_date
-    subsetSize = 640
+    subsetSize = 500
     base = os.getcwd()
     cacheDir = os.path.abspath(os.path.join(base,os.pardir,"SATELLITE_DATA"))
    
