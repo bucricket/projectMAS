@@ -10,10 +10,19 @@ import math
 from scipy import ndimage
 from astropy.convolution import convolve
 from astropy.convolution import Gaussian2DKernel,Box2DKernel
+from joblib import Memory
+import os
+
+cachedir = os.path.join(os.getcwd(),'cachedir')
+if not os.path.exists(cachedir):
+    os.mkdir(cachedir) 
+
+
+memory = Memory(cachedir, verbose=0)
 #   script imports
 #imports
 
-
+@memory.cache
 def to_jd(datetime):
     """
     Converts a given datetime object to Julian date.
@@ -53,6 +62,7 @@ def to_jd(datetime):
 #
 #  COMMON com_time, t_rise, t_end, zs
 
+@memory.cache
 def sunset_sunrise(dt,lon,lat,time_t):
     julian = to_jd(dt)
     # Sunrise time
@@ -95,6 +105,7 @@ def sunset_sunrise(dt,lon,lat,time_t):
 #  
 #  ;*******************************************************************************************************************
 #  ; Compute Solar Components and atmospheric properties (Campbell & Norman 1998)
+@memory.cache
 def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adeadn, adeadl, z, t_air, zs, control): 
 #    ; Compute Solar Components and atmospheric properties (Campbell & Norman 1998)
     #DAYTIME
@@ -292,7 +303,7 @@ def albedo_separation(albedo, Rs_1, F, fc, aleafv, aleafn, aleafl, adeadv, adead
     return Rs_c, Rs_s, albedo_c, albedo_s, e_atm, rsoilv_itr, fg_itr
 
 
-    
+@memory.cache    
 def compute_G0(Rn,Rn_s,albedo,ndvi,t_rise,t_end,time,EF_s):
     w = 1/(1+(EF_s/0.5)**8.)
     c_g = (w*0.35)+((1-w)*0.31)       #maximum fraction of Rn,s that become G0 (0.35 for dry soil and 0.31 for wet soil)
@@ -312,6 +323,7 @@ def compute_G0(Rn,Rn_s,albedo,ndvi,t_rise,t_end,time,EF_s):
 #
 #  COMMON com_res, r_ah, r_s, r_x, u_attr
     
+@memory.cache    
 def compute_resistence(U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs, leafc, fm, fh, fm_h):
     c_a = 0.004         #Free convective velocity constant for r_s modelling
     c_b = 0.012         #Empirical constant for r_s modelling
@@ -352,6 +364,7 @@ def compute_resistence(U, Ts, Tc, hc, F, d0, z0m, z0h, z_u, z_T, xl, leaf, leafs
 #PRO compute_Rn, albedo_c, albedo_s, t_air, Tc, Ts, e_atm, Rs_c, Rs_s, F
 #
 #  COMMON com_Rn, Rn_s, Rn_c, Rn
+@memory.cache
 def compute_Rn(albedo_c, albedo_s, t_air, Tc, Ts, e_atm, Rs_c, Rs_s, F):
     kL=0.95             #long-wave extinction coefficient [-]
     eps_s = 0.94        #Soil Emissivity [-]
@@ -371,6 +384,7 @@ def compute_Rn(albedo_c, albedo_s, t_air, Tc, Ts, e_atm, Rs_c, Rs_s, F):
 #
 #  COMMON com_sep, Tc, Ts, Tac
 
+@memory.cache
 def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
     
     Tc_lin = ((t_air/r_ah)+(t0/r_s/(1.-fc))+(H_c*r_x/r_air/cp*((1./r_ah)+(1./r_s)+(1./r_x))))/((1./r_ah)+(1./r_s)+(fc/r_s/(1.-fc)))
@@ -411,6 +425,7 @@ def temp_separation(H_c, fc, t_air, t0, r_ah, r_x, r_s, r_air,cp):
 #PRO compute_stability, H, t0, r_air, u_attr, z_u, z_T, hc, d0, z0m, z0h
 #
 #  COMMON com_stab, fm, fh, fm_h
+@memory.cache
 def compute_stability(H, t0, r_air,cp, u_attr, z_u, z_T, hc, d0, z0m, z0h):
     t0[t0 == 273.16] = 373.16
     L_ob = -(r_air*cp*t0*(u_attr**3.0)/0.41/9.806/H)

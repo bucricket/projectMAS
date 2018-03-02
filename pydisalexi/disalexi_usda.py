@@ -366,7 +366,7 @@ class disALEXI(object):
                         t_end,
                         leaf_width=1.,
                         alpha_PT=1.32):
-        disalexi = memory.cache(_DisALEXI_PT)
+        disalexi = _DisALEXI_PT
         return disalexi(ET_ALEXI,Rs_1,Rs24in,Tr_K,Ta,vza,u,p,zs,aleafv,aleafn,
                         aleafl,adeadv,adeadn,adeadl,albedo,ndvi,LAI,clump,hc,
                         mask,time,t_rise,t_end,leaf_width=1.,alpha_PT=1.32)
