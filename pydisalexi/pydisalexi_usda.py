@@ -266,7 +266,17 @@ def main():
             clean(os.path.join(resultsBase,scene),"H_s")
             clean(os.path.join(resultsBase,scene),"lETc")
             clean(os.path.join(resultsBase,scene),"lEs")
-            shutil.rmtree(os.path.join(landsatSR ,'temp'),ignore_errors=True)
+            #===remove all files in temp folder================================
+            folder = os.path.join(landsatSR ,'temp')
+            for the_file in os.listdir(folder):
+                file_path = os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                    #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+                except Exception as e:
+                    print(e)
+#            shutil.rmtree(os.path.join(landsatSR ,'temp'),ignore_errors=True)
     end = timer.time()
     print("program duration: %f minutes" % ((end - start)/60.))
     
