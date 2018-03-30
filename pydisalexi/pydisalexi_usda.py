@@ -267,6 +267,7 @@ def main():
             clean(os.path.join(resultsBase,scene),"lEs")
     end = timer.time()
     print("program duration: %f minutes" % ((end - start)/60.))
+    os.removedirs(os.path.join(landsatSR ,'temp'))
 #            os.remove(lat_fName)
 #            os.remove(lon_fName)
     
