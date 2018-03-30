@@ -26,6 +26,7 @@ from processlai import processlai
 from processlst import processlst
 import sqlite3
 from getlandsatdata import getlandsatdata
+import shutil
 
 
 def _pickle_method(m):
@@ -265,7 +266,7 @@ def main():
             clean(os.path.join(resultsBase,scene),"H_s")
             clean(os.path.join(resultsBase,scene),"lETc")
             clean(os.path.join(resultsBase,scene),"lEs")
-            os.removedirs(os.path.join(landsatSR ,'temp'))
+            shutil.rmtree(os.path.join(landsatSR ,'temp'),ignore_errors=True)
     end = timer.time()
     print("program duration: %f minutes" % ((end - start)/60.))
     
