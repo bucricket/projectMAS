@@ -201,8 +201,7 @@ def main():
             
             tifs = glob.glob(os.path.join(resultsBase,scene,'ETd*'))
             finalFileVRT = os.path.join(resultsBase,scene,'ETd_DisALEXI.vrt')
-            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(outputType=gdal.GDT_Float32,
-                                                                                   srcNodata=-9999.))
+            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
             outds = gdal.Translate(finalFile, outds)
             outds = None
             #=======================update ETd database========================
