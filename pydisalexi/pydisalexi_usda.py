@@ -1,9 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Aug 12 11:39:37 2016
+# This file is part PyDisALEXI, consisting of of high level PyDisALEXI scripting
+# Copyright 2018 Mitchell A. Schull and contributors listed in the README.md file.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-@author: mschull
+"""
+Created on 
+@author: Mitch Schull (mschull@umd.edu)
+
+Modified on 
+@author: Mitch Schull (mschull@umd.edu)
+
+DESCRIPTION
+===========
+
+
 """
 import os
 import numpy as np
@@ -39,6 +62,7 @@ copy_reg.pickle(types.MethodType, _pickle_method)
 
 
 def main():
+    """ This is the main function for the PyDisALEXI program """
     # Get time and location from user
     parser = argparse.ArgumentParser()
     parser.add_argument("lat", type=float, help="latitude")
@@ -171,9 +195,16 @@ def main():
             #=====================merge all files =====================================
             finalFile = os.path.join(sceneDir,'%s_ETd.tif' % sceneID[:-5])
             print 'merging ETd files...'
-            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
-            buildvrt(cmd)
+#            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
+#            buildvrt(cmd)
             
+            
+            tifs = glob.glob(os.path.join(resultsBase,scene,'ETd*'))
+            finalFileVRT = os.path.join(resultsBase,scene,'ETd_DisALEXI.vrt')
+            outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(outputType=gdal.GDT_Float32,
+                                                                                   srcNodata=-9999.))
+            outds = gdal.Translate(finalFile, outds)
+            outds = None
             #=======================update ETd database========================
 #            output_df = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
             output_df = getlandsatdata.searchProduct(productID,landsatCacheDir,sat)
