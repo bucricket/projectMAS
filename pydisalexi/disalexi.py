@@ -443,6 +443,7 @@ class disALEXI(object):
             outFN = coarseFile[:-10]+'.tif'
             if not os.path.exists(outFN):
                 print 'get->Ta'
+
                 # get mask from Landsat LAI
                 ls = GeoTIFF(outfile)
 #                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
@@ -463,11 +464,14 @@ class disALEXI(object):
                 subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
                 
                 
+
                 optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
                               '%s' % inProj4,'-r', 'average','-tr', 
                               '%f' % ALEXILatRes, '%f' % ALEXILonRes,
                               '-srcnodata','270.','-dstnodata','0.0',
+
                               '-of','GTiff','%s' % masked, '%s' % coarseFile]
+
                 
                 warp(optionList)
                 
@@ -483,6 +487,7 @@ class disALEXI(object):
 #                ls.clone(mask,et)
 #                subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (coarseFile,masked,mask),shell=True)
                 #os.remove(outfile)
+
                 #=======now convert the averaged coarse Ta to fine resolution==
 #                nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
 #                ncol = int(self.meta.REFLECTIVE_LINES)+100
@@ -491,10 +496,12 @@ class disALEXI(object):
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                               '%s' % ls.proj4,'-r', 'bilinear','-ts', 
                               '%f' % nrow, '%f' % ncol,'-of',
+
                               'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 
                 warp(optionList)
                 #======now subset to match original image
+
 #                ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
 #                uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
 #                lrx = self.meta.CORNER_LR_PROJECTION_X_PRODUCT
@@ -507,11 +514,14 @@ class disALEXI(object):
                 lry = ls.lry
                 delx = ls.delx
                 dely = -ls.dely
+
                 optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
                               '%f' % lrx,'%f' % uly,'-tr',
                               '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
                               '%s' % coarse2fineFile, '%s' % outFN]
                 warp(optionList)
+
+
                 #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
             T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
