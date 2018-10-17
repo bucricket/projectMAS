@@ -17,30 +17,23 @@
 '''
 Created on Apr 6 2015
 @author: Hector Nieto (hnieto@ias.csic.es)
-
 Modified on Jan 27 2016
 @author: Hector Nieto (hnieto@ias.csic.es)
-
 DESCRIPTION
 ===========
 This package contains the main routines inherent of Two Source Energy Balance `TSEB` models.
 Additional functions needed in TSEB, such as computing of net radiation or estimating the
 resistances to heat and momentum transport are imported.
-
 * :doc:`netRadiation` for the estimation of net radiation and radiation partitioning.
 * :doc:`ClumpingIndex` for the estimatio of canopy clumping index.
 * :doc:`meteoUtils` for the estimation of meteorological variables.
 * :doc:`resistances` for the estimation of the resistances to heat and momentum transport.
 * :doc:`MOsimilarity` for the estimation of the Monin-Obukhov length and MOST-related variables.
-
 PACKAGE CONTENTS
 ================
-
 TSEB models
 -----------
 * :func:`TSEB_PT` Priestley-Taylor TSEB using a single observation of composite radiometric temperature.
-
-
 Ancillary functions
 -------------------
 * :func:`calc_F_theta_campbell`. Gap fraction estimation.
@@ -96,6 +89,7 @@ def TSEB_PT(
     d_0,
     z_u,
     z_T,
+    nullMask,
     leaf_width=0.1,
     z0_soil=0.01,
     alpha_PT=1.26,
@@ -104,15 +98,13 @@ def TSEB_PT(
     f_g=1.0,
     w_C=1.0,
     resistance_form=0,
-    calcG_params=[
+    calcG_array=[
         [1],
         0.35],
         UseL=False):
     '''Priestley-Taylor TSEB
-
     Calculates the Priestley Taylor TSEB fluxes using a single observation of
     composite radiometric temperature and using resistances in series.
-
     Parameters
     ----------
     Tr_K : float
@@ -166,20 +158,16 @@ def TSEB_PT(
         Canopy width to height ratio.
     resistance_form : int, optional
         Flag to determine which Resistances R_x, R_S model to use.
-
             * 0 [Default] Norman et al 1995 and Kustas et al 1999.
             * 1 : Choudhury and Monteith 1988.
             * 2 : McNaughton and Van der Hurk 1995.
-
     calcG_params : list[list,float or array], optional
         Method to calculate soil heat flux,parameters.
-
             * [[1],G_ratio]: default, estimate G as a ratio of Rn_S, default Gratio=0.35.
             * [[0],G_constant] : Use a constant G, usually use 0 to ignore the computation of G.
             * [[2,Amplitude,phase_shift,shape],time] : estimate G from Santanello and Friedl with G_param list of parameters (see :func:`~TSEB.calc_G_time_diff`).
     UseL : float or None, optional
         If included, its value will be used to force the Moning-Obukhov stability length.
-
     Returns
     -------
     flag : int
@@ -216,7 +204,6 @@ def TSEB_PT(
         Monin-Obuhkov length (m).
     n_iterations : int
         number of iterations until convergence of L.
-
     References
     ----------
     .. [Norman1995] J.M. Norman, W.P. Kustas, K.S. Humes, Source approach for estimating
@@ -233,55 +220,58 @@ def TSEB_PT(
 
     # Convert input float scalars to arrays and parameters size
     Tr_K = np.asarray(Tr_K)
-    (vza,
-     T_A_K,
-     u,
-     ea,
-     p,
-     Sn_C,
-     Sn_S,
-     L_dn,
-     LAI,
-     hc,
-     emis_C,
-     emis_S,
-     z_0M,
-     d_0,
-     z_u,
-     z_T,
-     leaf_width,
-     z0_soil,
-     alpha_PT,
-     x_LAD,
-     f_c,
-     f_g,
-     w_C,
-     calcG_array) = map(_check_default_parameter_size,
-                        [vza,
-                         T_A_K,
-                         u,
-                         ea,
-                         p,
-                         Sn_C,
-                         Sn_S,
-                         L_dn,
-                         LAI,
-                         hc,
-                         emis_C,
-                         emis_S,
-                         z_0M,
-                         d_0,
-                         z_u,
-                         z_T,
-                         leaf_width,
-                         z0_soil,
-                         alpha_PT,
-                         x_LAD,
-                         f_c,
-                         f_g,
-                         w_C,
-                         calcG_params[1]],
-                        [Tr_K] * 24)
+#    (vza,
+#     T_A_K,
+#     u,
+#     ea,
+#     p,
+#     Sn_C,
+#     Sn_S,
+#     L_dn,
+#     LAI,
+#     hc,
+#     emis_C,
+#     emis_S,
+#     z_0M,
+#     d_0,
+#     z_u,
+#     z_T,
+#     nullMask,
+#     leaf_width,     
+#     z0_soil,
+#     alpha_PT,
+#     x_LAD,
+#     f_c,
+#     f_g,
+#     w_C,
+#     calcG_array) = map(_check_default_parameter_size,
+#                        [vza,
+#                         T_A_K,
+#                         u,
+#                         ea,
+#                         p,
+#                         Sn_C,
+#                         Sn_S,
+#                         L_dn,
+#                         LAI,
+#                         hc,
+#                         emis_C,
+#                         emis_S,
+#                         z_0M,
+#                         d_0,
+#                         z_u,
+#                         z_T,
+#                         nullMask,
+#                         leaf_width,
+#                         z0_soil,
+#                         alpha_PT,
+#                         x_LAD,
+#                         f_c,
+#                         f_g,
+#                         w_C,
+#                         calcG_params[1]],
+#                        [Tr_K] * 24)
+    calcG_array[1] = _check_default_parameter_size(calcG_array[1],Tr_K)
     # Create the output variables
     [flag, T_S, T_C, T_AC, Ln_S, Ln_C, LE_C, H_C, LE_S, H_S, G, R_S, R_x,
         R_A, iterations] = [np.zeros(Tr_K.shape) for i in range(15)]
@@ -296,8 +286,13 @@ def TSEB_PT(
         L = np.asarray(np.ones(T_S.shape) * UseL)
         max_iterations = 1  # No iteration
     # Calculate the general parameters
-    rho = calc_rho(p, ea, T_A_K)  # Air density
-    c_p = calc_c_p(p, ea)  # Heat capacity of air
+    if ea.sum() == 0.0:
+        z = 350.0
+        rho = 101.3*((((T_A_K)-(0.0065*z))/(T_A_K))**5.26)/1.01/(T_A_K)/0.287
+        c_p = np.tile(1004.16,np.shape(T_A_K))
+    else:
+        rho = calc_rho(p, ea, T_A_K)  # Air density
+        c_p = calc_c_p(p, ea)  # Heat capacity of air
     z_0H = calc_z_0H(z_0M, kB=kB)  # Roughness length for heat transport
 
     # Calculate LAI dependent parameters for dataset where LAI > 0
@@ -316,7 +311,7 @@ def TSEB_PT(
     # radiometric T
     T_C = np.asarray(np.minimum(Tr_K, T_A_K))
     flag, T_S = calc_T_S(Tr_K, T_C, f_theta)
-    
+    flag[nullMask==-9999]=255
     iterMask = np.zeros(LAI.shape)
     conv1 = 0.0
     # Outer loop for estimating stability.
@@ -456,7 +451,8 @@ def TSEB_PT(
             H_S[i] = rho[i] * c_p[i] * (T_S[i] - T_AC[i]) / R_S[i]
 
             # Compute Soil Heat Flux Ratio
-            G[i] = calc_G([calcG_params[0], calcG_array], Rn_S, i)
+            #G[i] = calc_G([calcG_array[0], calcG_array], Rn_S, i)
+            G[i]=calc_G_ratio(Rn_S[i], calcG_array[1][i])
 
             # Estimate latent heat fluxes as residual of energy balance at the
             # soil and the canopy
@@ -542,7 +538,6 @@ def TSEB_PT(
 
 def calc_F_theta_campbell(theta, F, w_C=1, Omega0=1, x_LAD=1):
     '''Calculates the fraction of vegetatinon observed at an angle.
-
     Parameters
     ----------
     theta : float
@@ -556,12 +551,10 @@ def calc_F_theta_campbell(theta, F, w_C=1, Omega0=1, x_LAD=1):
     x_LAD : float
         Chi parameter for the ellipsoidal Leaf Angle Distribution function,
         use x_LAD=1 for a spherical LAD.
-
     Returns
     -------
     f_theta : float
         fraction of vegetation obsserved at an angle.
-
     References
     ----------
     .. [Campbell1998] Campbell, G. S. & Norman, J. M. (1998), An introduction to environmental
@@ -601,14 +594,12 @@ def calc_G(calcG_params, Rn_S, i=None):
 
 def calc_G_time_diff(R_n, G_param=[12.0, 0.35, 3.0, 24.0]):
     ''' Estimates Soil Heat Flux as function of time and net radiation.
-
     Parameters
     ----------
     R_n : float
         Net radiation (W m-2).
     G_param : tuple(float,float,float,float)
         tuple with parameters required (time, Amplitude,phase_shift,shape).
-
             time: float
                 time of interest (decimal hours).
             Amplitude : float
@@ -617,12 +608,10 @@ def calc_G_time_diff(R_n, G_param=[12.0, 0.35, 3.0, 24.0]):
                 shift of peak G relative to solar noon (default 3hrs after noon).
             shape : float
                 shape of G/Rn, default 24 hrs.
-
     Returns
     -------
     G : float
         Soil heat flux (W m-2).
-
     References
     ----------
     .. [Santanello2003] Joseph A. Santanello Jr. and Mark A. Friedl, 2003: Diurnal Covariation in
@@ -641,19 +630,16 @@ def calc_G_time_diff(R_n, G_param=[12.0, 0.35, 3.0, 24.0]):
 
 def calc_G_ratio(Rn_S, G_ratio=0.35):
     '''Estimates Soil Heat Flux as ratio of net soil radiation.
-
     Parameters
     ----------
     Rn_S : float
         Net soil radiation (W m-2).
     G_ratio : float, optional
         G/Rn_S ratio, default=0.35.
-
     Returns
     -------
     G : float
         Soil heat flux (W m-2).
-
     References
     ----------
     .. [Choudhury1987] B.J. Choudhury, S.B. Idso, R.J. Reginato, Analysis of an empirical model
@@ -670,7 +656,6 @@ def calc_G_ratio(Rn_S, G_ratio=0.35):
 
 def calc_H_C_PT(delta_R_ni, f_g, T_A_K, P, c_p, alpha):
     '''Calculates canopy sensible heat flux based on the Priestley and Taylor formula.
-
     Parameters
     ----------
     delta_R_ni : float
@@ -685,12 +670,10 @@ def calc_H_C_PT(delta_R_ni, f_g, T_A_K, P, c_p, alpha):
         heat capacity of moist air (J kg-1 K-1).
     alpha : float
         the Priestley Taylor parameter.
-
     Returns
     -------
     H_C : float
         Canopy sensible heat flux (W m-2).
-
     References
     ----------
     Equation 14 in [Norman1995]_
@@ -710,7 +693,6 @@ def calc_H_C_PT(delta_R_ni, f_g, T_A_K, P, c_p, alpha):
 def calc_T_C_series(Tr_K, T_A_K, R_A, R_x, R_S, f_theta, H_C, rho, c_p):
     '''Estimates canopy temperature from canopy sensible heat flux and
     resistance network in series.
-
     Parameters
     ----------
     Tr_K : float
@@ -731,12 +713,10 @@ def calc_T_C_series(Tr_K, T_A_K, R_A, R_x, R_S, f_theta, H_C, rho, c_p):
         Density of air (km m-3).
     c_p : float
         Heat capacity of air at constant pressure (J kg-1 K-1).
-
     Returns
     -------
     T_C : float
         Canopy temperature (K).
-
     References
     ----------
     Eqs. A5-A13 in [Norman1995]_'''
@@ -760,7 +740,6 @@ def calc_T_C_series(Tr_K, T_A_K, R_A, R_x, R_S, f_theta, H_C, rho, c_p):
 
 def calc_T_S(T_R, T_C, f_theta):
     '''Estimates soil temperature from the directional LST.
-
     Parameters
     ----------
     T_R : float
@@ -769,14 +748,12 @@ def calc_T_S(T_R, T_C, f_theta):
         Canopy Temperature (K).
     f_theta : float
         Fraction of vegetation observed.
-
     Returns
     -------
     flag : float
         Error flag if inversion not possible (255).
     T_S: float
         Soil temperature (K).
-
     References
     ----------
     Eq. 1 in [Norman1995]_'''

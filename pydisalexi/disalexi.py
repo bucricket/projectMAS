@@ -1,3 +1,11 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Tue May 23 08:46:02 2017
+
+@author: mschull
+"""
+
 # This file is part of PyDisALEXI for running disALEXI using different TSEB models
 # Copyright 2016 Mitchell Schull and contributors listed in the README.md file.
 #
@@ -15,6 +23,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import numpy as np
+import subprocess
 from osgeo import gdal
 from osgeo.gdalconst import GA_ReadOnly
 from .TSEB import TSEB_PT
@@ -23,28 +32,29 @@ from .clumping_index import calc_omega_Kustas,calc_omega0_Kustas
 from .utils import writeArray2Tiff,getParFromExcel,findRSOILV,warp,folders
 from scipy import ndimage
 from pyhdf.SD import SD, SDC
-from .processData import ALEXI,MET,Landsat
 from .landsatTools import landsat_metadata,GeoTIFF
 
 
 
 class disALEXI(object):
-    def __init__(self, fn,session, LCpath,ETpath):
+    def __init__(self, fn,isUSA):
         base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
                                             os.pardir,os.pardir))
 
         Folders = folders(base)  
-        self.session = session
         self.landsatSR = Folders['landsatSR']
-        self.landsatLC = Folders['landsatLC']
-        self.albedoBase = Folders['albedoBase']
+        self.landsatNDVI = Folders['landsatNDVI']
         self.ALEXIbase = Folders['ALEXIbase']
         self.metBase = Folders['metBase']
         self.landsatDataBase = Folders['landsatDataBase']
         self.resultsBase = Folders['resultsBase']
-        self.LCpath = LCpath
-        self.ETpath = ETpath
-
+        self.fn = fn
+        self.meta = landsat_metadata(fn)
+        self.sceneID = self.meta.LANDSAT_SCENE_ID
+        self.productID = fn.split(os.sep)[-1][:-8]
+#        self.productID = self.meta.LANDSAT_PRODUCT_ID
+        self.scene = self.sceneID[3:9]
+        self.isUSA = isUSA
 
 
 
@@ -120,6 +130,7 @@ class disALEXI(object):
         d_0,
         z_u,
         z_T,
+        nullMask,
         leaf_width,
         z0_soil=0.01,
         alpha_PT=1.26,
@@ -128,7 +139,7 @@ class disALEXI(object):
         f_g=1.0,
         w_C=1.0,
         resistance_form=0,
-        calcG_params=[
+        calcG_array=[
             [1],
             0.35],
             UseL=False):
@@ -269,6 +280,7 @@ class disALEXI(object):
 
         # Set up input parameters
         MatXsize = 7
+        nullMask_resize = np.tile(np.array(np.resize(nullMask,[np.size(nullMask),1])),(1,MatXsize))
         Tr_Kresize = np.tile(np.array(np.resize(Tr_K,[np.size(Tr_K),1])),(1,MatXsize))
         vzaresize = np.tile(np.resize(vza,[np.size(vza),1]),(1,MatXsize))
         T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
@@ -312,6 +324,7 @@ class disALEXI(object):
             d_0resize,
             z_uresize,
             z_Tresize,
+            nullMask_resize,
             leaf_width=leaf_widthresize,
             z0_soil=z0_soilresize,
             alpha_PT=alpha_PTresize,
@@ -320,37 +333,28 @@ class disALEXI(object):
             f_g=f_gresize,
             w_C=w_Cresize,
             resistance_form=0,
-            calcG_params=[
+            calcG_array=[
                 [1],
                 0.35],
                 UseL=False)
             
         scaling = 1.0
         Fsun =  (output[6]+output[8])/np.resize(Rs_1,[np.size(hc),1])
-        #Rs24 = ndimage.gaussian_filter(np.reshape(Rs24in,[np.size(hc),1]), sigma=5)
         EFeq=Fsun*(np.reshape(Rs24in,[np.size(hc),1]))
         et = EFeq/2.45*scaling
-        #ET_24[np.isnan(ET_24)]=-9999
         
         # ======interpolate over mutiple Ta solutions===========================================
-        
-#        xx = np.empty([40000,100])
-#        xx[:,:]=np.nan
-        from scipy.interpolate import interp2d,interp1d
+
+        from scipy.interpolate import interp1d
         x = range(270,340,10)
-        y = xrange(np.size(hc))
         et_alexi = np.reshape(ET_ALEXI,[np.size(hc),1])
         bias = et_alexi-et
         # check if all values inrow are nan
         nanIndex = np.sum(np.isnan(bias),axis=1)
         # set all to 1 so it doesnt throw an error below
         bias[np.where(nanIndex==7),:]=1.
-#        f_bias = interp2d(x,y,bias)
-#        f_ta= interp2d(x,y,T_A_Kresize)
         f_bias = interp1d(x,bias,kind='linear', bounds_error=False)
         f_ta= interp1d(x,T_A_Kresize,kind='linear', bounds_error=False)
-#        biasInterp = f_bias(range(260,360),range(0,np.size(hc)))
-#        TaInterp = f_ta(range(260,360),range(0,np.size(hc)))
         biasInterp = f_bias(range(270,340))
         TaInterp = f_ta(range(270,340))
         # extract the Ta based on minimum bias at Fine resolution
@@ -358,39 +362,38 @@ class disALEXI(object):
         TaExtrap = TaInterp[np.array(range(np.size(hc))),minBiasIndex]
         TaExtrap[np.where(nanIndex==7)]=np.nan
         Tareshape = np.reshape(TaExtrap,np.shape(hc))
-        #Tareshape[np.isnan(LAI)]=-9999
-    
-    
+        
         #============Run one last time with the final smoothed T_A_K
-        #print 'running 1 last time'
         T_A_K = Tareshape
         output ={'T_A_K':T_A_K}
         return output
     
-    def runDisALEXI(self,xStart,yStart,fn,isUSA,ALEXIgeodict,TSEB_only):
+    def runDisALEXI(self,xStart,yStart,ALEXIgeodict,TSEB_only):
         # USER INPUT============================================================
         ALEXILatRes = ALEXIgeodict['ALEXI_LatRes']
         ALEXILonRes = ALEXIgeodict['ALEXI_LonRes']
-        sceneID = fn.split(os.sep)[-1][:21]
+        sceneID =self.sceneID
+        scene = self.scene
+        productID = self.productID
         xSize = 200
         ySize = 200
             
         #-------------pick Landcover map----------------
-        if isUSA ==1:
+        if self.isUSA ==1:
             landcover = 'NLCD'
         else:
             landcover = 'GlobeLand30'
-        #print 'processing: %s' % sceneID
         
         yeardoy = sceneID[9:16]
-        scene = sceneID[3:9]
+
         #-------------get Landsat information-----------
-        meta = landsat_metadata(os.path.join(self.landsatSR,scene,
-                '%s_MTL.txt' % sceneID))
-        ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % sceneID))
-        solZen = meta.SUN_ELEVATION
-        nsamples = int(meta.REFLECTIVE_SAMPLES)
-        nlines = int(meta.REFLECTIVE_LINES)
+
+        ls = GeoTIFF(os.path.join(self.landsatSR,'temp','%s_lstSharp.tiff' % productID))
+        solZen = self.meta.SUN_ELEVATION
+#        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
+#        nlines = int(self.meta.REFLECTIVE_LINES)
+        nsamples = ls.nrow
+        nlines = ls.ncol
         if xStart==((nsamples/200)*200):
             xSize = (nsamples-xStart)-1
         if yStart==((nlines/200)*200):
@@ -400,52 +403,29 @@ class disALEXI(object):
     
     
         #===========================get the ETd data==============================
-        #print '==============open ALEXI ET inputs============='
     
         sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)        
-        
-        outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
-        if not os.path.exists(outFN):
-            #print 'get->ALEXI ET...'
-        #else:
-            print 'get->ALEXI ET...'
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            a = ALEXI(fn,self.ETpath)
-            a.getALEXIdata(ALEXIgeodict,isUSA)
-        
+        outFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID)         
         g = gdal.Open(outFN,GA_ReadOnly)
         ET_ALEXI = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
-    
+           
         
         #=============get MET data================================================
-        #print '=============opening MET inputs============='
         #get CFSR MET data at overpass time
     
         sceneDir = os.path.join(self.metBase,'%s' % scene)
-        
+        #------------get-> surface pressure...
         outFN = os.path.join(sceneDir,'%s_pSub.tiff' % sceneID) 
-        if not os.path.exists(outFN):
-            print 'get->MET data...'
-        #else:
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            a = MET(fn,self.session)
-            a.getCFSR()
-            
-        #print 'get->p...'
         g = gdal.Open(outFN,GA_ReadOnly)
         p = g.ReadAsArray(xStart,yStart,xSize,ySize)
         p /=100. #convert to mb
-        #p = ndimage.gaussian_filter(pii, sigma=5)
         g= None
             
-        #print 'get-> ea...'
+        #------------get-> ea...
         outFN = os.path.join(sceneDir,'%s_q2Sub.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
         q2 = g.ReadAsArray(xStart,yStart,xSize,ySize)
-        #q2 = ndimage.gaussian_filter(q2i, sigma=5)
         g= None
     
         ea = ((q2*(1000./621.9907))*(p*100.))*0.001                             #kPa
@@ -453,7 +433,7 @@ class disALEXI(object):
         
         if TSEB_only==1:
 
-            ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % sceneID))
+            #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
 
             #=======================convert fine TA to coarse resolution=========
             outfile = os.path.join(self.resultsBase,scene,'Taxxxxx.tif')
@@ -463,133 +443,176 @@ class disALEXI(object):
             outFN = coarseFile[:-10]+'.tif'
             if not os.path.exists(outFN):
                 print 'get->Ta'
-            # else:
+
+                # get mask from Landsat LAI
+                ls = GeoTIFF(outfile)
+#                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+#                hdf = SD(laiFN,SDC.READ)
+#                data2D = hdf.select('cfmask')
+#                cfmask = data2D[:,:].astype(np.double)
+                
+                maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_Mask.tiff' % sceneID)
+                g = gdal.Open(maskFN,GA_ReadOnly)
+                cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
+                g= None
+                g = gdal.Open(outfile,GA_ReadOnly)
+                ta = g.ReadAsArray()
+                ta[cfmask > 0]=0
+                mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
+                masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
+                ls.clone(mask,ta)
+                subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
+                
+                
+
                 optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
                               '%s' % inProj4,'-r', 'average','-tr', 
                               '%f' % ALEXILatRes, '%f' % ALEXILonRes,
                               '-srcnodata','270.','-dstnodata','0.0',
-                              '-of','GTiff','%s' % outfile, '%s' % coarseFile]
+
+                              '-of','GTiff','%s' % masked, '%s' % coarseFile]
+
                 
                 warp(optionList)
+                
+#                #========fill in missing data from VIIRS and Landsat data======
+#                sceneDir = os.path.join(self.ALEXIbase,'%s' % scene)
+#                etFN = os.path.join(sceneDir,'%s_alexiETSub.tiff' % sceneID) 
+#                g = gdal.Open(etFN,GA_ReadOnly)
+#                et= g.ReadAsArray()
+#                et[et==-9999]=0
+#                ls = GeoTIFF(etFN)
+#                mask = os.path.join(self.resultsBase,scene,"TaMask.tif")
+#                masked = os.path.join(self.resultsBase,scene,"TaMasked.tif")
+#                ls.clone(mask,et)
+#                subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (coarseFile,masked,mask),shell=True)
                 #os.remove(outfile)
-                #==========now convert the averaged coarse Ta to fine resolution=======
-                nrow = int(meta.REFLECTIVE_SAMPLES)+100
-                ncol = int(meta.REFLECTIVE_LINES)+100
+
+                #=======now convert the averaged coarse Ta to fine resolution==
+#                nrow = int(self.meta.REFLECTIVE_SAMPLES)+100
+#                ncol = int(self.meta.REFLECTIVE_LINES)+100
+                nrow = ls.nrow+100
+                ncol = ls.ncol+100
                 optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs', 
                               '%s' % ls.proj4,'-r', 'bilinear','-ts', 
-                              '%d' % ncol, '%d' % nrow,'-of',
+                              '%f' % nrow, '%f' % ncol,'-of',
+
                               'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
                 
                 warp(optionList)
                 #======now subset to match original image
-                ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
-                uly = meta.CORNER_UL_PROJECTION_Y_PRODUCT
-                lrx = meta.CORNER_LR_PROJECTION_X_PRODUCT
-                lry = meta.CORNER_LR_PROJECTION_Y_PRODUCT
-                delx = meta.GRID_CELL_SIZE_REFLECTIVE
-                dely = meta.GRID_CELL_SIZE_REFLECTIVE
+
+#                ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
+#                uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
+#                lrx = self.meta.CORNER_LR_PROJECTION_X_PRODUCT
+#                lry = self.meta.CORNER_LR_PROJECTION_Y_PRODUCT
+#                delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
+#                dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
+                ulx = ls.ulx
+                uly = ls.uly
+                lrx = ls.lrx
+                lry = ls.lry
+                delx = ls.delx
+                dely = -ls.dely
+
                 optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
                               '%f' % lrx,'%f' % uly,'-tr',
                               '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
                               '%s' % coarse2fineFile, '%s' % outFN]
                 warp(optionList)
-                
+
+
                 #os.remove(coarseFile)
             g = gdal.Open(outFN,GA_ReadOnly)
-            # no gaussian filter because its done in DisALEXI
             T_A_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
             g= None
         
-        #print 'get->u...'
+
+        sceneDir = os.path.join(self.metBase,'%s' % scene)
         outFN = os.path.join(sceneDir,'%s_uSub.tiff' % sceneID) 
         g = gdal.Open(outFN,GA_ReadOnly)
         u = g.ReadAsArray(xStart,yStart,xSize,ySize)
-        #u= ndimage.gaussian_filter(ui, sigma=5)
         g= None
         
-        #====get overpass hour insolation=========================================
-        outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)
-        if not os.path.exists(outFN):
-            #print 'get->Insolation...'
-        #else:
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            a = MET(fn,self.session)
-            a.getInsolation()
-            
+        #====get overpass hour insolation======================================
+        outFN = os.path.join(sceneDir,'%s_Insol1Sub.tiff' % sceneID)            
         g = gdal.Open(outFN,GA_ReadOnly)
         Rs_1 = g.ReadAsArray(xStart,yStart,xSize,ySize)
-        #Rs_1 = ndimage.gaussian_filter(Rs_1i, sigma=5)
         g= None
     
         #====get daily insolation=========================================
         outFN = os.path.join(sceneDir,'%s_Insol24Sub.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
         Rs24 = g.ReadAsArray(xStart,yStart,xSize,ySize)
-        #Rs24 = ndimage.gaussian_filter(Rs24i, sigma=5)
         g= None
     
-        #===================get biophysical parameters at overpass time============
-    
-        #print '========opening biophysical inputs=========='
+        #===============get biophysical parameters at overpass time============
         sceneDir = os.path.join(self.landsatDataBase,'albedo',scene)
-        outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID) 
-        if not os.path.exists(outFN):
-            #print '->get albedo...'
-        #else:
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            print 'processing : albedo...' 
-            a = Landsat(fn,self.LCpath)
-            a.getAlbedo()
-        
+        outFN = os.path.join(sceneDir,'%s_albedo.tiff' % sceneID)         
         g = gdal.Open(outFN,GA_ReadOnly)
         albedo = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
     
-        #print '->get LAI...'
-        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-        hdf = SD(outFN,SDC.READ)
-        data2D = hdf.select('LAI')
-        LAI = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
-    
+        #------>get LAI...
+#        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'%s_lai.tiff' % sceneID)
+        g = gdal.Open(outFN,GA_ReadOnly)
+        LAI = g.ReadAsArray(xStart,yStart,xSize,ySize)*0.001
+        g= None
         LAI[np.where(LAI==-9.999)]=np.nan
         LAI[np.where(LAI<=0.)]=0.001
         
-        #print '->get ndvi...'
-        data2D = hdf.select('NDVI')
-        ndvi = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
+#        hdf = SD(outFN,SDC.READ)
+#        data2D = hdf.select('LAI')
+#        LAI = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
+#    
+#        LAI[np.where(LAI==-9.999)]=np.nan
+#        LAI[np.where(LAI<=0.)]=0.001
+        
+        #------>get ndvi...'
+        sceneDir = os.path.join(self.landsatNDVI,scene)
+        outFN = os.path.join(sceneDir,'%s_ndvi.tiff' % sceneID)
+        g = gdal.Open(outFN,GA_ReadOnly)
+        ndvi = g.ReadAsArray(xStart,yStart,xSize,ySize)*0.001
+        g= None
         ndvi[np.where(ndvi==-9.999)]=np.nan
+        
+#        data2D = hdf.select('NDVI')
+#        ndvi = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
+#        ndvi[np.where(ndvi==-9.999)]=np.nan
+        
+        #===get cfmask=======
+        outFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_Mask.tiff' % sceneID)
+        g = gdal.Open(outFN,GA_ReadOnly)
+        cfmask = g.ReadAsArray(xStart,yStart,xSize,ySize)
+        g= None
+#        laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
+#        hdf = SD(laiFN,SDC.READ)
+#        data2D = hdf.select('cfmask')
+#        cfmask = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)
     
         
-        #print '->get LST...'    
+        #---------->get LST...   
         outFN = os.path.join(self.landsatDataBase,'LST',scene,'%s_lstSharp.tiff' % sceneID)
         g = gdal.Open(outFN,GA_ReadOnly)
-        Tr_K = g.ReadAsArray(xStart,yStart,xSize,ySize)
-        g= None
-    
+        # *NOTE: version 0.2.0 forward------>
+        # convert from scaled celcius to kelvin int16->float32
+        Tr_K = (g.ReadAsArray(xStart,yStart,xSize,ySize)/100)+273.15 
+        g= None    
         Tr_K[np.where(albedo<0)]=np.nan
-    
+        #---------->get LC...
         sceneDir = os.path.join(self.landsatDataBase,'LC',scene)
-        outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)
-        if not os.path.exists(outFN):
-            #print '->get LC...'
-        # else:
-            #print 'processing : %s...' % outFN
-            if not os.path.exists(sceneDir):
-                os.makedirs(sceneDir)
-            a = Landsat(fn,self.LCpath)
-            a.getLC(landcover)
-        
+        outFN = os.path.join(sceneDir,'%s_LC.tiff' % sceneID)        
         g = gdal.Open(outFN,GA_ReadOnly)
         LCdata = g.ReadAsArray(xStart,yStart,xSize,ySize)
         g= None
-    
-        ET_ALEXI[np.where(albedo<0)]=np.nan
+        #---------->get ALEXI mask...
+        ET_ALEXI[np.where(albedo<0)]=-9999
+        nullMask = ET_ALEXI.copy()
+        nullMask[cfmask>0]=-9999
         albedo[np.where(albedo<0)]=np.nan
         
         #====================get LC based variables===============================
-        #print '=============opening LC based inputs================'
         s = ndimage.__file__
         envPath = os.sep.join(s.split(os.sep)[:-6])
         landsatLC = os.path.join(envPath,'share','disalexi')
@@ -610,8 +633,7 @@ class disALEXI(object):
         f_c = 1-(np.exp(-0.5*F))                          #fraction cover at nadir (view=0)
         f_c[f_c<=0.01]=0.01
         f_c[f_c>=0.9]=0.9
-    
-        
+
         #************************************************************************
         #Compute Canopy height and Roughness Parameters
         hc = hc_min+((hc_max-hc_min)*f_c)
@@ -657,6 +679,7 @@ class disALEXI(object):
     
         rsoilv = findRSOILV(difvis,difnir,fvis,fnir,Rs_1,F,f_c,fg,zs,aleafv,
                                aleafn,aleafl,adeadv,adeadn,adeadl,albedo)
+        print(rsoilv)
         Sn_C = np.empty([F.shape[0],F.shape[1]])
         Sn_S = np.empty([F.shape[0],F.shape[1]])
         Sn_C, Sn_S = calc_Sn_Campbell (LAI, sZ, Sdn_dir, Sdn_dif, fvis,\
@@ -671,7 +694,7 @@ class disALEXI(object):
         z_T = np.tile(2.,np.shape(LAI))
         leaf_width = xl
         z0_soil = np.tile(0.01,np.shape(LAI))
-        alpha_PT = np.tile(1.26,np.shape(LAI))
+        alpha_PT = np.tile(1.32,np.shape(LAI))
         f_g = np.tile(1.,np.shape(LAI))
         w_C = np.tile(1.,np.shape(LAI))
     
@@ -680,7 +703,8 @@ class disALEXI(object):
     #================RUN DisALEXI=================================
         
         if TSEB_only==1:
-            print 'Running TSEB...'
+            #convert TA from scaled celcius to kelvin
+            T_A_K = (T_A_K/1000.)+273.15
             e_atm = 1.0-(0.2811*(np.exp(-0.0003523*((T_A_K-273.16)**2))))                             #atmospheric emissivity (clear-sly) Idso and Jackson (1969)
             L_dn = e_atm*0.0000000567*((T_A_K)**4)
             output = TSEB_PT(
@@ -701,6 +725,7 @@ class disALEXI(object):
                 d_0,
                 z_u,
                 z_T,
+                nullMask,
                 leaf_width=leaf_width,
                 z0_soil=z0_soil,
                 alpha_PT=alpha_PT,
@@ -709,7 +734,7 @@ class disALEXI(object):
                 f_g=f_g,
                 w_C=w_C,
                 resistance_form=0,
-                calcG_params=[
+                calcG_array=[
                     [1],
                     0.35],
                     UseL=False)
@@ -720,8 +745,8 @@ class disALEXI(object):
             EFeq=Fsun*(Rs24)
             ET_24 = EFeq/2.45*scaling
             ET_24[ET_24<0.]=0.
+            ET_24 = np.array(ET_24*1000,dtype='uint16')
         else:
-            #print 'Running DisALEXI...'
             output = self.DisALEXI_PT(
                 ET_ALEXI,
                 Rs_1,
@@ -741,6 +766,7 @@ class disALEXI(object):
                 d_0,
                 z_u,
                 z_T,
+                nullMask,
                 leaf_width=leaf_width,
                 z0_soil=z0_soil,
                 alpha_PT=alpha_PT,
@@ -749,36 +775,28 @@ class disALEXI(object):
                 f_g=f_g,
                 w_C=w_C,
                 resistance_form=0,
-                calcG_params=[
+                calcG_array=[
                     [1],
                     0.35],
                     UseL=False)
-                
-    
-            #dTa = output['dTa']
-            T_A_K= output['T_A_K']
-    #        et = ET_24
-    #        et[np.where(np.isnan(et))]=0.0
-    
-       
-        #print 'creating geotiffs...'
-        outFormat = gdal.GDT_Float32
+            T_A_K= np.array((output['T_A_K']-273.15)*1000,dtype='uint16')
+            
+        outFormat = gdal.GDT_UInt16
         outET24Path = os.path.join(self.resultsBase,scene)
         if not os.path.exists(outET24Path):
             os.makedirs(outET24Path)
         #set ouput location and resolution
-        ulx = meta.CORNER_UL_PROJECTION_X_PRODUCT
-        uly = meta.CORNER_UL_PROJECTION_Y_PRODUCT
-        delx = meta.GRID_CELL_SIZE_REFLECTIVE
-        dely = meta.GRID_CELL_SIZE_REFLECTIVE
+#        ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
+#        uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
+#        delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
+#        dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
+        ulx = ls.ulx
+        uly = ls.uly
+        delx = ls.delx
+        dely = -ls.dely
         inUL = [ulx+(xStart*delx),uly-(yStart*dely)]
         inRes = [delx,dely]
-#        
-#        inUL = [userLatUTM-(yStart*30.0),userLonUTM+(xStart*30.0)]
-#        inRes = [-ls.dely,ls.delx]
-#        import pylab as plt
-#        plt.imshow(T_A_K)
-#        print inUL
+
         if TSEB_only==1:
             ET_24outName = 'ETd_%s_part_%d_%d.tif' % (yeardoy,xStart,yStart)
             fName = '%s%s%s' % (outET24Path,os.sep,ET_24outName)

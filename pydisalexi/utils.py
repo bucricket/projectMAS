@@ -12,11 +12,10 @@ import numpy as np
 import glob
 from osgeo import gdal,osr
 import pandas as pd
-from numba import jit
+#from numba import jit
 import urllib2, base64
 
 def folders(base):
-    inputDataBase = os.path.join(os.sep,'data','data123','chain','GETD_FINAL')
     dataBase = os.path.join(base,'data')
     landsatDataBase = os.path.join(dataBase,'Landsat-8')
     metBase = os.path.join(dataBase,'MET')
@@ -29,24 +28,21 @@ def folders(base):
     albedoBase = os.path.join(landsatDataBase,'albedo')
     if not os.path.exists(albedoBase):
         os.makedirs(albedoBase)   
-    ndviBase = os.path.join(landsatDataBase,'ndvi')
-    if not os.path.exists(ndviBase):
-        os.makedirs(ndviBase)
     landsatSR = os.path.join(landsatDataBase,'SR')
     if not os.path.exists(landsatSR):
         os.makedirs(landsatSR)
+    landsatNDVI = os.path.join(landsatDataBase,'NDVI')
+    if not os.path.exists(landsatNDVI):
+        os.makedirs(landsatNDVI)
     if not os.path.exists(resultsBase):
         os.makedirs(resultsBase)
-    landsatDN = os.path.join(landsatDataBase,'DN')
-    if not os.path.exists(landsatDN):
-        os.makedirs(landsatDN)
     landsatLC = os.path.join(landsatDataBase,'LC')
     if not os.path.exists(landsatLC):
         os.makedirs(landsatLC)
-    out = {'dataBase':dataBase,'metBase':metBase,'inputDataBase':inputDataBase,
-    'landsatDN':landsatDN,'ALEXIbase':ALEXIbase,'landsatDataBase':landsatDataBase,
-    'resultsBase':resultsBase,'landsatLC':landsatLC,'albedoBase':albedoBase,
-    'ndviBase':ndviBase,'landsatSR':landsatSR}
+    out = {'dataBase':dataBase,'metBase':metBase,'ALEXIbase':ALEXIbase,
+           'landsatDataBase':landsatDataBase,'resultsBase':resultsBase,
+           'landsatLC':landsatLC,'albedoBase':albedoBase,'landsatSR':landsatSR,
+           'landsatNDVI':landsatNDVI}
     return out
     
 def warp(args):
@@ -117,8 +113,10 @@ def getParFromExcel(data,landsatLC,classification,varName):
     LCdata = data
     if data.ndim==1:
         outVarArray = np.zeros((data.shape[0]), dtype=np.float)
+        outVarArray[:]=np.nan
     else:
         outVarArray = np.zeros((data.shape[0],data.shape[1]), dtype=np.float)
+        outVarArray[:]=np.nan
     for row in lcDF.itertuples():
         if classification=='NLCD':
             outVarArray[LCdata == eval('row.%s' % 'NLCD_class')]=eval('row.%s' % varName)
@@ -174,27 +172,27 @@ def clean(directory,ext):
         if item.startswith(ext):
             os.remove(os.path.join(directory, item))
  
-@jit(['float64[:,:](float64[:,:],float64,float64)'])  
-def interpOverpassHour(dataset,overpassTime,hours=24.):
-    numPixs = dataset.shape[1]
-    stack = np.empty([1,numPixs])
-    stack[:]=np.nan
-    
-    #stackReshp = np.reshape(stack,[24,600*1440])
-    for j in xrange(numPixs):
-        y = dataset[:,j]
-        if np.sum(y)==0:
-            stack[:,j]=0.0
-        else:
-            x = range(0,int(hours),int(hours/dataset.shape[0]))
-            newX = xrange(int(hours))
-            newX = overpassTime
-            
-            #f = interp1d(x,y, kind='cubic')
-            stack[:,j]=np.interp(newX,x,y)
-        #stack[:,i]=f(newX)
-    
-    return stack
+#@jit(['float64[:,:](float64[:,:],float64,float64)'])  
+#def interpOverpassHour(dataset,overpassTime,hours=24.):
+#    numPixs = dataset.shape[1]
+#    stack = np.empty([1,numPixs])
+#    stack[:]=np.nan
+#    
+#    #stackReshp = np.reshape(stack,[24,600*1440])
+#    for j in xrange(numPixs):
+#        y = dataset[:,j]
+#        if np.sum(y)==0:
+#            stack[:,j]=0.0
+#        else:
+#            x = range(0,int(hours),int(hours/dataset.shape[0]))
+#            newX = xrange(int(hours))
+#            newX = overpassTime
+#            
+#            #f = interp1d(x,y, kind='cubic')
+#            stack[:,j]=np.interp(newX,x,y)
+#        #stack[:,i]=f(newX)
+#    
+#    return stack
     
 def findRSOILV(difvis,difnir,fvis,fnir,Rs_1,F,fc,fg,zs,aleafv,aleafn,aleafl,adeadv,adeadn,adeadl,albedo):
     #### THIS IS SOME KIND OF OPTIMIZATION LOOP  
