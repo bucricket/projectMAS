@@ -43,10 +43,11 @@ from .landsatTools import landsat_metadata
 import time as timer
 from osgeo import gdal
 import pandas as pd
-from processlai import processlai
-from processlst import processlst
+from .database_tools import *
+# from processlai import processlai
+# from processlst import processlst
 import sqlite3
-from getlandsatdata import getlandsatdata
+# from getlandsatdata import getlandsatdata
 
 warnings.simplefilter('ignore', np.RankWarning)
 
@@ -121,7 +122,8 @@ def main():
     #    available = 'Y'
     product = 'LST'
     #    search_df = getlandsatdata.search(loc[0],loc[1],start_date,end_date,cloud,available,landsatCacheDir,sat)
-    search_df = processlst.searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product, landsatCacheDir)
+    # search_df = processlst.searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product, landsatCacheDir)
+    search_df = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product, landsatCacheDir)
     productIDs = search_df.LANDSAT_PRODUCT_ID
     #    fileList = search_df.local_file_path
     # ====check what products are processed against what Landsat data is available===
@@ -131,7 +133,9 @@ def main():
         res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = res.fetchall()[0]
         if (product in tables):
-            processedProductIDs = processlst.searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product,
+            # processedProductIDs = processlst.searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product,
+            #                                                          landsatCacheDir)
+            processedProductIDs = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product,
                                                                      landsatCacheDir)
             df1 = processedProductIDs[["LANDSAT_PRODUCT_ID"]]
             merged = df1.merge(pd.DataFrame(productIDs), indicator=True, how='outer')
@@ -210,8 +214,10 @@ def main():
             outds = None
             # =======================update ETd database========================
             #            output_df = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
-            output_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
-            processlai.updateLandsatProductsDB(output_df, finalFile, landsatCacheDir, 'ETd')
+            # output_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
+            output_df = searchProduct(productID, landsatCacheDir, sat)
+            # processlai.updateLandsatProductsDB(output_df, finalFile, landsatCacheDir, 'ETd')
+            updateLandsatProductsDB(output_df, finalFile, landsatCacheDir, 'ETd')
 
             #            #=============find Average ET_24===================================
             #            outFormat = gdal.GDT_Float32
