@@ -153,7 +153,8 @@ def main():
     for productID in productIDs:
         print("productID:%s" % productID)
         #        fn = fileList[i]
-        out_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
+        # out_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
+        out_df = searchProduct(productID, landsatCacheDir, sat)
         fn = os.path.join(out_df.local_file_path[0], productID + "_MTL.txt")
         meta = landsat_metadata(fn)
         sceneID = meta.LANDSAT_SCENE_ID
@@ -180,7 +181,7 @@ def main():
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, ALEXIgeodict, 0) for xStart in
                 range(0, g.RasterXSize, subset_size) for yStart in range(0, g.RasterYSize, subset_size))
             #
-            #            # =================merge Ta files============================================
+            # =================merge Ta files============================================
             print("merging Ta files----------------------->")
             #
             tifs = glob.glob(os.path.join(resultsBase, scene, 'Ta*'))
@@ -189,11 +190,11 @@ def main():
             outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
             outds = gdal.Translate(finalFile, outds)
             outds = None
-            #            #=========smooth the TA data=======================================
+            # =========smooth the TA data=======================================
             print 'Smoothing Ta...'
             dd.smoothTaData(ALEXIgeodict)
             #
-            ##             =================run TSEB one last time in parallel=======================
+            # =================run TSEB one last time in parallel=======================
             #            print "run one last time in serial"
             #            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)
             print "run TSEB one last time in parallel"
