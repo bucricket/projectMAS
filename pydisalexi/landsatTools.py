@@ -6,6 +6,7 @@ Created on Thu Jan  5 13:03:17 2017
 @author: mschull
 """
 from __future__ import division, print_function, absolute_import
+
 __author__ = 'jwely'
 __all__ = ["landsat_metadata"]
 
@@ -14,11 +15,13 @@ __all__ = ["landsat_metadata"]
 import os.path
 import numpy as np
 import logging
-from .utils import RasterError,_test_outside
+from .utils import RasterError, _test_outside
+
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger('pydisalexi.geotiff')
 
 from osgeo import gdal, osr
+
 try:
     from pyproj import Proj
 except ImportError:
@@ -58,32 +61,32 @@ class landsat_metadata:
         """
 
         # custom attribute additions
-        self.FILEPATH           = filename
-        self.DATETIME_OBJ       = None
+        self.FILEPATH = filename
+        self.DATETIME_OBJ = None
 
         # product metadata attributes
-        self.LANDSAT_SCENE_ID   = None
-        self.DATA_TYPE          = None
-        self.ELEVATION_SOURCE   = None
-        self.OUTPUT_FORMAT      = None
-        self.SPACECRAFT_ID      = None
-        self.SENSOR_ID          = None
-        self.WRS_PATH           = None
-        self.WRS_ROW            = None
-        self.NADIR_OFFNADIR     = None
-        self.TARGET_WRS_PATH    = None
-        self.TARGET_WRS_ROW     = None
-        self.DATE_ACQUIRED      = None
-        self.SCENE_CENTER_TIME  = None
+        self.LANDSAT_SCENE_ID = None
+        self.DATA_TYPE = None
+        self.ELEVATION_SOURCE = None
+        self.OUTPUT_FORMAT = None
+        self.SPACECRAFT_ID = None
+        self.SENSOR_ID = None
+        self.WRS_PATH = None
+        self.WRS_ROW = None
+        self.NADIR_OFFNADIR = None
+        self.TARGET_WRS_PATH = None
+        self.TARGET_WRS_ROW = None
+        self.DATE_ACQUIRED = None
+        self.SCENE_CENTER_TIME = None
 
         # image attributes
-        self.CLOUD_COVER        = None
-        self.IMAGE_QUALITY_OLI  = None
+        self.CLOUD_COVER = None
+        self.IMAGE_QUALITY_OLI = None
         self.IMAGE_QUALITY_TIRS = None
-        self.ROLL_ANGLE         = None
-        self.SUN_AZIMUTH        = None
-        self.SUN_ELEVATION      = None
-        self.EARTH_SUN_DISTANCE = None    # calculated for Landsats before 8.
+        self.ROLL_ANGLE = None
+        self.SUN_AZIMUTH = None
+        self.SUN_ELEVATION = None
+        self.EARTH_SUN_DISTANCE = None  # calculated for Landsats before 8.
 
         # read the file and populate the MTL attributes
         self._read(filename)
@@ -126,16 +129,16 @@ class landsat_metadata:
                 setattr(self, fields[i], values[i])
 
         # create datetime_obj attribute (drop decimal seconds)
-        dto_string          = self.DATE_ACQUIRED + self.SCENE_CENTER_TIME
-        self.DATETIME_OBJ   = datetime.strptime(dto_string.split(".")[0], "%Y-%m-%d%H:%M:%S")
+        dto_string = self.DATE_ACQUIRED + self.SCENE_CENTER_TIME
+        self.DATETIME_OBJ = datetime.strptime(dto_string.split(".")[0], "%Y-%m-%d%H:%M:%S")
 
         # only landsat 8 includes sun-earth-distance in MTL file, so calculate it
         # for the Landsats 4,5,7 using solar module.
-#        if not self.SPACECRAFT_ID == "LANDSAT_8":
-#
-#            # use 0s for lat and lon, sun_earth_distance is not a function of any one location on earth.
-#            s = solar(0, 0, self.DATETIME_OBJ, 0)
-#            self.EARTH_SUN_DISTANCE = s.get_rad_vector()
+        #        if not self.SPACECRAFT_ID == "LANDSAT_8":
+        #
+        #            # use 0s for lat and lon, sun_earth_distance is not a function of any one location on earth.
+        #            s = solar(0, 0, self.DATETIME_OBJ, 0)
+        #            self.EARTH_SUN_DISTANCE = s.get_rad_vector()
 
         print("Scene {0} center time is {1}".format(self.LANDSAT_SCENE_ID, self.DATETIME_OBJ))
 
@@ -148,6 +151,7 @@ class GeoTIFF(object):
     Arguments:
       filepath (str): the full or relative file path
     """
+
     def __init__(self, filepath):
         try:
             self.dataobj = gdal.Open(filepath)
@@ -171,7 +175,7 @@ class GeoTIFF(object):
                 "The dataset is not north-up. The geotransform is given "
                 + "by: (%s). " % ', '.join([str(item) for item in self._gtr])
                 + "Northing and easting values will not have expected meaning."
-                )
+            )
         self.dataobj = None
 
     @property
@@ -223,14 +227,14 @@ class GeoTIFF(object):
         as a numpy array: upper-left corner of upper-left pixel
         to upper-right corner of upper-right pixel (ncol+1)."""
         delta = np.abs(
-            (self.lrx-self.ulx)/self.ncol
+            (self.lrx - self.ulx) / self.ncol
             - self.delx
-            )
+        )
         if delta > 10e-2:
             LOGGER.warn(
                 "GeoTIFF issue: E-W grid step differs from "
                 + "deltaX by more than 1% ")
-        return np.linspace(self.ulx, self.lrx, self.ncol+1)
+        return np.linspace(self.ulx, self.lrx, self.ncol + 1)
 
     @property
     def northing(self):
@@ -239,29 +243,29 @@ class GeoTIFF(object):
         upper-left corner of upper-left pixel (nrow+1)."""
         # check if data grid step is consistent
         delta = np.abs(
-            (self.lry-self.uly)/self.nrow
+            (self.lry - self.uly) / self.nrow
             - self.dely
-            )
+        )
         if delta > 10e-2:
             LOGGER.warn(
                 "GeoTIFF issue: N-S grid step differs from "
                 + "deltaY by more than 1% ")
-        return np.linspace(self.lry, self.uly, self.nrow+1)
+        return np.linspace(self.lry, self.uly, self.nrow + 1)
 
     @property
     def x_pxcenter(self):
         """The x-coordinates of pixel centers, as a numpy array ncol."""
         return np.linspace(
-            self.ulx + self.delx/2,
-            self.lrx - self.delx/2,
+            self.ulx + self.delx / 2,
+            self.lrx - self.delx / 2,
             self.ncol)
 
     @property
     def y_pxcenter(self):
         """y-coordinates of pixel centers, nrow."""
         return np.linspace(
-            self.lry - self.dely/2,
-            self.uly + self.dely/2,
+            self.lry - self.dely / 2,
+            self.uly + self.dely / 2,
             self.nrow)
 
     @property
@@ -351,7 +355,7 @@ class GeoTIFF(object):
         if (_test_outside(x, self.easting[0], self.easting[-1]) or
                 _test_outside(y, self.northing[0], self.northing[-1])):
             raise RasterError("Coordinates out of bounds")
-        i = (1 - (y  - self.northing[0]) /
+        i = (1 - (y - self.northing[0]) /
              (self.northing[-1] - self.northing[0])) * self.nrow
         j = ((x - self.easting[0]) /
              (self.easting[-1] - self.easting[0])) * self.ncol
@@ -440,6 +444,6 @@ class GeoTIFF(object):
             gtiff.GetRasterBand(1).WriteArray(newdata)
         else:
             for idx in range(dims):
-                gtiff.GetRasterBand(idx+1).WriteArray(newdata[idx, :, :])
+                gtiff.GetRasterBand(idx + 1).WriteArray(newdata[idx, :, :])
         gtiff = None
         return GeoTIFF(newpath)

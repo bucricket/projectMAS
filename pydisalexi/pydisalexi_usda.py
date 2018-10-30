@@ -20,21 +20,16 @@
 Created on 
 @author: Mitch Schull (mschull@umd.edu)
 
-Modified on 
-@author: Mitch Schull (mschull@umd.edu)
-
 DESCRIPTION
 ===========
 
 
 """
-import os
-import numpy as np
 import warnings
 from .disalexi_usda import disALEXI
 import argparse
 import glob
-from .utils import writeArray2Tiff, buildvrt, clean, folders
+from .utils import buildvrt, clean, folders
 from joblib import Parallel, delayed
 import types
 import copy_reg
@@ -42,12 +37,8 @@ import pycurl
 from .landsatTools import landsat_metadata
 import time as timer
 from osgeo import gdal
-import pandas as pd
 from .database_tools import *
-# from processlai import processlai
-# from processlst import processlst
 import sqlite3
-# from getlandsatdata import getlandsatdata
 
 warnings.simplefilter('ignore', np.RankWarning)
 
@@ -90,13 +81,9 @@ def main():
     Folders = folders(base)
     landsatSR = Folders['landsatSR']
     resultsBase = Folders['resultsBase']
-    #    landsatTemp = os.path.join(landsatSR,'temp')
-    #    landsatDataBase = Folders['landsatDataBase']
     ALEXIbase = Folders['ALEXIbase']
 
     # ======FIND AVAILABLE FILES FOR PROCESSING=============================
-
-    ####****Global******######
     # ---placeholders-----
     ALEXI_ulLon = 0.0
     ALEXI_ulLat = 0.0
@@ -112,20 +99,12 @@ def main():
                     'ALEXI_LatRes': ALEXILatRes, 'ALEXI_LonRes': ALEXILonRes,
                     'ALEXIshape': ALEXIshape}
 
-    # process scenes that have been preprocessed
-    #    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
-    #    tiffList = glob.glob(os.path.join(landsatTemp,"*lstSharp.tiff"))
-
     # ===FIND PROCESSED SCENES TO BE PROCESSED================================
     landsatCacheDir = os.path.join(cache_dir, "LANDSAT")
     db_fn = os.path.join(landsatCacheDir, "landsat_products.db")
-    #    available = 'Y'
     product = 'LST'
-    #    search_df = getlandsatdata.search(loc[0],loc[1],start_date,end_date,cloud,available,landsatCacheDir,sat)
-    # search_df = processlst.searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product, landsatCacheDir)
     search_df = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product, landsatCacheDir)
     productIDs = search_df.LANDSAT_PRODUCT_ID
-    #    fileList = search_df.local_file_path
     # ====check what products are processed against what Landsat data is available===
     product = 'ETd'
     if os.path.exists(db_fn):
@@ -133,27 +112,17 @@ def main():
         res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = res.fetchall()[0]
         if (product in tables):
-            # processedProductIDs = processlst.searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product,
-            #                                                          landsatCacheDir)
             processedProductIDs = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product,
                                                                      landsatCacheDir)
             df1 = processedProductIDs[["LANDSAT_PRODUCT_ID"]]
             merged = df1.merge(pd.DataFrame(productIDs), indicator=True, how='outer')
             df3 = merged[merged['_merge'] != 'both']
             productIDs = df3[["LANDSAT_PRODUCT_ID"]].LANDSAT_PRODUCT_ID
-    #            if len(productIDs)>0:
-    #                output_df = pd.DataFrame()
-    #                for productID in productIDs:
-    #                    output_df = output_df.append(getlandsatdata.searchProduct(productID,cache_dir,sat),ignore_index=True)
-    #                productIDs = output_df.LANDSAT_PRODUCT_ID
 
     # USER INPUT END===============================================================
     start = timer.time()
-    #    for i in range(len(fileList)):
     for productID in productIDs:
         print("productID:%s" % productID)
-        #        fn = fileList[i]
-        # out_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
         out_df = searchProduct(productID, landsatCacheDir, sat)
         fn = os.path.join(out_df.local_file_path[0], productID + "_MTL.txt")
         meta = landsat_metadata(fn)
@@ -162,7 +131,6 @@ def main():
         satscene_path = os.sep.join(fn.split(os.sep)[:-2])
         sceneDir = os.path.join(satscene_path, 'LST')
         tiff = os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID)
-        #        tiff = tiffList[i]
         g = gdal.Open(tiff)
         scene = sceneID[3:9]
         sceneDir = os.path.join(satscene_path, 'ET', '30m')
@@ -174,13 +142,12 @@ def main():
 
             # ============Run DisALEXI in parallel======================================
             dd = disALEXI(fn, dt, is_usa)
-            #            #===COMMENTED FOR TESTING ONLY===================
             dd.runDisALEXI(0, 0, subset_size, subset_size, ALEXIgeodict, 0)
             print('Running disALEXI...')
             r = Parallel(n_jobs=n_jobs, verbose=5)(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, ALEXIgeodict, 0) for xStart in
                 range(0, g.RasterXSize, subset_size) for yStart in range(0, g.RasterYSize, subset_size))
-            #
+
             # =================merge Ta files============================================
             print("merging Ta files----------------------->")
             #
@@ -195,8 +162,6 @@ def main():
             dd.smoothTaData(ALEXIgeodict)
             #
             # =================run TSEB one last time in parallel=======================
-            #            print "run one last time in serial"
-            #            dd.runDisALEXI(0,0,1135,1135,ALEXIgeodict,1)
             print "run TSEB one last time in parallel"
             r = Parallel(n_jobs=n_jobs, verbose=5)(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, ALEXIgeodict, 1) for xStart in
@@ -205,55 +170,14 @@ def main():
             # =====================merge all files =====================================
             finalFile = os.path.join(sceneDir, '%s_ETd.tif' % sceneID[:-5])
             print 'merging ETd files...'
-            #            cmd = 'gdal_merge.py -o %s %s' % (finalFile,os.path.join(resultsBase,scene,'ETd*'))
-            #            buildvrt(cmd)
-
             tifs = glob.glob(os.path.join(resultsBase, scene, 'ETd*'))
             finalFileVRT = os.path.join(resultsBase, scene, 'ETd_DisALEXI.vrt')
             outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
             outds = gdal.Translate(finalFile, outds)
             outds = None
             # =======================update ETd database========================
-            #            output_df = processlst.searchLandsatProductsDB(loc[0],loc[1],start_date,end_date,product,landsatCacheDir)
-            # output_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
             output_df = searchProduct(productID, landsatCacheDir, sat)
-            # processlai.updateLandsatProductsDB(output_df, finalFile, landsatCacheDir, 'ETd')
             updateLandsatProductsDB(output_df, finalFile, landsatCacheDir, 'ETd')
-
-            #            #=============find Average ET_24===================================
-            #            outFormat = gdal.GDT_Float32
-            #            ls = GeoTIFF(finalFile)
-            #            ulx = ls.ulx
-            #            uly = ls.uly
-            #            delx = ls.delx
-            #            dely = -ls.dely
-            #            inUL = [ulx,uly]
-            #            inRes = [delx,dely]
-            #            sceneDir = os.path.join(ALEXIbase,'%s' % scene)
-            #            etFN = os.path.join(sceneDir,'%s_alexiET.tiff' % sceneID)
-            #            g = gdal.Open(etFN,GA_ReadOnly)
-            #            ET_ALEXI = g.ReadAsArray()
-            #            g= None
-            #            et_alexi = np.array(np.reshape(ET_ALEXI,[np.size(ET_ALEXI)])*10000, dtype='int')
-            #
-            #            g = gdal.Open(finalFile,GA_ReadOnly)
-            #            ET_24 = g.ReadAsArray()
-            #            g= None
-            #
-            #            et_24 = np.reshape(ET_24,[np.size(ET_24)])
-            #            etDict = {'ID':et_alexi,'et':et_24}
-            #            etDF = pd.DataFrame(etDict, columns=etDict.keys())
-            #            group = etDF['et'].groupby(etDF['ID'])
-            #            valMean = group.mean()
-            #            outData = np.zeros(ET_24.size)
-            #            for i in range(valMean.size):
-            #                outData[et_alexi==valMean.index[i]]=valMean.iloc[i]
-            #            et_avg = np.reshape(outData,ET_24.shape)
-            #            et_diff = abs(et_avg-ET_ALEXI)
-            #            outET24Path = os.path.join(resultsBase,scene)
-            #            ET_diff_outName = '%s_ETd_diff.tif' % sceneID[:-5]
-            #            fName = '%s%s%s' % (outET24Path,os.sep,ET_diff_outName)
-            #            writeArray2Tiff(et_diff,inRes,inUL,ls.proj4,fName,outFormat)
 
             finalFile = os.path.join(resultsBase, scene, '%s_G0.tif' % sceneID[:-5])
             print 'merging G0 files...'
@@ -314,16 +238,10 @@ def main():
                 try:
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
-                    # elif os.path.isdir(file_path): shutil.rmtree(file_path)
                 except Exception as e:
                     print(e)
-    #            shutil.rmtree(os.path.join(landsatSR ,'temp'),ignore_errors=True)
     end = timer.time()
     print("program duration: %f minutes" % ((end - start) / 60.))
-
-
-#            os.remove(lat_fName)
-#            os.remove(lon_fName)
 
 if __name__ == "__main__":
     try:
