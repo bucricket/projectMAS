@@ -1,0 +1,68 @@
+package:
+  name: projectmas
+  version: 0.4.2
+
+source:
+  git_url: https://github.com/bucricket/projectMAS.git
+#  git_tag: version_0.4.1
+
+  
+#  patches:
+   # List any patch files here
+   # - fix.patch
+
+build:
+  number: 0
+  script: 
+
+  entry_points:
+    # Put any entry points (scripts to be generated automatically) here. The
+    # syntax is module:function.  For example
+    #
+    # - landsat-util = landsat-util:main
+    #
+    # Would create an entry point called landsat-util that calls landsat-util.main()
+
+    - pydisalexi=pydisalexi.pydisalexi_usda:main
+    
+requirements:
+  build:
+    - python
+    - setuptools
+    
+  run:
+    - python
+    - numpy
+    - keyring >=9.3.1
+    - keyrings.alt >=1.2
+    - joblib >=0.10.3
+    - gdal
+    - astropy
+    - pandas 
+    - future
+    - pycurl
+    - xlrd
+
+test:
+  # Python imports
+  imports:
+    - pydisalexi
+
+  # commands:
+    # You can put test commands to be run here.  Use this to test that the
+    # entry points work.
+
+  requires:
+
+    # Put any additional test requirements here.  For example
+    # - nose
+
+about:
+  home: https://github.com/bucricket/pyDisALEXI
+  license: CCO
+  summary: 'A tool to disaggregate ALEXI ET'
+  license_family: BSD
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
