@@ -7,7 +7,6 @@ Created on Thu Jun  1 15:32:10 2017
 """
 import numpy as np
 import math
-from scipy import ndimage
 from astropy.convolution import convolve
 from astropy.convolution import Gaussian2DKernel,Box2DKernel
 #   script imports
