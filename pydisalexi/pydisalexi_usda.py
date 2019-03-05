@@ -85,7 +85,7 @@ def main():
     end_date = args.end_date
     subset_size = 200
     base = os.getcwd()
-    cache_dir = os.path.abspath(os.path.join(base, os.pardir, "SATELLITE_DATA"))
+    cache_dir = os.path.abspath(os.path.join(base, "SATELLITE_DATA"))
 
     Folders = folders(base)
     landsatSR = Folders['landsatSR']
