@@ -208,9 +208,7 @@ def _DisALEXI_PT(ET_ALEXI,
     MatXsize = 7
     Tr_Kresize = np.tile(np.array(np.resize(Tr_K, [np.size(Tr_K), 1])), (1, MatXsize))
     vzaresize = np.tile(np.resize(vza, [np.size(vza), 1]), (1, MatXsize))
-    #        T_A_Kresize = np.tile(range(270,340,10),(np.size(vza),1))
     Tr_ADD = np.tile(np.transpose(range(0, 20, 3)), [np.size(hc), 1])
-    #        Tr_Kcol = np.resize(Tr_K,[np.size(Tr_K),1])
     Tr_Kcol = np.resize(Ta, [np.size(Ta), 1])
     T_A_Kresize = Tr_Kcol + Tr_ADD
     uresize = np.tile(np.resize(u, [np.size(u), 1]), (1, MatXsize))
@@ -323,10 +321,6 @@ class disALEXI(object):
 
         Folders = folders(base)
         self.landsatSR = Folders['landsatSR']
-        #        self.landsatNDVI = Folders['landsatNDVI']
-        #        self.ALEXIbase = Folders['ALEXIbase']
-        #        self.metBase = Folders['metBase']
-        #        self.landsatDataBase = Folders['landsatDataBase']
         self.resultsBase = Folders['resultsBase']
         self.fn = fn
         self.meta = landsat_metadata(fn)
@@ -380,20 +374,15 @@ class disALEXI(object):
         inProj4 = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
         # =======================convert fine TA to coarse resolution=========
         outfile = os.path.join(self.resultsBase, scene, 'testTa_DisALEXI.tif')
-        #            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
 
         coarseFile = os.path.join(self.resultsBase, scene, 'TaCoarse.tif')
         coarse2fineFile = os.path.join(self.resultsBase, scene, 'TaCoarse2Fine.tif')
-        #            outFN = coarseFile[:-10]+'.tif'
+
 
         if not os.path.exists(outFN):
             print 'get->Ta'
             # get mask from Landsat LAI
             ls = GeoTIFF(outfile)
-            #                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-            #                hdf = SD(laiFN,SDC.READ)
-            #                data2D = hdf.select('cfmask')
-            #                cfmask = data2D[:,:].astype(np.double)
             sceneDir = os.path.join(self.satscene_path, 'CF_MASK')
             maskFN = os.path.join(sceneDir, '%s_Mask.tiff' % sceneID)
             g = gdal.Open(maskFN, GA_ReadOnly)
@@ -438,15 +427,11 @@ class disALEXI(object):
             writeArray2Tiff(Ta, inRes, inUL, ls.proj4, outFN, outFormat)
             os.remove(coarseFile)
 
-    def runDisALEXI(self, xStart, yStart, xSize, ySize, ALEXIgeodict, TSEB_only):
+    def runDisALEXI(self, xStart, yStart, xSize, ySize, TSEB_only):
         # USER INPUT============================================================
-        ALEXILatRes = ALEXIgeodict['ALEXI_LatRes']
-        ALEXILonRes = ALEXIgeodict['ALEXI_LonRes']
         sceneID = self.sceneID
         scene = self.scene
         productID = self.productID
-        #        xSize = 200
-        #        ySize = 200
 
         # -------------pick Landcover map----------------
         if self.isUSA == 1:
@@ -456,13 +441,10 @@ class disALEXI(object):
 
         yeardoy = sceneID[9:16]
         # -------------get Landsat information-----------
-        #        ls = GeoTIFF(os.path.join(self.landsatSR,'temp',"%s_band10.tif" % productID))
         sceneDir = os.path.join(self.satscene_path, 'LST')
         ls = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
         g = gdal.Open(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
         solZen = self.meta.SUN_ELEVATION
-        #        nsamples = int(self.meta.REFLECTIVE_SAMPLES)
-        #        nlines = int(self.meta.REFLECTIVE_LINES)
         nsamples = g.RasterXSize
         nlines = g.RasterYSize
         if xStart == ((nsamples / xSize) * xSize):
@@ -484,14 +466,10 @@ class disALEXI(object):
 
         # =============get MET data================================================
         # get CFSR MET data at overpass time
-
-        #        sceneDir = os.path.join(self.metBase,'%s' % scene)
         sceneDir = os.path.join(self.satscene_path, 'MET')
         # ------------get-> surface pressure...
         outFN = os.path.join(sceneDir, '%s_p.tiff' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
-        #        print("xsize:%d" % xSize)
-        #        print("ysize:%d" % ySize)
         p = g.ReadAsArray(xStart, yStart, xSize, ySize)
         p /= 100.  # convert to mb
         g = None
@@ -512,79 +490,6 @@ class disALEXI(object):
 
         outFN = os.path.join(self.resultsBase, scene, '%s_Ta.tif' % sceneID[:-5])
         if (TSEB_only == 1):
-            #            if ((xStart==0) & (yStart==0)):
-            #                #ls = GeoTIFF(os.path.join(self.landsatSR, scene,'%s_sr_band1.tif' % productID))
-            #
-            #                #=======================convert fine TA to coarse resolution=========
-            #                outfile = os.path.join(self.resultsBase,scene,'Ta_DisALEXI.tif')
-            #    #            outfile = os.path.join(self.resultsBase,scene,'%s_Ta.tif' % sceneID[:-5])
-            #
-            #                coarseFile = os.path.join(self.resultsBase,scene,'TaCoarse.tif')
-            #                coarse2fineFile = os.path.join(self.resultsBase,scene,'TaCoarse2Fine.tif')
-            #    #            outFN = coarseFile[:-10]+'.tif'
-            #
-            #                if not os.path.exists(outFN):
-            #                    print 'get->Ta'
-            #                    # get mask from Landsat LAI
-            #                    ls = GeoTIFF(outfile)
-            #    #                laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-            #    #                hdf = SD(laiFN,SDC.READ)
-            #    #                data2D = hdf.select('cfmask')
-            #    #                cfmask = data2D[:,:].astype(np.double)
-            #
-            #                    maskFN = os.path.join(self.landsatDataBase,'Mask',scene,'%s_mask.tiff' % sceneID)
-            #                    g = gdal.Open(maskFN,GA_ReadOnly)
-            #                    cfmask = g.ReadAsArray()
-            #                    g= None
-            #                    g = gdal.Open(outfile,GA_ReadOnly)
-            #                    ta = g.ReadAsArray()
-            #                    ta[cfmask > 0]=0
-            #                    g= None
-            #                    mask = os.path.join(self.resultsBase,scene,"TafineMask.tif")
-            #                    masked = os.path.join(self.resultsBase,scene,"TafineMasked.tif")
-            #                    ls.clone(mask,ta)
-            #                    subprocess.check_output('gdal_fillnodata.py %s %s -mask %s -of GTiff' % (outfile,masked,mask),shell=True)
-            #                    optionList = ['-overwrite', '-s_srs', '%s' % ls.proj4,'-t_srs',
-            #                                  '%s' % inProj4,'-r', 'average','-tr',
-            #                                  '%f' % ALEXILatRes, '%f' % ALEXILonRes,
-            #                                  '-srcnodata','270.','-dstnodata','0.0',
-            #                                  '-of','GTiff','%s' % masked, '%s' % coarseFile]
-            #
-            #                    warp(optionList)
-            #                    #=======now convert the averaged coarse Ta to fine resolution==
-            #                    nrow = ls.nrow+100.
-            #                    ncol = ls.ncol+100.
-            #                    optionList = ['-overwrite', '-s_srs', '%s' % inProj4, '-t_srs',
-            #                                  '%s' % ls.proj4,'-r', 'near','-ts',
-            #                                  '%f' % nrow, '%f' % ncol,'-of',
-            #                                  'GTiff','%s' % coarseFile, '%s' % coarse2fineFile]
-            #                    warp(optionList)
-            #                    #========smooth Ta data========================================
-            #                    ulx = ls.ulx
-            #                    uly = ls.uly
-            #                    lrx = ls.lrx
-            #                    lry = ls.lry
-            #                    delx = ls.delx
-            #                    dely = -ls.dely
-            #                    fineRes = ls.Lat[1,0]-ls.Lat[0,0]
-            #                    coarseRes = ALEXILatRes
-            #                    inUL = [ulx,uly]
-            #                    inRes = [delx,dely]
-            #                    g = gdal.Open(coarse2fineFile,GA_ReadOnly)
-            #                    ta = g.ReadAsArray()
-            #                    g= None
-            #
-            #                    Ta = interp_ta(ta,coarseRes,fineRes)-273.16
-            #
-            #                    outFormat = gdal.GDT_Float32
-            #                    writeArray2Tiff(Ta,inRes,inUL,ls.proj4,outFN,outFormat)
-            #    #
-            #    #                optionList = ['-overwrite','-te', '%f' % ulx, '%f' % lry,
-            #    #                              '%f' % lrx,'%f' % uly,'-tr',
-            #    #                              '%f' % delx, '%f' % dely ,'-multi','-of','GTiff',
-            #    #                              '%s' % coarse2fineFile, '%s' % outFN]
-            #    #                warp(optionList)
-            #                    #os.remove(coarseFile)
             g = gdal.Open(outFN, GA_ReadOnly)
             T_A_K = g.ReadAsArray(xStart, yStart, xSize, ySize) + 273.16
             g = None
@@ -628,41 +533,24 @@ class disALEXI(object):
 
         # ===============get biophysical parameters at overpass time============
         sceneDir = os.path.join(self.satscene_path, 'ALBEDO')
-        #        sceneDir = os.path.join(self.landsatDataBase,'albedo',scene)
         outFN = os.path.join(sceneDir, '%s_albedo.tiff' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
         albedo = g.ReadAsArray(xStart, yStart, xSize, ySize)
         g = None
 
         # ------>get LAI...
-        #        outFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
         sceneDir = os.path.join(self.satscene_path, 'LAI')
         outFN = os.path.join(sceneDir, '%s_lai.tiff' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
         LAI = g.ReadAsArray(xStart, yStart, xSize, ySize) * 0.001  # TESTING
         g = None
-        #        LAI[np.where(LAI==-9.999)]=np.nan
-        #        LAI[np.where(LAI<=0.)]=0.001
-
-        #        hdf = SD(outFN,SDC.READ)
-        #        data2D = hdf.select('LAI')
-        #        LAI = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
-        #
-        #        LAI[np.where(LAI==-9.999)]=np.nan
-        #        LAI[np.where(LAI<=0.)]=0.001
 
         # ------>get ndvi...'
-        #        sceneDir = os.path.join(self.landsatNDVI,scene)
         sceneDir = os.path.join(self.satscene_path, 'NDVI')
         outFN = os.path.join(sceneDir, '%s_ndvi.tiff' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
         ndvi = g.ReadAsArray(xStart, yStart, xSize, ySize)  # *0.001 # TESTING
         g = None
-        #        ndvi[np.where(ndvi==-9999.)]=np.nan
-
-        #        data2D = hdf.select('NDVI')
-        #        ndvi = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)*0.001
-        #        ndvi[np.where(ndvi==-9.999)]=np.nan
 
         # ===get cfmask=======
         sceneDir = os.path.join(self.satscene_path, 'CF_MASK')
@@ -670,10 +558,6 @@ class disALEXI(object):
         g = gdal.Open(outFN, GA_ReadOnly)
         cfmask = g.ReadAsArray(xStart, yStart, xSize, ySize)
         g = None
-        #        laiFN = os.path.join(self.landsatDataBase,'LAI',scene,'lndlai.%s.hdf' % sceneID)
-        #        hdf = SD(laiFN,SDC.READ)
-        #        data2D = hdf.select('cfmask')
-        #        cfmask = data2D[yStart:yStart+ySize,xStart:xStart+xSize].astype(np.double)
 
         # ---------->get LST...
         sceneDir = os.path.join(self.satscene_path, 'LST')
@@ -687,19 +571,14 @@ class disALEXI(object):
         Tr_K[np.where(albedo < 0)] = np.nan
         # ---------->get LC...
         sceneDir = os.path.join(self.satscene_path, 'LC')
-        #        sceneDir = os.path.join(self.landsatDataBase,'LC',scene)
         outFN = os.path.join(sceneDir, '%s_LC.tiff' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
         LCdata = g.ReadAsArray(xStart, yStart, xSize, ySize)
         g = None
         # ---------->get ALEXI mask...
-        #        ET_ALEXI[np.where(albedo<0)]=-9999
-        #        mask = ET_ALEXI.copy()
         mask = np.tile(1., albedo.shape)
         mask[cfmask > 0] = 0.
         mask[albedo < 0] = 0.
-        #        mask[mask==0]=1.
-        #        mask[mask==-9999.] = 0.
         albedo[np.where(albedo < 0.)] = np.nan
 
         # ====================get LC based variables===============================
@@ -739,11 +618,7 @@ class disALEXI(object):
         # ************************************************************************
         # Compute Canopy height and Roughness Parameters
         hc = hc_min + ((hc_max - hc_min) * f_c)
-
-        #        LAI[np.where(LAI==0.0)]=0.001
         vza = np.tile(0.0, np.shape(LAI))
-        #        Rs24 = Rs24+500. # FOR TESTING ONLY
-        #        Rs24 = (Rs24*0.0864)/24.0 # MERRA
         Rs24 = Rs24 * 0.0864  # GSIP
 
         leaf_width = xl
@@ -751,15 +626,11 @@ class disALEXI(object):
         time = self.dt.hour + (self.dt.minute / 60.)
         #        print("time:%f" % time)
         t_rise, t_end, zs = sunset_sunrise(self.dt, np.deg2rad(lon), np.deg2rad(lat), time)
-        #        print("t_rise:%f, t_end:%f" % (t_rise[0,0],t_end[0,0]))
-        #        zs = np.tile(sz,np.shape(LAI))
 
         # ================RUN DisALEXI=================================
 
         if TSEB_only == 1:
             # convert TA from scaled celcius to kelvin
-            #            T_A_K = (T_A_K/1000.)+273.15  # removed /1000 FOR TESTING!!!!
-            #            T_A_K = (T_A_K)+273.16  # removed /1000 FOR TESTING!!!!
             nan_check = np.sum(np.isnan(LAI)) / LAI.size
             if nan_check == 1:  # All nans
                 ET_24 = np.tile(np.nan, LAI.shape)
@@ -839,10 +710,6 @@ class disALEXI(object):
         if not os.path.exists(outET24Path):
             os.makedirs(outET24Path)
         # set ouput location and resolution
-        #        ulx = self.meta.CORNER_UL_PROJECTION_X_PRODUCT
-        #        uly = self.meta.CORNER_UL_PROJECTION_Y_PRODUCT
-        #        delx = self.meta.GRID_CELL_SIZE_REFLECTIVE
-        #        dely = self.meta.GRID_CELL_SIZE_REFLECTIVE
         ulx = ls.ulx
         uly = ls.uly
         delx = ls.delx
