@@ -61,6 +61,84 @@ def _pickle_method(m):
 
 copy_reg.pickle(types.MethodType, _pickle_method)
 
+def search(lat, lon, start_date, end_date, cloud, cacheDir, sat):
+    columns = ['acquisitionDate', 'acquisitionDate', 'upperLeftCornerLatitude', 'upperLeftCornerLongitude',
+               'lowerRightCornerLatitude', 'lowerRightCornerLongitude', 'cloudCover', 'sensor', 'LANDSAT_PRODUCT_ID']
+    end = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+    # this is a landsat-util work around when it fails
+    if sat == 7:
+        metadataUrl = 'https://landsat.usgs.gov/landsat/metadata_service/bulk_metadata_files/LANDSAT_ETM_C1.csv'
+    else:
+        metadataUrl = 'https://landsat.usgs.gov/landsat/metadata_service/bulk_metadata_files/LANDSAT_8_C1.csv'
+
+    fn = os.path.join(cacheDir, metadataUrl.split(os.sep)[-1])
+    # looking to see if metadata CSV is available and if its up to the date needed
+    if os.path.exists(fn):
+        d = datetime.datetime.fromtimestamp(os.path.getmtime(fn))
+        if (end.year > d.year) and (end.month > d.month) and (end.day > d.day):
+            wget.download(metadataUrl, out=fn)
+            df = pd.read_csv(fn, usecols=columns)
+            df.to_csv(fn)
+        df = pd.read_csv(fn)
+        index = ((df.acquisitionDate >= start_date) & (df.acquisitionDate < end_date) & (
+                df.upperLeftCornerLatitude > lat) & (df.upperLeftCornerLongitude < lon) & (
+                         df.lowerRightCornerLatitude < lat) & (df.lowerRightCornerLongitude > lon) & (
+                         df.cloudCover <= cloud) & (df.sensor == 'OLI_TIRS'))
+        df = df[index]
+
+    else:
+        wget.download(metadataUrl, out=fn)
+        df = pd.read_csv(fn, usecols=columns)
+        df.to_csv(fn)
+        index = ((df.acquisitionDate >= start_date) & (df.acquisitionDate < end_date) & (
+                df.upperLeftCornerLatitude > lat) & (df.upperLeftCornerLongitude < lon) & (
+                         df.lowerRightCornerLatitude < lat) & (df.lowerRightCornerLongitude > lon) & (
+                         df.cloudCover <= cloud) & (df.sensor == 'OLI_TIRS'))
+        df = df[index]
+
+    return df
+
+
+def intersection(lst1, lst2):
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
+
+
+def find_already_downloaded(df, cache_dir):
+    usgs_available = list(df.LANDSAT_PRODUCT_ID.values)
+    # find sat
+    sat = usgs_available[0].split("_")[0][-1]
+    # find scenes
+    scenes = [x.split("_")[2] for x in usgs_available]
+    scenes = list(set(scenes))
+    available_list = []
+    for scene in scenes:
+        path_to_search = os.path.join(cache_dir, 'L%s/%s/RAW_DATA/*MTL*' % (sat, scene))
+        available = [os.path.basename(x) for x in
+                     glob.glob(path_to_search)]
+        available = [x[:-8] for x in available]
+        available_list = available_list + available
+    return intersection(usgs_available, available_list)
+
+
+def find_not_processed(downloaded, cache_dir):
+    """finds the files that are downloaded but still need to process ALBEDO data and thus the rest of the inputs"""
+    # find sat
+    sat = downloaded[0].split("_")[0][-1]
+    # find scenes
+    scenes = [x.split("_")[2] for x in downloaded]
+    scenes = list(set(scenes))
+    available_list = []
+    for scene in scenes:
+        path_to_search = os.path.join(cache_dir, 'L%s/%s/ALBEDO/*_l.tif' % (sat, scene))
+        available = [os.path.basename(x) for x in
+                     glob.glob(path_to_search)]
+        available = [x[:-8] for x in available]
+        available_list = available_list + available
+    for x in available_list:
+        if x in downloaded:
+            downloaded.remove(x)
+    return downloaded
 
 def main():
     """ This is the main function for the PyDisALEXI program """
@@ -117,22 +195,27 @@ def main():
     landsatCacheDir = os.path.join(cache_dir, "LANDSAT")
     db_fn = os.path.join(landsatCacheDir, "landsat_products.db")
     product = 'LST'
-    search_df = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product, landsatCacheDir)
-    productIDs = search_df.LANDSAT_PRODUCT_ID
+    # search_df = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product, landsatCacheDir)
+    # productIDs = search_df.LANDSAT_PRODUCT_ID
     #    fileList = search_df.local_file_path
     # ====check what products are processed against what Landsat data is available===
-    product = 'ETd'
-    if os.path.exists(db_fn):
-        conn = sqlite3.connect(db_fn)
-        res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = res.fetchall()[0]
-        if (product in tables):
-            processedProductIDs = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product,
-                                                                     landsatCacheDir)
-            df1 = processedProductIDs[["LANDSAT_PRODUCT_ID"]]
-            merged = df1.merge(pd.DataFrame(productIDs), indicator=True, how='outer')
-            df3 = merged[merged['_merge'] != 'both']
-            productIDs = df3[["LANDSAT_PRODUCT_ID"]].LANDSAT_PRODUCT_ID
+    cloud=5 # FIX THIS LATER!
+    output_df = search(loc[0], loc[1], start_date, end_date, cloud, landsatCacheDir, sat)
+    downloaded = find_already_downloaded(output_df, landsatCacheDir)
+    productIDs = find_not_processed(downloaded, landsatCacheDir)
+
+    # product = 'ETd'
+    # if os.path.exists(db_fn):
+    #     conn = sqlite3.connect(db_fn)
+    #     res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    #     tables = res.fetchall()[0]
+    #     if (product in tables):
+    #         processedProductIDs = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product,
+    #                                                                  landsatCacheDir)
+    #         df1 = processedProductIDs[["LANDSAT_PRODUCT_ID"]]
+    #         merged = df1.merge(pd.DataFrame(productIDs), indicator=True, how='outer')
+    #         df3 = merged[merged['_merge'] != 'both']
+    #         productIDs = df3[["LANDSAT_PRODUCT_ID"]].LANDSAT_PRODUCT_ID
 
     # USER INPUT END===============================================================
     start = timer.time()
@@ -141,8 +224,12 @@ def main():
         print("productID:%s" % productID)
         #        fn = fileList[i]
         # out_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
-        out_df = searchProduct(productID, landsatCacheDir, sat)
-        fn = os.path.join(out_df.local_file_path[0], productID + "_MTL.txt")
+        # out_df = searchProduct(productID, landsatCacheDir, sat)
+        sat_str = productID.split("_")[0][-1]
+        scene = productID.split("_")[2]
+        path = os.path.join(landsatCacheDir, 'L%s/%s/RAW_DATA/' % (sat_str, scene))
+        fn = os.path.join(path, productID + "_MTL.txt")
+        # fn = os.path.join(out_df.local_file_path[0], productID + "_MTL.txt")
         meta = landsat_metadata(fn)
         sceneID = meta.LANDSAT_SCENE_ID
         productID = meta.LANDSAT_PRODUCT_ID
