@@ -155,7 +155,7 @@ def main():
                         help='which landsat to search or download, i.e. Landsat 8 = 8')
 
     args = parser.parse_args()
-    is_usa = args.isUSA
+    is_usa = args.is_usa
     n_jobs = args.n_jobs
     loc = [args.lat, args.lon]
     sat = args.sat
