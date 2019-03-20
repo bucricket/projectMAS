@@ -540,21 +540,21 @@ class disALEXI(object):
 
         # ------>get LAI...
         sceneDir = os.path.join(self.satscene_path, 'LAI')
-        outFN = os.path.join(sceneDir, '%s_lai.tiff' % sceneID)
+        outFN = os.path.join(sceneDir, '%s_lai.tif' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
         LAI = g.ReadAsArray(xStart, yStart, xSize, ySize) # * 0.001  # TESTING
         g = None
 
         # ------>get ndvi...'
         sceneDir = os.path.join(self.satscene_path, 'NDVI')
-        outFN = os.path.join(sceneDir, '%s_ndvi.tiff' % sceneID)
+        outFN = os.path.join(sceneDir, '%s_ndvi.tif' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
         ndvi = g.ReadAsArray(xStart, yStart, xSize, ySize)  # *0.001 # TESTING
         g = None
 
         # ===get cfmask=======
         sceneDir = os.path.join(self.satscene_path, 'CF_MASK')
-        outFN = os.path.join(sceneDir, '%s_Mask.tiff' % sceneID)
+        outFN = os.path.join(sceneDir, '%s_Mask.tif' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
         cfmask = g.ReadAsArray(xStart, yStart, xSize, ySize)
         g = None
