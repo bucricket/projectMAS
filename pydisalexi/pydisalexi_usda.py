@@ -39,11 +39,12 @@ from joblib import Parallel, delayed
 import types
 import copy_reg
 import pycurl
-from .landsatTools import landsat_metadata
+from .landsatTools import landsat_metadata, GeoTIFF
 import time as timer
 from osgeo import gdal
 import pandas as pd
 from .database_tools import *
+from pyproj import Proj
 # from processlai import processlai
 # from processlst import processlst
 import sqlite3
@@ -60,6 +61,45 @@ def _pickle_method(m):
 
 
 copy_reg.pickle(types.MethodType, _pickle_method)
+
+
+def xy2ij(geot, x, y, precise=False):
+    """
+    Convert easting/northing coordinate pair(s) to array coordinate
+    pairs(s).
+
+    NOTE: see note at ij2xy()
+
+    Arguments:
+        x (float): scalar or array of easting coordinates
+        y (float): scalar or array of northing coordinates
+        precise (bool): if true, return fractional array coordinates
+
+    Returns:
+        i (int, or float): scalar or array of row coordinate index
+        j (int, or float): scalar or array of column coordinate index
+    """
+
+    def pixel(dx, dy):
+        px = file.GetGeoTransform()[0]
+        py = file.GetGeoTransform()[3]
+        rx = file.GetGeoTransform()[1]
+        ry = file.GetGeoTransform()[5]
+        x = dx / rx + px
+        y = dy / ry + py
+        return x, y
+
+    if (_test_outside(x, self.easting[0], self.easting[-1]) or
+            _test_outside(y, self.northing[0], self.northing[-1])):
+        raise RasterError("Coordinates out of bounds")
+    i = (1 - (y - self.northing[0]) /
+         (self.northing[-1] - self.northing[0])) * self.nrow
+    j = ((x - self.easting[0]) /
+         (self.easting[-1] - self.easting[0])) * self.ncol
+    if precise:
+        return i, j
+    else:
+        return int(np.floor(i)), int(np.floor(j))
 
 def search(lat, lon, start_date, end_date, cloud, cacheDir, sat):
     columns = ['acquisitionDate', 'acquisitionDate', 'upperLeftCornerLatitude', 'upperLeftCornerLongitude',
@@ -151,6 +191,8 @@ def main():
     parser.add_argument("end_date", type=str, help="Start date yyyy-mm-dd")
     parser.add_argument("n_jobs", type=int, default=-1,
                         help="number of cores to use.  To use all cores available use -1")
+    parser.add_argument("-ss", "--sample_size", type=int, default=None,
+                        help="Square size in meters ex. 1000 for a 1000 x 1000 plot")
     parser.add_argument('-s', '--sat', nargs='?', type=int, default=8,
                         help='which landsat to search or download, i.e. Landsat 8 = 8')
 
@@ -159,6 +201,7 @@ def main():
     n_jobs = args.n_jobs
     loc = [args.lat, args.lon]
     sat = args.sat
+    sample_size = args.sample_size
     start_date = args.start_date
     end_date = args.end_date
     subset_size = 200
@@ -237,6 +280,7 @@ def main():
         sceneDir = os.path.join(satscene_path, 'LST')
         tiff = os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID)
         #        tiff = tiffList[i]
+        ls = GeoTIFF(tiff)
         g = gdal.Open(tiff)
         scene = sceneID[3:9]
         sceneDir = os.path.join(satscene_path, 'ET', '30m')
@@ -244,6 +288,24 @@ def main():
             os.mkdir(sceneDir)
         finalFile = os.path.join(sceneDir, '%s_ETd.tif' % sceneID)
         dt = meta.DATETIME_OBJ
+
+        # find subset
+        myProj = Proj(ls.proj4)
+        UTMx, UTMy = myProj(loc[1], loc[0])
+        point_x, point_y = ls.xy2ij(UTMx, UTMy)
+
+        # to subset data
+        if sample_size is None:
+            start_x_loc = 0
+            x_size = g.RasterXSize
+            start_y_loc = 0
+            y_size = g.RasterYSize
+        else:
+            start_x_loc = point_x - (sample_size/2)
+            x_size = sample_size
+            start_y_loc = point_y - (sample_size/2)
+            y_size = sample_size
+
         if not os.path.exists(finalFile):
 
             # ============Run DisALEXI in parallel======================================
@@ -253,7 +315,7 @@ def main():
             print('Running disALEXI...')
             r = Parallel(n_jobs=n_jobs, verbose=5)(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 0) for xStart in
-                range(0, g.RasterXSize, subset_size) for yStart in range(0, g.RasterYSize, subset_size))
+                range(start_x_loc, x_size, subset_size) for yStart in range(start_y_loc, y_size, subset_size))
             #
             # =================merge Ta files============================================
             print("merging Ta files----------------------->")
@@ -272,7 +334,7 @@ def main():
             print "run TSEB one last time in parallel"
             r = Parallel(n_jobs=n_jobs, verbose=5)(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 1) for xStart in
-                range(0, g.RasterXSize, subset_size) for yStart in range(0, g.RasterYSize, subset_size))
+                range(start_x_loc, x_size, subset_size) for yStart in range(start_y_loc, y_size, subset_size))
 
             # =====================merge all files =====================================
             finalFile = os.path.join(sceneDir, '%s_ETd.tif' % sceneID[:-5])
