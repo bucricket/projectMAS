@@ -384,7 +384,7 @@ class disALEXI(object):
             # get mask from Landsat LAI
             ls = GeoTIFF(outfile)
             sceneDir = os.path.join(self.satscene_path, 'CF_MASK')
-            maskFN = os.path.join(sceneDir, '%s_Mask.tiff' % sceneID)
+            maskFN = os.path.join(sceneDir, '%s_Mask.tif' % sceneID)
             g = gdal.Open(maskFN, GA_ReadOnly)
             cfmask = g.ReadAsArray()
             g = None
@@ -461,7 +461,7 @@ class disALEXI(object):
         sceneDir = os.path.join(self.satscene_path, 'ET', '400m')
         outFN = os.path.join(sceneDir, '%s_alexiET.tiff' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
-        ET_ALEXI = g.ReadAsArray(xStart, yStart, xSize, ySize)
+        ET_ALEXI = g.ReadAsArray(xStart, yStart, xSize, ySize) / 100.  # unscale data
         g = None
 
         # =============get MET data================================================
