@@ -292,7 +292,11 @@ def main():
         # find subset
         myProj = Proj(ls.proj4)
         UTMx, UTMy = myProj(loc[1], loc[0])
-        point_x, point_y = ls.xy2ij(UTMx, UTMy)
+        start_utm_x = UTMx - (sample_size/2)
+        start_utm_y = UTMy + (sample_size/2)
+        point_x, point_y = ls.xy2ij(start_utm_x, start_utm_y)
+        print("point_x: %d" % point_x)
+        print("point_y: %d" % point_y)
 
         # to subset data
         if sample_size is None:
@@ -301,9 +305,9 @@ def main():
             start_y_loc = 0
             y_size = g.RasterYSize
         else:
-            start_x_loc = point_x - (sample_size/2)
+            start_x_loc = point_x
             x_size = sample_size
-            start_y_loc = point_y - (sample_size/2)
+            start_y_loc = point_y
             y_size = sample_size
 
         if not os.path.exists(finalFile):
