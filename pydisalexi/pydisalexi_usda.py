@@ -234,7 +234,7 @@ def main():
             start_y_loc = 0
             y_size = g.RasterYSize
         else:
-            # find subset
+            # =======find subset========
             myProj = Proj(ls.proj4)
             UTMx, UTMy = myProj(loc[1], loc[0])
             start_utm_x = UTMx - (sample_size / 2)

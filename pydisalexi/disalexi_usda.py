@@ -315,8 +315,6 @@ def _DisALEXI_PT(ET_ALEXI,
 
 class disALEXI(object):
     def __init__(self, fn, dt, isUSA):
-        #        base = os.path.abspath(os.path.join(fn,os.pardir,os.pardir,os.pardir,
-        #                                            os.pardir,os.pardir))
         base = os.getcwd()
 
         Folders = folders(base)
@@ -522,7 +520,7 @@ class disALEXI(object):
         sceneDir = os.path.join(self.satscene_path, 'INSOL')
         outFN = os.path.join(sceneDir, '%s_Insol1.tiff' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
-        Rs_1 = g.ReadAsArray(xStart, yStart, xSize, ySize) * 0.042727217
+        Rs_1 = g.ReadAsArray(xStart, yStart, xSize, ySize) # * 0.042727217
         g = None
 
         # ====get daily insolation=========================================
