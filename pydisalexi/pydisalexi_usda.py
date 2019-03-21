@@ -48,6 +48,7 @@ from pyproj import Proj
 # from processlai import processlai
 # from processlst import processlst
 import sqlite3
+
 # from getlandsatdata import getlandsatdata
 
 warnings.simplefilter('ignore', np.RankWarning)
@@ -100,6 +101,7 @@ def xy2ij(geot, x, y, precise=False):
         return i, j
     else:
         return int(np.floor(i)), int(np.floor(j))
+
 
 def search(lat, lon, start_date, end_date, cloud, cacheDir, sat):
     columns = ['acquisitionDate', 'acquisitionDate', 'upperLeftCornerLatitude', 'upperLeftCornerLongitude',
@@ -180,6 +182,7 @@ def find_not_processed(downloaded, cache_dir):
             downloaded.remove(x)
     return downloaded
 
+
 def main():
     """ This is the main function for the PyDisALEXI program """
     # Get time and location from user
@@ -242,7 +245,7 @@ def main():
     # productIDs = search_df.LANDSAT_PRODUCT_ID
     #    fileList = search_df.local_file_path
     # ====check what products are processed against what Landsat data is available===
-    cloud=5 # FIX THIS LATER!
+    cloud = 5  # FIX THIS LATER!
     output_df = search(loc[0], loc[1], start_date, end_date, cloud, landsatCacheDir, sat)
     downloaded = find_already_downloaded(output_df, landsatCacheDir)
     productIDs = find_not_processed(downloaded, landsatCacheDir)
@@ -318,17 +321,21 @@ def main():
             x_size = abs(point_x - point_x_end)
             start_y_loc = point_y
             y_size = abs(point_y - point_y_end)
+            if x_size < subset_size:
+                subset_size = x_size+1
+            if y_size < subset_size:
+                subset_size = y_size+1
 
         if not os.path.exists(finalFile):
 
             # ============Run DisALEXI in parallel======================================
             dd = disALEXI(fn, dt, is_usa)
-            #            #===COMMENTED FOR TESTING ONLY===================
+            # ===COMMENTED FOR TESTING ONLY===================
             # dd.runDisALEXI(0, 0, subset_size, subset_size, 0)
             print('Running disALEXI...')
             r = Parallel(n_jobs=n_jobs, verbose=5)(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 0) for xStart in
-                range(start_x_loc, x_size, subset_size) for yStart in range(start_y_loc, y_size, subset_size))
+                range(start_x_loc, start_x_loc+x_size, subset_size) for yStart in range(start_y_loc, start_y_loc+y_size, subset_size))
             #
             # =================merge Ta files============================================
             print("merging Ta files----------------------->")
@@ -347,7 +354,7 @@ def main():
             print "run TSEB one last time in parallel"
             r = Parallel(n_jobs=n_jobs, verbose=5)(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 1) for xStart in
-                range(start_x_loc, x_size, subset_size) for yStart in range(start_y_loc, y_size, subset_size))
+                range(start_x_loc, start_x_loc+x_size, subset_size) for yStart in range(start_y_loc, start_y_loc+y_size, subset_size))
 
             # =====================merge all files =====================================
             finalFile = os.path.join(sceneDir, '%s_ETd.tif' % sceneID[:-5])
