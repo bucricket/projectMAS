@@ -353,8 +353,8 @@ def main():
             outds = gdal.Translate(finalFile, outds)
             outds = None
             # =======================update ETd database========================
-            output_df = searchProduct(productID, landsatCacheDir, sat)
-            updateLandsatProductsDB(output_df, finalFile, landsatCacheDir, 'ETd')
+            # output_df = searchProduct(productID, landsatCacheDir, sat)
+            # updateLandsatProductsDB(output_df, finalFile, landsatCacheDir, 'ETd')
 
             #            #=============find Average ET_24===================================
             #            outFormat = gdal.GDT_Float32
