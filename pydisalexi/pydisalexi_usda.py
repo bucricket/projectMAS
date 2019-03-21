@@ -63,46 +63,6 @@ def _pickle_method(m):
 
 copy_reg.pickle(types.MethodType, _pickle_method)
 
-
-def xy2ij(geot, x, y, precise=False):
-    """
-    Convert easting/northing coordinate pair(s) to array coordinate
-    pairs(s).
-
-    NOTE: see note at ij2xy()
-
-    Arguments:
-        x (float): scalar or array of easting coordinates
-        y (float): scalar or array of northing coordinates
-        precise (bool): if true, return fractional array coordinates
-
-    Returns:
-        i (int, or float): scalar or array of row coordinate index
-        j (int, or float): scalar or array of column coordinate index
-    """
-
-    def pixel(dx, dy):
-        px = file.GetGeoTransform()[0]
-        py = file.GetGeoTransform()[3]
-        rx = file.GetGeoTransform()[1]
-        ry = file.GetGeoTransform()[5]
-        x = dx / rx + px
-        y = dy / ry + py
-        return x, y
-
-    if (_test_outside(x, self.easting[0], self.easting[-1]) or
-            _test_outside(y, self.northing[0], self.northing[-1])):
-        raise RasterError("Coordinates out of bounds")
-    i = (1 - (y - self.northing[0]) /
-         (self.northing[-1] - self.northing[0])) * self.nrow
-    j = ((x - self.easting[0]) /
-         (self.easting[-1] - self.easting[0])) * self.ncol
-    if precise:
-        return i, j
-    else:
-        return int(np.floor(i)), int(np.floor(j))
-
-
 def search(lat, lon, start_date, end_date, cloud, cacheDir, sat):
     columns = ['acquisitionDate', 'acquisitionDate', 'upperLeftCornerLatitude', 'upperLeftCornerLongitude',
                'lowerRightCornerLatitude', 'lowerRightCornerLongitude', 'cloudCover', 'sensor', 'LANDSAT_PRODUCT_ID']
@@ -233,44 +193,19 @@ def main():
                     'ALEXI_LatRes': ALEXILatRes, 'ALEXI_LonRes': ALEXILonRes,
                     'ALEXIshape': ALEXIshape}
 
-    # process scenes that have been preprocessed
-    #    fileList = glob.glob(os.path.join(landsatTemp,"*_MTL.txt"))
-    #    tiffList = glob.glob(os.path.join(landsatTemp,"*lstSharp.tiff"))
-
     # ===FIND PROCESSED SCENES TO BE PROCESSED================================
     landsatCacheDir = os.path.join(cache_dir, "LANDSAT")
-    db_fn = os.path.join(landsatCacheDir, "landsat_products.db")
-    product = 'LST'
-    # search_df = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product, landsatCacheDir)
-    # productIDs = search_df.LANDSAT_PRODUCT_ID
-    #    fileList = search_df.local_file_path
     # ====check what products are processed against what Landsat data is available===
     cloud = 5  # FIX THIS LATER!
     output_df = search(loc[0], loc[1], start_date, end_date, cloud, landsatCacheDir, sat)
     downloaded = find_already_downloaded(output_df, landsatCacheDir)
     productIDs = find_not_processed(downloaded, landsatCacheDir)
 
-    # product = 'ETd'
-    # if os.path.exists(db_fn):
-    #     conn = sqlite3.connect(db_fn)
-    #     res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    #     tables = res.fetchall()[0]
-    #     if (product in tables):
-    #         processedProductIDs = searchLandsatProductsDB(loc[0], loc[1], start_date, end_date, product,
-    #                                                                  landsatCacheDir)
-    #         df1 = processedProductIDs[["LANDSAT_PRODUCT_ID"]]
-    #         merged = df1.merge(pd.DataFrame(productIDs), indicator=True, how='outer')
-    #         df3 = merged[merged['_merge'] != 'both']
-    #         productIDs = df3[["LANDSAT_PRODUCT_ID"]].LANDSAT_PRODUCT_ID
-
     # USER INPUT END===============================================================
     start = timer.time()
     #    for i in range(len(fileList)):
     for productID in productIDs:
         print("productID:%s" % productID)
-        #        fn = fileList[i]
-        # out_df = getlandsatdata.searchProduct(productID, landsatCacheDir, sat)
-        # out_df = searchProduct(productID, landsatCacheDir, sat)
         sat_str = productID.split("_")[0][-1]
         scene = productID.split("_")[2]
         path = os.path.join(landsatCacheDir, 'L%s/%s/RAW_DATA/' % (sat_str, scene))
@@ -364,10 +299,6 @@ def main():
             outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
             outds = gdal.Translate(finalFile, outds)
             outds = None
-            # =======================update ETd database========================
-            # output_df = searchProduct(productID, landsatCacheDir, sat)
-            # updateLandsatProductsDB(output_df, finalFile, landsatCacheDir, 'ETd')
-
             #            #=============find Average ET_24===================================
             #            outFormat = gdal.GDT_Float32
             #            ls = GeoTIFF(finalFile)
