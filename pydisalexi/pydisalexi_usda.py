@@ -298,9 +298,16 @@ def main():
         end_utm_y = start_utm_y - sample_size
         point_x, point_y = ls.xy2ij(start_utm_x, start_utm_y)
         point_x_end, point_y_end = ls.xy2ij(end_utm_x, end_utm_y)
-
+        print("UTM_x: %d" % start_utm_x)
+        print("UTM_y: %d" % start_utm_y)
         print("point_x: %d" % point_x)
         print("point_y: %d" % point_y)
+
+        print("end_utm_x: %d" % end_utm_x)
+        print("end_utm_y: %d" % end_utm_y)
+        print("point_x_end: %d" % point_x_end)
+        print("point_y_end: %d" % point_y_end)
+
 
         # to subset data
         if sample_size is None:
