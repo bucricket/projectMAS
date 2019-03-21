@@ -295,7 +295,7 @@ def main():
         start_utm_x = UTMx - (sample_size/2)
         start_utm_y = UTMy + (sample_size/2)
         end_utm_x = start_utm_x + sample_size
-        end_utm_y = start_utm_x + sample_size
+        end_utm_y = start_utm_y - sample_size
         point_x, point_y = ls.xy2ij(start_utm_x, start_utm_y)
         point_x_end, point_y_end = ls.xy2ij(end_utm_x, end_utm_y)
 
@@ -319,7 +319,7 @@ def main():
             # ============Run DisALEXI in parallel======================================
             dd = disALEXI(fn, dt, is_usa)
             #            #===COMMENTED FOR TESTING ONLY===================
-            dd.runDisALEXI(0, 0, subset_size, subset_size, 0)
+            # dd.runDisALEXI(0, 0, subset_size, subset_size, 0)
             print('Running disALEXI...')
             r = Parallel(n_jobs=n_jobs, verbose=5)(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 0) for xStart in
