@@ -274,7 +274,7 @@ def main():
             #
             # =================merge Ta files============================================
             print("merging Ta files----------------------->")
-            #
+            # TODO: make Ta subset fit into the Landsat scene so we can use the whole scene later
             tifs = glob.glob(os.path.join(resultsBase, scene, 'Ta*'))
             finalFileVRT = os.path.join(resultsBase, scene, 'Ta_DisALEXI.vrt')
             finalFile = os.path.join(resultsBase, scene, 'testTa_DisALEXI.tif')
@@ -289,7 +289,7 @@ def main():
             print "run TSEB one last time in parallel"
             r = Parallel(n_jobs=n_jobs, verbose=5)(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 1) for xStart in
-                range(0, x_size, subset_size) for yStart in range(0, y_size, subset_size))
+                range(start_x_loc, start_x_loc+x_size, subset_size) for yStart in range(start_y_loc, start_y_loc+y_size, subset_size))
 
             # =====================merge all files =====================================
             finalFile = os.path.join(sceneDir, '%s_ETd.tif' % sceneID[:-5])
