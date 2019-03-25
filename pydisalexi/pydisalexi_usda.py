@@ -268,7 +268,7 @@ def main():
             # ===COMMENTED FOR TESTING ONLY===================
             # dd.runDisALEXI(0, 0, subset_size, subset_size, 0)
             print('Running disALEXI...')
-            r = Parallel(n_jobs=n_jobs, verbose=5)(
+            r = Parallel(n_jobs=n_jobs, verbose=5, prefer="threads")(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 0) for xStart in
                 range(start_x_loc, start_x_loc+x_size, subset_size) for yStart in range(start_y_loc, start_y_loc+y_size, subset_size))
             #
@@ -287,7 +287,7 @@ def main():
             #
             # =================run TSEB one last time in parallel=======================
             print "run TSEB one last time in parallel"
-            r = Parallel(n_jobs=n_jobs, verbose=5)(
+            r = Parallel(n_jobs=n_jobs, verbose=5, prefer="threads")(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 1) for xStart in
                 range(start_x_loc, start_x_loc+x_size, subset_size) for yStart in range(start_y_loc, start_y_loc+y_size, subset_size))
 
