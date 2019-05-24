@@ -440,7 +440,6 @@ class disALEXI(object):
         yeardoy = sceneID[9:16]
         # -------------get Landsat information-----------
         sceneDir = os.path.join(self.satscene_path, 'LST')
-        ls = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
         g = gdal.Open(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
         solZen = self.meta.SUN_ELEVATION
         nsamples = g.RasterXSize
@@ -499,15 +498,18 @@ class disALEXI(object):
         g = None
         # ===create lat long files==============================================
 
-        inUL = [ls.ulx, ls.uly]
-        inRes = [ls.delx, -ls.dely]
+
         lat_fName = os.path.join(self.landsatSR, 'temp', 'lat.tif')
         lon_fName = os.path.join(self.landsatSR, 'temp', 'lon.tif')
         if not os.path.exists(lat_fName):
-            lats = ls.Lat_pxcenter
-            lons = ls.Lon_pxcenter
-            writeArray2Tiff(lats, inRes, inUL, ls.proj4, lat_fName, gdal.GDT_Float32)
-            writeArray2Tiff(lons, inRes, inUL, ls.proj4, lon_fName, gdal.GDT_Float32)
+            geo_g = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
+            inUL = [geo_g.ulx, geo_g.uly]
+            inRes = [geo_g.delx, -geo_g.dely]
+            lats = geo_g.Lat_pxcenter
+            lons = geo_g.Lon_pxcenter
+            writeArray2Tiff(lats, inRes, inUL, geo_g.proj4, lat_fName, gdal.GDT_Float32)
+            writeArray2Tiff(lons, inRes, inUL, geo_g.proj4, lon_fName, gdal.GDT_Float32)
+            geo_g = None
         g = gdal.Open(lat_fName, GA_ReadOnly)
         lat = g.ReadAsArray(xStart, yStart, xSize, ySize)
         g = None
@@ -708,6 +710,7 @@ class disALEXI(object):
         if not os.path.exists(outET24Path):
             os.makedirs(outET24Path)
         # set ouput location and resolution
+        ls = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
         ulx = ls.ulx
         uly = ls.uly
         delx = ls.delx
