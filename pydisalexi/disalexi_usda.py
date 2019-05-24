@@ -499,7 +499,8 @@ class disALEXI(object):
         Ta = g.ReadAsArray(xStart, yStart, xSize, ySize)
         g = None
 
-        outFN = os.path.join(self.resultsBase, scene, '%s_Ta.tif' % sceneID[:-5])
+        # outFN = os.path.join(self.resultsBase, scene, '%s_Ta.tif' % sceneID[:-5])
+        outFN = os.path.join(self.resultsBase, scene, 'Ta_DisALEXI.tif' % sceneID[:-5])
         if (TSEB_only == 1):
             g = gdal.Open(outFN, GA_ReadOnly)
             # T_A_K = g.ReadAsArray(xStart, yStart, xSize, ySize) + 273.16

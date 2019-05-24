@@ -204,7 +204,12 @@ def main():
         tiff = os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID)
         #        tiff = tiffList[i]
         ls = GeoTIFF(tiff)
+        lrx = ls.lrx
+        lry = ls.lry
+        ulx = ls.ulx
+        uly = ls.uly
         g = gdal.Open(tiff)
+
         scene = sceneID[3:9]
         sceneDir = os.path.join(satscene_path, 'ET', '30m')
         if not os.path.exists(sceneDir):
@@ -264,9 +269,10 @@ def main():
             # TODO: make Ta subset fit into the Landsat scene so we can use the whole scene later
             tifs = glob.glob(os.path.join(resultsBase, scene, 'Ta*'))
             finalFileVRT = os.path.join(resultsBase, scene, 'Ta_DisALEXI.vrt')
-            finalFile = os.path.join(resultsBase, scene, 'testTa_DisALEXI.tif')
+            finalFile = os.path.join(resultsBase, scene, 'Ta_DisALEXI.tif')
             outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
-            outds = gdal.Translate(finalFile, outds)
+            outputBounds = [ulx, uly, lrx, lry]
+            outds = gdal.Translate(finalFile, outds, options=gdal.TranslateOptions(outputBounds=outputBounds))
             outds = None
             # =========smooth the TA data=======================================
             print 'Smoothing Ta...'
