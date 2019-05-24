@@ -209,6 +209,7 @@ def main():
         ulx = ls.ulx
         uly = ls.uly
         g = gdal.Open(tiff)
+        geotransform = g.GetGeoTransform()
 
         scene = sceneID[3:9]
         sceneDir = os.path.join(satscene_path, 'ET', '30m')
@@ -273,7 +274,8 @@ def main():
             finalFile = os.path.join(resultsBase, scene, '%s_Ta.tif' % sceneID[:-5])
             outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
             outputBounds = [ulx, uly, lrx, lry]
-            outds = gdal.Translate(finalFile, outds, options=gdal.TranslateOptions(outputBounds=outputBounds))
+            outds = gdal.Translate(finalFile, outds, options=gdal.TranslateOptions(outputBounds=outputBounds,
+                                                                                   outputSRS=geotransform))
             outds = None
             # =========smooth the TA data=======================================
             print 'Smoothing Ta...'
