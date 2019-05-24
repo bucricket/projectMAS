@@ -710,6 +710,7 @@ class disALEXI(object):
         if not os.path.exists(outET24Path):
             os.makedirs(outET24Path)
         # set ouput location and resolution
+        sceneDir = os.path.join(self.satscene_path, 'LST')
         ls = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
         ulx = ls.ulx
         uly = ls.uly
