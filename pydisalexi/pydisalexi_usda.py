@@ -38,7 +38,6 @@ from .utils import writeArray2Tiff, buildvrt, clean, folders
 from joblib import Parallel, delayed
 import types
 import copy_reg
-import pycurl
 from .landsatTools import landsat_metadata, GeoTIFF
 import time as timer
 from osgeo import gdal
@@ -58,6 +57,7 @@ def _pickle_method(m):
 
 
 copy_reg.pickle(types.MethodType, _pickle_method)
+
 
 def search(lat, lon, start_date, end_date, cloud, cacheDir, sat):
     columns = ['acquisitionDate', 'acquisitionDate', 'upperLeftCornerLatitude', 'upperLeftCornerLongitude',
@@ -139,8 +139,18 @@ def find_not_processed(downloaded, cache_dir):
     return downloaded
 
 
-def main(lat, lon, is_usa, start_date, end_date, n_jobs, sample_size=None, sat=8):
+def main():
     """ This is the main function for the PyDisALEXI program """
+    args = arg_parse()
+    lat = args.lat
+    lon = args.lon
+    is_usa = args.is_usa
+    start_date = args.start_date
+    end_date = args.end_date
+    n_jobs = args.n_jobs
+    sample_size = args.sample_size
+    sat = args.sat
+
     loc = [lat, lon]
     subset_size = 200
     base = os.getcwd()
@@ -232,9 +242,9 @@ def main(lat, lon, is_usa, start_date, end_date, n_jobs, sample_size=None, sat=8
             start_y_loc = point_y
             y_size = abs(point_y - point_y_end)
             if x_size < subset_size:
-                subset_size = x_size+1
+                subset_size = x_size + 1
             if y_size < subset_size:
-                subset_size = y_size+1
+                subset_size = y_size + 1
 
         if not os.path.exists(finalFile):
 
@@ -245,7 +255,8 @@ def main(lat, lon, is_usa, start_date, end_date, n_jobs, sample_size=None, sat=8
             print('Running disALEXI...')
             r = Parallel(n_jobs=n_jobs, verbose=5, prefer="threads")(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 0) for xStart in
-                range(start_x_loc, start_x_loc+x_size, subset_size) for yStart in range(start_y_loc, start_y_loc+y_size, subset_size))
+                range(start_x_loc, start_x_loc + x_size, subset_size) for yStart in
+                range(start_y_loc, start_y_loc + y_size, subset_size))
             #
             # =================merge Ta files============================================
             print("merging Ta files----------------------->")
@@ -264,7 +275,8 @@ def main(lat, lon, is_usa, start_date, end_date, n_jobs, sample_size=None, sat=8
             print "run TSEB one last time in parallel"
             r = Parallel(n_jobs=n_jobs, verbose=5, prefer="threads")(
                 delayed(dd.runDisALEXI)(xStart, yStart, subset_size, subset_size, 1) for xStart in
-                range(start_x_loc, start_x_loc+x_size, subset_size) for yStart in range(start_y_loc, start_y_loc+y_size, subset_size))
+                range(start_x_loc, start_x_loc + x_size, subset_size) for yStart in
+                range(start_y_loc, start_y_loc + y_size, subset_size))
 
             # =====================merge all files =====================================
             finalFile = os.path.join(sceneDir, '%s_ETd.tif' % sceneID[:-5])
@@ -408,8 +420,7 @@ if __name__ == "__main__":
         'Script:', os.path.basename(sys.argv[0])))
     try:
         # main(year=args.year, start_doy=args.start_doy, end_doy=args.end_doy, region=args.region)
-        main(lat=args.lat, lon=args.lon, is_usa=args.is_usa, start_date=args.start_date, end_date=args.end_date,
-             n_jobs=args.n_jobs, sample_size=args.sample_size, sat=args.sat)
+        main()
     except KeyboardInterrupt:
         print('Interrupted')
         sys.exit(0)

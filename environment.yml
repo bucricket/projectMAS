@@ -1,0 +1,16 @@
+name: pydisalexi_test
+dependencies:
+  - python =2.7
+  - numpy
+  - keyring >=9.3.1
+  - keyrings.alt >=1.2
+  - joblib >=0.10.3
+  - gdal
+  - astropy
+  - pandas
+  - future
+  - pycurl
+  - xlrd
+  - scipy
+  - python-wget
+  - pyproj
