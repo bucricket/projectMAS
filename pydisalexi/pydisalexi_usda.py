@@ -269,7 +269,8 @@ def main():
             # TODO: make Ta subset fit into the Landsat scene so we can use the whole scene later
             tifs = glob.glob(os.path.join(resultsBase, scene, 'Ta*'))
             finalFileVRT = os.path.join(resultsBase, scene, 'Ta_DisALEXI.vrt')
-            finalFile = os.path.join(resultsBase, scene, 'Ta_DisALEXI.tif')
+            # finalFile = os.path.join(resultsBase, scene, 'Ta_DisALEXI.tif')
+            finalFile = os.path.join(resultsBase, scene, '%s_Ta.tif' % sceneID[:-5])
             outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
             outputBounds = [ulx, uly, lrx, lry]
             outds = gdal.Translate(finalFile, outds, options=gdal.TranslateOptions(outputBounds=outputBounds))
