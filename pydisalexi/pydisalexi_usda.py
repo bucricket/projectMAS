@@ -42,14 +42,10 @@ import pycurl
 from .landsatTools import landsat_metadata, GeoTIFF
 import time as timer
 from osgeo import gdal
-import pandas as pd
 from .database_tools import *
 from pyproj import Proj
-# from processlai import processlai
-# from processlst import processlst
-import sqlite3
-
-# from getlandsatdata import getlandsatdata
+import logging
+import sys
 
 warnings.simplefilter('ignore', np.RankWarning)
 
@@ -143,30 +139,9 @@ def find_not_processed(downloaded, cache_dir):
     return downloaded
 
 
-def main():
+def main(lat, lon, is_usa, start_date, end_date, n_jobs, sample_size=None, sat=8):
     """ This is the main function for the PyDisALEXI program """
-    # Get time and location from user
-    parser = argparse.ArgumentParser()
-    parser.add_argument("lat", type=float, help="latitude")
-    parser.add_argument("lon", type=float, help="longitude")
-    parser.add_argument("is_usa", type=float, help="USA=1, non-USA=0")
-    parser.add_argument("start_date", type=str, help="Start date yyyy-mm-dd")
-    parser.add_argument("end_date", type=str, help="Start date yyyy-mm-dd")
-    parser.add_argument("n_jobs", type=int, default=-1,
-                        help="number of cores to use.  To use all cores available use -1")
-    parser.add_argument("-ss", "--sample_size", type=int, default=None,
-                        help="Square size in meters ex. 1000 for a 1000 x 1000 plot")
-    parser.add_argument('-s', '--sat', nargs='?', type=int, default=8,
-                        help='which landsat to search or download, i.e. Landsat 8 = 8')
-
-    args = parser.parse_args()
-    is_usa = args.is_usa
-    n_jobs = args.n_jobs
-    loc = [args.lat, args.lon]
-    sat = args.sat
-    sample_size = args.sample_size
-    start_date = args.start_date
-    end_date = args.end_date
+    loc = [lat, lon]
     subset_size = 200
     base = os.getcwd()
     cache_dir = os.path.abspath(os.path.join(base, "SATELLITE_DATA"))
@@ -401,11 +376,40 @@ def main():
     print("program duration: %f minutes" % ((end - start) / 60.))
 
 
-#            os.remove(lat_fName)
-#            os.remove(lon_fName)
+def arg_parse():
+    """"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("lat", type=float, help="latitude")
+    parser.add_argument("lon", type=float, help="longitude")
+    parser.add_argument("is_usa", type=float, help="USA=1, non-USA=0")
+    parser.add_argument("start_date", type=str, help="Start date yyyy-mm-dd")
+    parser.add_argument("end_date", type=str, help="Start date yyyy-mm-dd")
+    parser.add_argument("n_jobs", type=int, default=-1,
+                        help="number of cores to use.  To use all cores available use -1")
+    parser.add_argument("-ss", "--sample_size", type=int, default=None,
+                        help="Square size in meters ex. 1000 for a 1000 x 1000 plot")
+    parser.add_argument('-s', '--sat', nargs='?', type=int, default=8,
+                        help='which landsat to search or download, i.e. Landsat 8 = 8')
+
+    args = parser.parse_args()
+
+    return args
+
 
 if __name__ == "__main__":
+    args = arg_parse()
+
+    logging.basicConfig(level=args.loglevel, format='%(message)s')
+    logging.info('\n{0}'.format('#' * 80))
+    logging.info('{0:<20s} {1}'.format(
+        'Run Time Stamp:', datetime.datetime.now().isoformat(' ')))
+    logging.info('{0:<20s} {1}'.format('Current Directory:', os.getcwd()))
+    logging.info('{0:<20s} {1}'.format(
+        'Script:', os.path.basename(sys.argv[0])))
     try:
-        main()
-    except (KeyboardInterrupt, pycurl.error):
-        exit('Received Ctrl + C... Exiting! Bye.', 1)
+        # main(year=args.year, start_doy=args.start_doy, end_doy=args.end_doy, region=args.region)
+        main(lat=args.lat, lon=args.lon, is_usa=args.is_usa, start_date=args.start_date, end_date=args.end_date,
+             n_jobs=args.n_jobs, sample_size=args.sample_size, sat=args.sat)
+    except KeyboardInterrupt:
+        print('Interrupted')
+        sys.exit(0)
