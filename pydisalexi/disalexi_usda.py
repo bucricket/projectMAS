@@ -376,7 +376,6 @@ class disALEXI(object):
         coarseFile = os.path.join(self.resultsBase, scene, 'TaCoarse.tif')
         coarse2fineFile = os.path.join(self.resultsBase, scene, 'TaCoarse2Fine.tif')
 
-
         if not os.path.exists(outFN):
             print 'get->Ta'
             # get mask from Landsat LAI
@@ -424,6 +423,21 @@ class disALEXI(object):
             outFormat = gdal.GDT_Float32
             writeArray2Tiff(Ta, inRes, inUL, ls.proj4, outFN, outFormat)
             os.remove(coarseFile)
+
+    def create_coordinates(self):
+        lat_fName = os.path.join(self.landsatSR, 'temp', 'lat.tif')
+        lon_fName = os.path.join(self.landsatSR, 'temp', 'lon.tif')
+        if not os.path.exists(lat_fName):
+            sceneDir = os.path.join(self.satscene_path, 'LST')
+            geo_g = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
+            inUL = [geo_g.ulx, geo_g.uly]
+            inRes = [geo_g.delx, -geo_g.dely]
+            lats = geo_g.Lat_pxcenter
+            lons = geo_g.Lon_pxcenter
+            writeArray2Tiff(lats, inRes, inUL, geo_g.proj4, lat_fName, gdal.GDT_Float32)
+            writeArray2Tiff(lons, inRes, inUL, geo_g.proj4, lon_fName, gdal.GDT_Float32)
+            geo_g = None
+        return None
 
     def runDisALEXI(self, xStart, yStart, xSize, ySize, TSEB_only):
         # USER INPUT============================================================
@@ -497,34 +511,33 @@ class disALEXI(object):
         g = gdal.Open(outFN, GA_ReadOnly)
         u = g.ReadAsArray(xStart, yStart, xSize, ySize)
         g = None
-        # ===create lat long files==============================================
+        # # ===create lat long files==============================================
+        #
+        # lat_fName = os.path.join(self.landsatSR, 'temp', 'lat.tif')
+        # lon_fName = os.path.join(self.landsatSR, 'temp', 'lon.tif')
+        # if not os.path.exists(lat_fName):
+        #     sceneDir = os.path.join(self.satscene_path, 'LST')
+        #     geo_g = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
+        #     inUL = [geo_g.ulx, geo_g.uly]
+        #     inRes = [geo_g.delx, -geo_g.dely]
+        #     lats = geo_g.Lat_pxcenter
+        #     lons = geo_g.Lon_pxcenter
+        #     writeArray2Tiff(lats, inRes, inUL, geo_g.proj4, lat_fName, gdal.GDT_Float32)
+        #     writeArray2Tiff(lons, inRes, inUL, geo_g.proj4, lon_fName, gdal.GDT_Float32)
+        #     geo_g = None
+        g_lat = gdal.Open(lat_fName, GA_ReadOnly)
+        lat = g_lat.ReadAsArray(xStart, yStart, xSize, ySize)
+        g_lat = None
 
-
-        lat_fName = os.path.join(self.landsatSR, 'temp', 'lat.tif')
-        lon_fName = os.path.join(self.landsatSR, 'temp', 'lon.tif')
-        if not os.path.exists(lat_fName):
-            sceneDir = os.path.join(self.satscene_path, 'LST')
-            geo_g = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
-            inUL = [geo_g.ulx, geo_g.uly]
-            inRes = [geo_g.delx, -geo_g.dely]
-            lats = geo_g.Lat_pxcenter
-            lons = geo_g.Lon_pxcenter
-            writeArray2Tiff(lats, inRes, inUL, geo_g.proj4, lat_fName, gdal.GDT_Float32)
-            writeArray2Tiff(lons, inRes, inUL, geo_g.proj4, lon_fName, gdal.GDT_Float32)
-            geo_g = None
-        g = gdal.Open(lat_fName, GA_ReadOnly)
-        lat = g.ReadAsArray(xStart, yStart, xSize, ySize)
-        g = None
-
-        g = gdal.Open(lon_fName, GA_ReadOnly)
-        lon = g.ReadAsArray(xStart, yStart, xSize, ySize)
-        g = None
+        g_lon = gdal.Open(lon_fName, GA_ReadOnly)
+        lon = g_lon.ReadAsArray(xStart, yStart, xSize, ySize)
+        g_lon = None
 
         # ====get overpass hour insolation======================================
         sceneDir = os.path.join(self.satscene_path, 'INSOL')
         outFN = os.path.join(sceneDir, '%s_Insol1.tiff' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
-        Rs_1 = g.ReadAsArray(xStart, yStart, xSize, ySize) # * 0.042727217
+        Rs_1 = g.ReadAsArray(xStart, yStart, xSize, ySize)  # * 0.042727217
         g = None
 
         # ====get daily insolation=========================================
@@ -544,7 +557,7 @@ class disALEXI(object):
         sceneDir = os.path.join(self.satscene_path, 'LAI')
         outFN = os.path.join(sceneDir, '%s_lai.tif' % sceneID)
         g = gdal.Open(outFN, GA_ReadOnly)
-        LAI = g.ReadAsArray(xStart, yStart, xSize, ySize) # * 0.001  # TESTING
+        LAI = g.ReadAsArray(xStart, yStart, xSize, ySize)  # * 0.001  # TESTING
         g = None
 
         # ------>get ndvi...'

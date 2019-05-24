@@ -245,11 +245,12 @@ def main():
                 subset_size = x_size + 1
             if y_size < subset_size:
                 subset_size = y_size + 1
-
+        # create coordinates if it is needed
+        dd = disALEXI(fn, dt, is_usa)
+        dd.create_coordinates()
         if not os.path.exists(finalFile):
 
             # ============Run DisALEXI in parallel======================================
-            dd = disALEXI(fn, dt, is_usa)
             # ===COMMENTED FOR TESTING ONLY===================
             # dd.runDisALEXI(0, 0, subset_size, subset_size, 0)
             print('Running disALEXI...')
