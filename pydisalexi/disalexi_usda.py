@@ -513,8 +513,8 @@ class disALEXI(object):
         g = None
         # # ===create lat long files==============================================
         #
-        # lat_fName = os.path.join(self.landsatSR, 'temp', 'lat.tif')
-        # lon_fName = os.path.join(self.landsatSR, 'temp', 'lon.tif')
+        lat_fName = os.path.join(self.landsatSR, 'temp', 'lat.tif')
+        lon_fName = os.path.join(self.landsatSR, 'temp', 'lon.tif')
         # if not os.path.exists(lat_fName):
         #     sceneDir = os.path.join(self.satscene_path, 'LST')
         #     geo_g = GeoTIFF(os.path.join(sceneDir, '%s_lstSharp.tiff' % sceneID))
