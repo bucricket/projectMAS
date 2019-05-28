@@ -47,6 +47,7 @@ import logging
 import sys
 
 warnings.simplefilter('ignore', np.RankWarning)
+np.warnings.filterwarnings('ignore')
 
 
 def _pickle_method(m):
@@ -274,8 +275,7 @@ def main():
             # finalFile = os.path.join(resultsBase, scene, '%s_Ta.tif' % sceneID[:-5])
             outds = gdal.BuildVRT(finalFileVRT, tifs, options=gdal.BuildVRTOptions(srcNodata=-9999.))
             outputBounds = [ulx, uly, lrx, lry]
-            outds = gdal.Translate(finalFile, outds, options=gdal.TranslateOptions(outputBounds=outputBounds,
-                                                                                   xRes=30.0, yRes=30.0))
+            outds = gdal.Translate(finalFile, outds, options=gdal.TranslateOptions(outputBounds=outputBounds))
             outds = None
             # =========smooth the TA data=======================================
             print 'Smoothing Ta...'
